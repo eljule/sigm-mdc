@@ -1,0 +1,62 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class AssetAssignment extends Model
+{
+    protected $fillable = [
+        'asset_id',
+        'user_id',
+        'office_id',
+        'assigned_at',
+        'returned_at',
+        'notes',
+    ];
+
+    protected $casts = [
+        'assigned_at' => 'datetime',
+        'returned_at' => 'datetime',
+    ];
+
+    protected static function booted(): void
+    {
+        static::created(function (AssetAssignment $assignment) {
+            $assignment->asset->update(['status' => 'Asignado']);
+        });
+
+        static::updated(function (AssetAssignment $assignment) {
+            if ($assignment->isDirty('returned_at') && $assignment->returned_at !== null) {
+                $assignment->asset->update(['status' => 'Disponible']);
+            }
+        });
+    }
+
+    /**
+     * @return BelongsTo<Asset, $this>
+     */
+    public function asset(): BelongsTo
+    {
+        return $this->belongsTo(Asset::class);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return BelongsTo<Office, $this>
+     */
+    public function office(): BelongsTo
+    {
+        return $this->belongsTo(Office::class);
+    }
+}

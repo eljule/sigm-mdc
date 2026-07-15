@@ -95,8 +95,12 @@ return [
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'search_path' => 'public',
+            'search_path' => env('DB_SCHEMA', 'public'),
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'sslkey' => env('DB_SSLKEY'),
+            'sslcert' => env('DB_SSLCERT'),
+            'sslca' => env('DB_SSLCA'),
+            'persistent' => env('DB_PERSISTENT', false),
         ],
 
         'sqlsrv' => [

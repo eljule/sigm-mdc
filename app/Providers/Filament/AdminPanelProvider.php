@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\Login;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -27,10 +28,13 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(Login::class)
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => '#008435',
+                'gray' => Color::Zinc,
             ])
+            ->brandLogo(fn () => request()->routeIs('*.auth.login') ? asset('logo-green.png') : asset('logo-banner.png'))
+            ->brandLogoHeight('3.5rem')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -54,6 +58,19 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+                'subsystem:central',
+            ])
+            ->renderHook(
+                'panels::head.end',
+                fn (): string => '<link rel="stylesheet" href="'.asset('css/custom.css').'?v='.time().'">',
+            )
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::SIMPLE_LAYOUT_START,
+                fn (): string => request()->routeIs('*.auth.login') ? view('filament.auth.login-cover')->render() : '',
+            )
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
+                fn (): string => view('filament.auth.back-link')->render(),
+            );
     }
 }

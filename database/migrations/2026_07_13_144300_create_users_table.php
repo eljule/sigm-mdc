@@ -13,12 +13,23 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string('username', 50)->unique();
+            $table->string('name', 150);
+            $table->string('email', 100)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->foreignId('document_type_id')->constrained('document_types')->onDelete('restrict');
+            $table->string('document_number', 20);
+            $table->foreignId('labor_condition_id')->constrained('labor_conditions')->onDelete('restrict');
+            $table->foreignId('office_id')->constrained('offices')->onDelete('restrict');
+            $table->unsignedBigInteger('personal_id')->nullable(); // Futura relación con módulo de RRHH
+            $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();
+
+            // PostgreSQL B-tree indices
+            $table->index('office_id');
+            $table->index('personal_id');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

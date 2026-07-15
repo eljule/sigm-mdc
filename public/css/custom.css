@@ -1,0 +1,264 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+    --font-family: 'Outfit', sans-serif !important;
+    --primary-50: 240, 253, 244 !important;
+    --primary-100: 220, 252, 231 !important;
+    --primary-200: 187, 247, 208 !important;
+    --primary-300: 134, 239, 172 !important;
+    --primary-400: 34, 197, 94 !important;
+    --primary-500: 0, 150, 60 !important;
+    --primary-600: 0, 132, 53 !important; /* #008435 */
+    --primary-700: 0, 110, 44 !important;
+    --primary-800: 0, 90, 36 !important;
+    --primary-900: 0, 70, 28 !important;
+    --primary-950: 0, 50, 20 !important;
+}
+
+html, body, .fi-body, .fi-body *, .font-sans, .font-sans * {
+    font-family: 'Outfit', sans-serif !important;
+}
+
+/* Specific override for filled primary buttons to ensure they have the green color and white text */
+.fi-btn-color-primary.fi-btn-filled,
+.fi-btn-color-primary:not(.fi-btn-outlined):not([class*="link"]):not([class*="outlined"]),
+.fi-btn.fi-color-primary:not(.fi-btn-outlined):not([class*="link"]):not([class*="outlined"]),
+button[type="submit"] {
+    background-color: #008435 !important;
+    color: #ffffff !important;
+}
+
+.fi-btn-color-primary.fi-btn-filled *,
+.fi-btn-color-primary:not(.fi-btn-outlined):not([class*="link"]):not([class*="outlined"]) *,
+.fi-btn.fi-color-primary:not(.fi-btn-outlined):not([class*="link"]):not([class*="outlined"]) *,
+button[type="submit"] * {
+    color: #ffffff !important;
+}
+
+/* Sidebar Header (Brand Banner) */
+.fi-sidebar-header {
+    background-color: #008435 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Text and logo inside the sidebar header */
+.fi-sidebar-header a,
+.fi-sidebar-header span,
+.fi-sidebar-header svg {
+    color: #ffffff !important;
+}
+
+/* Topbar Header Banner */
+.fi-topbar {
+    background-color: #008435 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Ensure branding text/icons on mobile topbar are white */
+.fi-topbar-brand a,
+.fi-topbar-brand span,
+.fi-topbar-brand svg {
+    color: #ffffff !important;
+}
+
+/* Topbar navigation items, buttons, and user dropdown triggers */
+.fi-topbar button,
+.fi-topbar button svg,
+.fi-topbar a,
+.fi-topbar a svg,
+.fi-topbar span {
+    color: #ffffff !important;
+}
+
+/* Keep search input text readable */
+.fi-topbar input {
+    color: #09090b !important;
+}
+
+/* Breadcrumbs text in topbar */
+.fi-breadcrumbs-item-label {
+    color: #ffffff !important;
+}
+
+.fi-breadcrumbs-item-separator {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Reset colors inside dropdown panels so they inherit Filament defaults */
+.fi-dropdown-panel a,
+.fi-dropdown-panel span,
+.fi-dropdown-panel button,
+.fi-dropdown-panel div,
+.fi-dropdown-panel svg,
+.fi-dropdown-list-item a,
+.fi-dropdown-list-item span,
+.fi-dropdown-list-item button,
+.fi-dropdown-list-item svg,
+.fi-topbar .fi-dropdown-panel a,
+.fi-topbar .fi-dropdown-panel span,
+.fi-topbar .fi-dropdown-panel button,
+.fi-topbar .fi-dropdown-panel div,
+.fi-topbar .fi-dropdown-panel svg,
+.fi-topbar .fi-dropdown-panel button svg,
+.fi-topbar .fi-dropdown-panel a svg,
+.fi-topbar .fi-theme-switcher button svg,
+.fi-topbar .fi-theme-switcher svg {
+    color: inherit !important;
+}
+
+/* Style logout button inside dropdown panels to have green background and white text */
+.fi-dropdown-panel button[type="submit"],
+.fi-dropdown-panel button[type="submit"] *,
+.fi-dropdown-panel button[type="submit"] span,
+.fi-dropdown-panel button[type="submit"] svg,
+.fi-topbar .fi-dropdown-panel button[type="submit"],
+.fi-topbar .fi-dropdown-panel button[type="submit"] *,
+.fi-topbar .fi-dropdown-panel button[type="submit"] span,
+.fi-topbar .fi-dropdown-panel button[type="submit"] svg,
+.fi-dropdown-panel button.fi-dropdown-list-item,
+.fi-dropdown-panel button.fi-dropdown-list-item *,
+.fi-dropdown-panel button.fi-dropdown-list-item span,
+.fi-dropdown-panel button.fi-dropdown-list-item svg,
+.fi-topbar .fi-dropdown-panel button.fi-dropdown-list-item,
+.fi-topbar .fi-dropdown-panel button.fi-dropdown-list-item *,
+.fi-topbar .fi-dropdown-panel button.fi-dropdown-list-item span,
+.fi-topbar .fi-dropdown-panel button.fi-dropdown-list-item svg {
+    background-color: #008435 !important;
+    color: #ffffff !important;
+}
+
+/* Custom Premium Login Cover Gradient and grid patterns */
+.login-cover-pane,
+.login-cover-sidebar {
+    background: linear-gradient(135deg, #008435 0%, #005a24 55%, #09090b 100%) !important;
+}
+
+.login-grid-pattern {
+    background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), 
+                      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) !important;
+    background-size: 24px 24px !important;
+}
+
+.bg-castilla-brand {
+    background-color: #008435 !important;
+}
+
+.text-castilla-brand {
+    color: #008435 !important;
+}
+
+/* Split screen layout on simple page only when the cover sidebar is present */
+.fi-simple-layout:has(.login-cover-sidebar) {
+    display: grid !important;
+    grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+    min-height: 100vh !important;
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background-color: #09090b !important;
+}
+
+/* Cover sidebar styling */
+.login-cover-sidebar {
+    grid-column: span 7 / span 7 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    padding: 3rem !important;
+    color: #ffffff !important;
+    position: relative !important;
+    overflow: hidden !important;
+    height: 100vh !important;
+}
+
+/* Right form container styled as split screen */
+.fi-simple-layout:has(.login-cover-sidebar) .fi-simple-main-ctn {
+    grid-column: span 5 / span 5 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: #ffffff !important; /* light mode */
+    padding: 2rem !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100vh !important;
+    max-width: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.dark .fi-simple-layout:has(.login-cover-sidebar) .fi-simple-main-ctn {
+    background-color: #18181b !important; /* dark mode */
+}
+
+/* Flat the card on split screen */
+.fi-simple-layout:has(.login-cover-sidebar) .fi-simple-main {
+    width: 100% !important;
+    max-width: 28rem !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Static CSS overrides for the login sidebar banner elements */
+.login-cover-logo {
+    height: 6rem !important; /* matches h-24 */
+    width: auto !important;
+    margin-bottom: 2rem !important;
+    object-fit: contain !important;
+}
+
+.login-glass-card {
+    margin-top: auto !important;
+    margin-bottom: auto !important;
+    max-width: 36rem !important; /* matches max-w-xl */
+    position: relative !important;
+    z-index: 10 !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(24px) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    padding: 2.5rem !important;
+    border-radius: 1.5rem !important; /* matches rounded-3xl */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.login-cover-title {
+    font-size: 2.25rem !important; /* matches text-4xl */
+    line-height: 2.5rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.025em !important;
+    margin-bottom: 1rem !important;
+    color: #ffffff !important;
+}
+
+@media (min-width: 1024px) {
+    .login-cover-title {
+        font-size: 3rem !important; /* matches text-5xl */
+        line-height: 1 !important;
+    }
+}
+
+.login-cover-desc {
+    font-size: 1rem !important; /* matches text-base */
+    font-weight: 300 !important;
+    line-height: 1.625 !important;
+    color: #d1fae5 !important; /* matches text-emerald-100 */
+    margin-bottom: 1.5rem !important;
+}
+
+.login-cover-badge {
+    font-size: 0.75rem !important; /* matches text-xs */
+    text-transform: uppercase !important;
+    letter-spacing: 0.1em !important;
+    font-weight: 600 !important;
+    color: #6ee7b7 !important; /* matches text-emerald-300 */
+    background-color: rgba(6, 78, 59, 0.4) !important; /* bg-emerald-950/40 */
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 9999px !important;
+    border: 1px solid rgba(16, 185, 129, 0.2) !important;
+    display: inline-block !important;
+}
