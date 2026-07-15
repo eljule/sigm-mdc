@@ -18,6 +18,10 @@ class TicketCategoryResource extends Resource
 {
     protected static ?string $model = TicketCategory::class;
 
+    protected static ?string $modelLabel = 'categoría';
+
+    protected static ?string $pluralModelLabel = 'categorías';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

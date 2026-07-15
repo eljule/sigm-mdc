@@ -134,7 +134,7 @@
                 Municipalidad Distrital de Castilla &copy; {{ date('Y') }} &bull; Todos los derechos reservados.
             </p>
             <p class="text-slate-500">
-                Desarrollado y administrado por la Oficina de Tecnologías de la Información (OTI).
+                Desarrollado y administrado por la Oficina de Desarrollo Tecnológico (ODT).
             </p>
         </div>
     </footer>

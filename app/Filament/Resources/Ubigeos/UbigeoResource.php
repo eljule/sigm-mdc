@@ -18,6 +18,10 @@ class UbigeoResource extends Resource
 {
     protected static ?string $model = Ubigeo::class;
 
+    protected static ?string $modelLabel = 'ubigeo';
+
+    protected static ?string $pluralModelLabel = 'ubigeos';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

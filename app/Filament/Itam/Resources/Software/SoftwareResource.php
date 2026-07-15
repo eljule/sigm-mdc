@@ -18,6 +18,10 @@ class SoftwareResource extends Resource
 {
     protected static ?string $model = Software::class;
 
+    protected static ?string $modelLabel = 'software';
+
+    protected static ?string $pluralModelLabel = 'software';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

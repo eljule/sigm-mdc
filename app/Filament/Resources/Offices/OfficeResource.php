@@ -18,6 +18,10 @@ class OfficeResource extends Resource
 {
     protected static ?string $model = Office::class;
 
+    protected static ?string $modelLabel = 'oficina';
+
+    protected static ?string $pluralModelLabel = 'oficinas';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

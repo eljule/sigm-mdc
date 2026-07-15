@@ -17,7 +17,11 @@ class AssetsTable
         return $table
             ->columns([
                 TextColumn::make('asset_code')
-                    ->label('Código')
+                    ->label('Cód. Patrimonial')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('computer_code')
+                    ->label('Cód. Informático')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('category')

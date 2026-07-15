@@ -11,7 +11,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Asset extends Model
 {
     protected $fillable = [
+        'parent_id',
         'asset_code',
+        'computer_code',
         'category',
         'brand',
         'model',
@@ -26,6 +28,22 @@ class Asset extends Model
         'purchase_date',
         'notes',
     ];
+
+    /**
+     * @return BelongsTo<Asset, $this>
+     */
+    public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Asset::class, 'parent_id');
+    }
+
+    /**
+     * @return HasMany<Asset, $this>
+     */
+    public function components(): HasMany
+    {
+        return $this->hasMany(Asset::class, 'parent_id');
+    }
 
     protected $casts = [
         'warranty_expiration' => 'date',

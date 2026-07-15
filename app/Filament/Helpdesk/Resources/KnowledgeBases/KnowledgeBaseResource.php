@@ -18,6 +18,10 @@ class KnowledgeBaseResource extends Resource
 {
     protected static ?string $model = KnowledgeBase::class;
 
+    protected static ?string $modelLabel = 'base de conocimiento';
+
+    protected static ?string $pluralModelLabel = 'base de conocimiento';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

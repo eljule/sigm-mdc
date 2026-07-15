@@ -18,6 +18,10 @@ class PermissionResource extends Resource
 {
     protected static ?string $model = Permission::class;
 
+    protected static ?string $modelLabel = 'permiso';
+
+    protected static ?string $pluralModelLabel = 'permisos';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

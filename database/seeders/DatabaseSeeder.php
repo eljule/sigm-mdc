@@ -82,8 +82,8 @@ class DatabaseSeeder extends Seeder
         $sistemasOffice = Office::create([
             'parent_id' => $gerencia->id,
             'code' => '01.05.01',
-            'name' => 'Oficina de Tecnologías de la Información',
-            'acronym' => 'OTI',
+            'name' => 'Oficina de Desarrollo Tecnológico',
+            'acronym' => 'ODT',
             'is_active' => true,
         ]);
 
@@ -192,6 +192,7 @@ class DatabaseSeeder extends Seeder
         // 8. Seeding para ITAM (Equipos y Software)
         $laptop = Asset::create([
             'asset_code' => 'PAT-2026-0001',
+            'computer_code' => 'COD-TI-0001',
             'category' => 'Laptop',
             'brand' => 'Lenovo',
             'model' => 'ThinkPad L14 Gen 4',
@@ -209,6 +210,7 @@ class DatabaseSeeder extends Seeder
 
         $pc = Asset::create([
             'asset_code' => 'PAT-2026-0002',
+            'computer_code' => 'COD-TI-0002',
             'category' => 'PC',
             'brand' => 'HP',
             'model' => 'ProDesk 400 G9 SFF',
@@ -222,6 +224,43 @@ class DatabaseSeeder extends Seeder
             'purchase_date' => '2026-02-20',
             'warranty_expiration' => '2028-02-20',
             'notes' => 'Para asignación temporal.',
+        ]);
+
+        // Componentes relacionados al PC principal
+        $keyboard = Asset::create([
+            'parent_id' => $pc->id,
+            'asset_code' => 'PAT-2026-0003',
+            'computer_code' => 'COD-TI-0003',
+            'category' => 'Teclado',
+            'brand' => 'HP',
+            'model' => 'Keyboard 150 USB',
+            'serial_number' => 'HPKB150USB',
+            'status' => 'Disponible',
+            'notes' => 'Teclado USB estándar de la PC principal.',
+        ]);
+
+        $mouse = Asset::create([
+            'parent_id' => $pc->id,
+            'asset_code' => 'PAT-2026-0004',
+            'computer_code' => 'COD-TI-0004',
+            'category' => 'Mouse',
+            'brand' => 'HP',
+            'model' => 'Mouse 150 USB',
+            'serial_number' => 'HPMS150USB',
+            'status' => 'Disponible',
+            'notes' => 'Mouse óptico USB estándar de la PC principal.',
+        ]);
+
+        $monitor = Asset::create([
+            'parent_id' => $pc->id,
+            'asset_code' => 'PAT-2026-0005',
+            'computer_code' => 'COD-TI-0005',
+            'category' => 'Monitor',
+            'brand' => 'HP',
+            'model' => 'P24h G5 FHD',
+            'serial_number' => 'HPMON24G5',
+            'status' => 'Disponible',
+            'notes' => 'Monitor FHD de 24 pulgadas.',
         ]);
 
         $win11 = Software::create([

@@ -14,9 +14,15 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
+use App\Filament\Itam\Resources\Assets\RelationManagers\ComponentsRelationManager;
+
 class AssetResource extends Resource
 {
     protected static ?string $model = Asset::class;
+
+    protected static ?string $modelLabel = 'activo';
+
+    protected static ?string $pluralModelLabel = 'activos';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -33,7 +39,7 @@ class AssetResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ComponentsRelationManager::class,
         ];
     }
 

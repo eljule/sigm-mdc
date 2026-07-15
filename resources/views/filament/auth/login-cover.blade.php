@@ -27,7 +27,7 @@
 
     <!-- Bottom Footer -->
     <div class="text-xs relative z-10 flex justify-between" style="font-size: 0.75rem !important; color: rgba(255, 255, 255, 0.6) !important; font-family: 'Outfit', sans-serif !important;">
-        <span>© {{ date('Y') }} Municipalidad de Castilla - OTI</span>
+        <span>© {{ date('Y') }} Municipalidad de Castilla - ODT</span>
         <span>v{{ app()->version() }}</span>
     </div>
 </div>

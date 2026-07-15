@@ -76,11 +76,11 @@ button[type="submit"] * {
 }
 
 /* Breadcrumbs text in topbar */
-.fi-breadcrumbs-item-label {
+.fi-topbar .fi-breadcrumbs-item-label {
     color: #ffffff !important;
 }
 
-.fi-breadcrumbs-item-separator {
+.fi-topbar .fi-breadcrumbs-item-separator {
     color: rgba(255, 255, 255, 0.6) !important;
 }
 

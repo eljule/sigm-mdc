@@ -18,6 +18,10 @@ class SubsystemResource extends Resource
 {
     protected static ?string $model = Subsystem::class;
 
+    protected static ?string $modelLabel = 'subsistema';
+
+    protected static ?string $pluralModelLabel = 'subsistemas';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

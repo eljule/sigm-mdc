@@ -18,6 +18,10 @@ class DocumentTypeResource extends Resource
 {
     protected static ?string $model = DocumentType::class;
 
+    protected static ?string $modelLabel = 'tipo de documento';
+
+    protected static ?string $pluralModelLabel = 'tipos de documento';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

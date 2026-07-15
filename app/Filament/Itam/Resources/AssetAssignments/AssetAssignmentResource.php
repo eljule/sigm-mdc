@@ -18,6 +18,10 @@ class AssetAssignmentResource extends Resource
 {
     protected static ?string $model = AssetAssignment::class;
 
+    protected static ?string $modelLabel = 'asignación';
+
+    protected static ?string $pluralModelLabel = 'asignaciones';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

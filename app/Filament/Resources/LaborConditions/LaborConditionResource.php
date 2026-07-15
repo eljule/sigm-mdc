@@ -18,6 +18,10 @@ class LaborConditionResource extends Resource
 {
     protected static ?string $model = LaborCondition::class;
 
+    protected static ?string $modelLabel = 'condición laboral';
+
+    protected static ?string $pluralModelLabel = 'condiciones laborales';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

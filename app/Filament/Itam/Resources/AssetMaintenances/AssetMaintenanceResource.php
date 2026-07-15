@@ -18,6 +18,10 @@ class AssetMaintenanceResource extends Resource
 {
     protected static ?string $model = AssetMaintenance::class;
 
+    protected static ?string $modelLabel = 'mantenimiento';
+
+    protected static ?string $pluralModelLabel = 'mantenimientos';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema
