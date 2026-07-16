@@ -38,9 +38,9 @@ class ComponentsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitle(fn ($record) => "[{$record->computer_code}] {$record->brand} {$record->model} ({$record->category})")
+            ->recordTitle(fn ($record) => "[{$record->computer_code}] {$record->brand} {$record->model} (" . ($record->category->name ?? '') . ")")
             ->columns([
-                TextColumn::make('category')
+                TextColumn::make('category.name')
                     ->label('Categoría'),
                 TextColumn::make('computer_code')
                     ->label('Cód. Informático'),

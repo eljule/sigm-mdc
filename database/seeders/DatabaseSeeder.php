@@ -190,48 +190,168 @@ class DatabaseSeeder extends Seeder
         $userMaria->allRoles()->attach($operadorRentasRole->id, ['subsystem_id' => $subsystemRentas->id]);
 
         // 8. Seeding para ITAM (Equipos y Software)
+        $catLaptop = \App\Models\AssetCategory::create(['name' => 'Laptop', 'description' => 'Laptops y computadoras portátiles']);
+        $catPC = \App\Models\AssetCategory::create(['name' => 'PC de Escritorio', 'description' => 'Computadoras de escritorio']);
+        $catTeclado = \App\Models\AssetCategory::create(['name' => 'Teclado', 'description' => 'Teclados de computadora']);
+        $catMouse = \App\Models\AssetCategory::create(['name' => 'Mouse', 'description' => 'Mouses / Ratones ópticos']);
+        $catMonitor = \App\Models\AssetCategory::create(['name' => 'Monitor', 'description' => 'Monitores y pantallas']);
+
+        // Bloques y características para PC
+        $blockSpecsPC = \App\Models\AssetBlock::create([
+            'asset_category_id' => $catPC->id,
+            'name' => 'Especificaciones Técnicas',
+            'sort_order' => 1
+        ]);
+        $blockNetPC = \App\Models\AssetBlock::create([
+            'asset_category_id' => $catPC->id,
+            'name' => 'Red y Estado',
+            'sort_order' => 2
+        ]);
+
+        $charProcessorPC = \App\Models\AssetCharacteristic::create([
+            'asset_block_id' => $blockSpecsPC->id,
+            'name' => 'Procesador',
+            'type' => 'text',
+            'is_required' => false,
+            'sort_order' => 1
+        ]);
+        $charRamPC = \App\Models\AssetCharacteristic::create([
+            'asset_block_id' => $blockSpecsPC->id,
+            'name' => 'Memoria RAM',
+            'type' => 'text',
+            'is_required' => false,
+            'sort_order' => 2
+        ]);
+        $charStoragePC = \App\Models\AssetCharacteristic::create([
+            'asset_block_id' => $blockSpecsPC->id,
+            'name' => 'Almacenamiento',
+            'type' => 'text',
+            'is_required' => false,
+            'sort_order' => 3
+        ]);
+
+        $charIpPC = \App\Models\AssetCharacteristic::create([
+            'asset_block_id' => $blockNetPC->id,
+            'name' => 'Dirección IP',
+            'type' => 'text',
+            'is_required' => false,
+            'sort_order' => 1
+        ]);
+        $charMacPC = \App\Models\AssetCharacteristic::create([
+            'asset_block_id' => $blockNetPC->id,
+            'name' => 'Dirección MAC',
+            'type' => 'text',
+            'is_required' => false,
+            'sort_order' => 2
+        ]);
+
+        // Bloques y características para Laptop
+        $blockSpecsLaptop = \App\Models\AssetBlock::create([
+            'asset_category_id' => $catLaptop->id,
+            'name' => 'Especificaciones Técnicas',
+            'sort_order' => 1
+        ]);
+        $blockNetLaptop = \App\Models\AssetBlock::create([
+            'asset_category_id' => $catLaptop->id,
+            'name' => 'Red y Estado',
+            'sort_order' => 2
+        ]);
+
+        $charProcessorLap = \App\Models\AssetCharacteristic::create([
+            'asset_block_id' => $blockSpecsLaptop->id,
+            'name' => 'Procesador',
+            'type' => 'text',
+            'is_required' => false,
+            'sort_order' => 1
+        ]);
+        $charRamLap = \App\Models\AssetCharacteristic::create([
+            'asset_block_id' => $blockSpecsLaptop->id,
+            'name' => 'Memoria RAM',
+            'type' => 'text',
+            'is_required' => false,
+            'sort_order' => 2
+        ]);
+        $charStorageLap = \App\Models\AssetCharacteristic::create([
+            'asset_block_id' => $blockSpecsLaptop->id,
+            'name' => 'Almacenamiento',
+            'type' => 'text',
+            'is_required' => false,
+            'sort_order' => 3
+        ]);
+
+        $charIpLap = \App\Models\AssetCharacteristic::create([
+            'asset_block_id' => $blockNetLaptop->id,
+            'name' => 'Dirección IP',
+            'type' => 'text',
+            'is_required' => false,
+            'sort_order' => 1
+        ]);
+        $charMacLap = \App\Models\AssetCharacteristic::create([
+            'asset_block_id' => $blockNetLaptop->id,
+            'name' => 'Dirección MAC',
+            'type' => 'text',
+            'is_required' => false,
+            'sort_order' => 2
+        ]);
+
+        // Bloques y características para Monitor
+        $blockSpecsMonitor = \App\Models\AssetBlock::create([
+            'asset_category_id' => $catMonitor->id,
+            'name' => 'Detalles de Pantalla',
+            'sort_order' => 1
+        ]);
+        $charSizeMonitor = \App\Models\AssetCharacteristic::create([
+            'asset_block_id' => $blockSpecsMonitor->id,
+            'name' => 'Resolución y Tamaño',
+            'type' => 'text',
+            'is_required' => false,
+            'sort_order' => 1
+        ]);
+
+        // Creación de activos con FK de categoría
         $laptop = Asset::create([
+            'asset_category_id' => $catLaptop->id,
             'asset_code' => 'PAT-2026-0001',
             'computer_code' => 'COD-TI-0001',
-            'category' => 'Laptop',
             'brand' => 'Lenovo',
             'model' => 'ThinkPad L14 Gen 4',
             'serial_number' => 'L3N0V014G4',
-            'processor' => 'AMD Ryzen 5 7530U',
-            'ram' => '16 GB DDR4',
-            'storage' => '512 GB PCIe NVMe',
-            'ip_address' => '192.168.10.120',
-            'mac_address' => '00:1A:2B:3C:4D:5E',
             'status' => 'Asignado',
             'purchase_date' => '2026-01-15',
             'warranty_expiration' => '2029-01-15',
             'notes' => 'Entregado a María Gomez en perfecto estado.',
         ]);
 
+        \App\Models\AssetCharacteristicValue::create(['asset_id' => $laptop->id, 'asset_characteristic_id' => $charProcessorLap->id, 'value' => 'AMD Ryzen 5 7530U']);
+        \App\Models\AssetCharacteristicValue::create(['asset_id' => $laptop->id, 'asset_characteristic_id' => $charRamLap->id, 'value' => '16 GB DDR4']);
+        \App\Models\AssetCharacteristicValue::create(['asset_id' => $laptop->id, 'asset_characteristic_id' => $charStorageLap->id, 'value' => '512 GB PCIe NVMe']);
+        \App\Models\AssetCharacteristicValue::create(['asset_id' => $laptop->id, 'asset_characteristic_id' => $charIpLap->id, 'value' => '192.168.10.120']);
+        \App\Models\AssetCharacteristicValue::create(['asset_id' => $laptop->id, 'asset_characteristic_id' => $charMacLap->id, 'value' => '00:1A:2B:3C:4D:5E']);
+
         $pc = Asset::create([
+            'asset_category_id' => $catPC->id,
             'asset_code' => 'PAT-2026-0002',
             'computer_code' => 'COD-TI-0002',
-            'category' => 'PC',
             'brand' => 'HP',
             'model' => 'ProDesk 400 G9 SFF',
             'serial_number' => 'HPP400G9SFF',
-            'processor' => 'Intel Core i5-12500',
-            'ram' => '8 GB DDR4',
-            'storage' => '256 GB SSD',
-            'ip_address' => '192.168.10.121',
-            'mac_address' => '00:1A:2B:3C:4D:5F',
             'status' => 'Disponible',
             'purchase_date' => '2026-02-20',
             'warranty_expiration' => '2028-02-20',
             'notes' => 'Para asignación temporal.',
         ]);
 
-        // Componentes relacionados al PC principal
+        \App\Models\AssetCharacteristicValue::create(['asset_id' => $pc->id, 'asset_characteristic_id' => $charProcessorPC->id, 'value' => 'Intel Core i5-12500']);
+        \App\Models\AssetCharacteristicValue::create(['asset_id' => $pc->id, 'asset_characteristic_id' => $charRamPC->id, 'value' => '8 GB DDR4']);
+        \App\Models\AssetCharacteristicValue::create(['asset_id' => $pc->id, 'asset_characteristic_id' => $charStoragePC->id, 'value' => '256 GB SSD']);
+        \App\Models\AssetCharacteristicValue::create(['asset_id' => $pc->id, 'asset_characteristic_id' => $charIpPC->id, 'value' => '192.168.10.121']);
+        \App\Models\AssetCharacteristicValue::create(['asset_id' => $pc->id, 'asset_characteristic_id' => $charMacPC->id, 'value' => '00:1A:2B:3C:4D:5F']);
+
         $keyboard = Asset::create([
             'parent_id' => $pc->id,
+            'asset_category_id' => $catTeclado->id,
             'asset_code' => 'PAT-2026-0003',
             'computer_code' => 'COD-TI-0003',
-            'category' => 'Teclado',
             'brand' => 'HP',
             'model' => 'Keyboard 150 USB',
             'serial_number' => 'HPKB150USB',
@@ -241,9 +361,9 @@ class DatabaseSeeder extends Seeder
 
         $mouse = Asset::create([
             'parent_id' => $pc->id,
+            'asset_category_id' => $catMouse->id,
             'asset_code' => 'PAT-2026-0004',
             'computer_code' => 'COD-TI-0004',
-            'category' => 'Mouse',
             'brand' => 'HP',
             'model' => 'Mouse 150 USB',
             'serial_number' => 'HPMS150USB',
@@ -253,15 +373,16 @@ class DatabaseSeeder extends Seeder
 
         $monitor = Asset::create([
             'parent_id' => $pc->id,
+            'asset_category_id' => $catMonitor->id,
             'asset_code' => 'PAT-2026-0005',
             'computer_code' => 'COD-TI-0005',
-            'category' => 'Monitor',
             'brand' => 'HP',
             'model' => 'P24h G5 FHD',
             'serial_number' => 'HPMON24G5',
             'status' => 'Disponible',
             'notes' => 'Monitor FHD de 24 pulgadas.',
         ]);
+        \App\Models\AssetCharacteristicValue::create(['asset_id' => $monitor->id, 'asset_characteristic_id' => $charSizeMonitor->id, 'value' => '1920x1080 @ 75Hz, 23.8"']);
 
         $win11 = Software::create([
             'name' => 'Windows 11 Professional',

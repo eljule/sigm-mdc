@@ -16,9 +16,9 @@ class AssetAssignmentForm
         return $schema
             ->components([
                 Select::make('asset_id')
-                    ->relationship('asset', 'asset_code')
+                    ->relationship('asset', 'computer_code')
                     ->label('Activo Tecnológico')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->asset_code} - {$record->brand} {$record->model} ({$record->status})")
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "[{$record->computer_code}] {$record->brand} {$record->model} ({$record->status})" . ($record->asset_code ? " (Patrimonial: {$record->asset_code})" : ''))
                     ->searchable()
                     ->preload()
                     ->required(),

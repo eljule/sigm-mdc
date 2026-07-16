@@ -8,21 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 class Asset extends Model
 {
     protected $fillable = [
         'parent_id',
+        'asset_category_id',
         'asset_code',
         'computer_code',
-        'category',
         'brand',
         'model',
         'serial_number',
-        'processor',
-        'ram',
-        'storage',
-        'ip_address',
-        'mac_address',
         'status',
         'warranty_expiration',
         'purchase_date',
@@ -30,9 +27,25 @@ class Asset extends Model
     ];
 
     /**
+     * @return BelongsTo<AssetCategory, $this>
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(AssetCategory::class, 'asset_category_id');
+    }
+
+    /**
+     * @return HasMany<AssetCharacteristicValue, $this>
+     */
+    public function characteristicValues(): HasMany
+    {
+        return $this->hasMany(AssetCharacteristicValue::class, 'asset_id');
+    }
+
+    /**
      * @return BelongsTo<Asset, $this>
      */
-    public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function parent(): BelongsTo
     {
         return $this->belongsTo(Asset::class, 'parent_id');
     }

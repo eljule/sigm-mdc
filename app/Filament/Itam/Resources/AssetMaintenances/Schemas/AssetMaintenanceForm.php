@@ -17,9 +17,9 @@ class AssetMaintenanceForm
         return $schema
             ->components([
                 Select::make('asset_id')
-                    ->relationship('asset', 'asset_code')
+                    ->relationship('asset', 'computer_code')
                     ->label('Activo a Mantenimiento')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->asset_code} - {$record->brand} {$record->model}")
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "[{$record->computer_code}] {$record->brand} {$record->model}" . ($record->asset_code ? " (Patrimonial: {$record->asset_code})" : ''))
                     ->searchable()
                     ->preload()
                     ->required(),

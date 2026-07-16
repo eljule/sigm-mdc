@@ -10,16 +10,13 @@ return new class extends Migration
     {
         Schema::create('assets', function (Blueprint $table) {
             $table->id();
-            $table->string('asset_code', 50)->unique();
-            $table->string('category', 50); // Servidor, PC, Laptop, Impresora, Switch, etc.
+            $table->foreignId('parent_id')->nullable()->constrained('assets')->nullOnDelete();
+            $table->foreignId('asset_category_id')->constrained('asset_categories')->restrictOnDelete();
+            $table->string('computer_code', 50)->unique();
+            $table->string('asset_code', 50)->unique()->nullable();
             $table->string('brand', 50);
             $table->string('model', 100);
             $table->string('serial_number', 100)->unique();
-            $table->string('processor', 100)->nullable();
-            $table->string('ram', 50)->nullable();
-            $table->string('storage', 150)->nullable();
-            $table->string('ip_address', 45)->nullable();
-            $table->string('mac_address', 17)->nullable();
             $table->string('status', 30)->default('Disponible'); // Disponible, Asignado, Mantenimiento, Baja
             $table->date('warranty_expiration')->nullable();
             $table->date('purchase_date')->nullable();

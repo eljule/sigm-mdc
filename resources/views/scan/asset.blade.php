@@ -75,7 +75,7 @@
                 <div class="flex justify-between items-start relative z-10">
                     <div>
                         <span class="bg-castilla-600 text-emerald-100 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            {{ $asset->category }}
+                            {{ $asset->category->name ?? 'Activo' }}
                         </span>
                         <h1 class="text-2xl font-extrabold mt-2 tracking-tight">{{ $asset->brand }} {{ $asset->model }}</h1>
                         <p class="text-xs text-emerald-200 mt-1">S/N: {{ $asset->serial_number }}</p>
@@ -143,58 +143,38 @@
                     @endif
                 </div>
 
-                <!-- Hardware Specifications -->
-                @if ($asset->processor || $asset->ram || $asset->storage)
-                    <div class="space-y-3">
-                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-castilla-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:1rem; height:1rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg>
-                            Especificaciones de Hardware
-                        </h3>
-                        <div class="bg-white/60 p-4 rounded-2xl border border-slate-100 space-y-3 text-xs">
-                            @if ($asset->processor)
-                                <div class="flex justify-between py-1 border-b border-slate-100">
-                                    <span class="text-slate-400">Procesador</span>
-                                    <span class="font-semibold text-slate-800 text-right">{{ $asset->processor }}</span>
-                                </div>
-                            @endif
-                            @if ($asset->ram)
-                                <div class="flex justify-between py-1 border-b border-slate-100">
-                                    <span class="text-slate-400">Memoria RAM</span>
-                                    <span class="font-semibold text-slate-800">{{ $asset->ram }}</span>
-                                </div>
-                            @endif
-                            @if ($asset->storage)
-                                <div class="flex justify-between py-1">
-                                    <span class="text-slate-400">Almacenamiento</span>
-                                    <span class="font-semibold text-slate-800">{{ $asset->storage }}</span>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                @endif
+                <!-- Dynamic EAV Blocks & Characteristics -->
+                @if($asset->category)
+                    @foreach ($asset->category->blocks as $block)
+                        @php
+                            $charsWithValues = $block->characteristics->map(function ($char) use ($asset) {
+                                $valRecord = $asset->characteristicValues->where('asset_characteristic_id', $char->id)->first();
+                                $char->value = $valRecord ? $valRecord->value : null;
+                                return $char;
+                            })->filter(fn ($char) => $char->value !== null && $char->value !== '');
+                        @endphp
 
-                <!-- Network Configuration -->
-                @if ($asset->ip_address || $asset->mac_address)
-                    <div class="space-y-3">
-                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-castilla-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:1rem; height:1rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                            Configuración de Red
-                        </h3>
-                        <div class="bg-white/60 p-4 rounded-2xl border border-slate-100 space-y-3 text-xs">
-                            @if ($asset->ip_address)
-                                <div class="flex justify-between py-1 border-b border-slate-100">
-                                    <span class="text-slate-400">Dirección IP</span>
-                                    <span class="font-mono font-semibold text-slate-800">{{ $asset->ip_address }}</span>
+                        @if ($charsWithValues->count() > 0)
+                            <div class="space-y-3">
+                                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-castilla-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:1rem; height:1rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                    {{ $block->name }}
+                                </h3>
+                                <div class="bg-white/60 p-4 rounded-2xl border border-slate-100 space-y-3 text-xs">
+                                    @foreach ($charsWithValues as $char)
+                                        <div class="flex justify-between py-1 border-b border-slate-100 last:border-0">
+                                            <span class="text-slate-400">{{ $char->name }}</span>
+                                            @if ($char->type === 'boolean')
+                                                <span class="font-semibold text-slate-800">{{ $char->value === '1' || strtolower($char->value) === 'true' || $char->value === 'si' || $char->value === 'sí' ? 'Sí' : 'No' }}</span>
+                                            @else
+                                                <span class="font-semibold text-slate-800 text-right">{{ $char->value }}</span>
+                                            @endif
+                                        </div>
+                                    @endforeach
                                 </div>
-                            @endif
-                            @if ($asset->mac_address)
-                                <div class="flex justify-between py-1">
-                                    <span class="text-slate-400">Dirección MAC</span>
-                                    <span class="font-mono font-semibold text-slate-800">{{ $asset->mac_address }}</span>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
+                            </div>
+                        @endif
+                    @endforeach
                 @endif
 
                 <!-- Parent Relationship -->
@@ -222,7 +202,7 @@
                             @foreach ($asset->components as $comp)
                                 <div class="bg-white/80 p-3 rounded-2xl border border-slate-200/60 flex justify-between items-center shadow-sm">
                                     <div>
-                                        <span class="text-[9px] bg-slate-100 text-slate-600 border border-slate-200/50 px-2 py-0.5 rounded-full font-bold uppercase">{{ $comp->category }}</span>
+                                        <span class="text-[9px] bg-slate-100 text-slate-600 border border-slate-200/50 px-2 py-0.5 rounded-full font-bold uppercase">{{ $comp->category->name ?? 'Componente' }}</span>
                                         <span class="text-xs font-semibold text-slate-800 block mt-1">{{ $comp->brand }} {{ $comp->model }}</span>
                                         <span class="text-[10px] text-slate-400">S/N: {{ $comp->serial_number }} | Cód: {{ $comp->computer_code }}</span>
                                     </div>

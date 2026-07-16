@@ -16,8 +16,12 @@ class AssetAssignmentsTable
     {
         return $table
             ->columns([
+                TextColumn::make('asset.computer_code')
+                    ->label('Cód. Informático')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('asset.asset_code')
-                    ->label('Activo')
+                    ->label('Cód. Patrimonial')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('asset.brand')

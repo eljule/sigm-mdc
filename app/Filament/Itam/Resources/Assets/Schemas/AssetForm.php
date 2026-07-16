@@ -9,7 +9,10 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Schema;
 use Illuminate\Support\HtmlString;
 
@@ -24,33 +27,22 @@ class AssetForm
                     ->compact()
                     ->columns(3)
                     ->schema([
-                        TextInput::make('asset_code')
-                            ->label('Código Patrimonial')
-                            ->required()
-                            ->unique(ignoreRecord: true)
-                            ->placeholder('Ej. PAT-2026-0001'),
                         TextInput::make('computer_code')
                             ->label('Código de TI / Informático')
+                            ->required()
                             ->unique(ignoreRecord: true)
                             ->placeholder('Ej. COD-TI-0001'),
-                        Select::make('category')
+                        TextInput::make('asset_code')
+                            ->label('Código Patrimonial')
+                            ->unique(ignoreRecord: true)
+                            ->placeholder('Ej. PAT-2026-0001'),
+                        Select::make('asset_category_id')
                             ->label('Categoría')
-                            ->options([
-                                'Servidor' => 'Servidor',
-                                'PC' => 'PC de Escritorio',
-                                'Laptop' => 'Laptop / Portátil',
-                                'Teclado' => 'Teclado',
-                                'Mouse' => 'Mouse',
-                                'Monitor' => 'Monitor',
-                                'Impresora' => 'Impresora / Multifuncional',
-                                'Switch' => 'Switch de Red',
-                                'Router' => 'Router',
-                                'Access Point' => 'Access Point (Wi-Fi)',
-                                'Firewall' => 'Firewall',
-                                'Otros' => 'Otros',
-                            ])
+                            ->relationship('category', 'name')
                             ->required()
-                            ->searchable(),
+                            ->searchable()
+                            ->preload()
+                            ->live(),
                         Placeholder::make('qr_code')
                             ->label('Etiqueta QR de Escaneo')
                             ->columnSpanFull()
@@ -93,50 +85,14 @@ class AssetForm
                             ->placeholder('Seleccione el equipo principal (ej. CPU)')
                             ->searchable()
                             ->preload()
-                            ->getOptionLabelFromRecordUsing(fn ($record) => "[{$record->computer_code}] {$record->brand} {$record->model} ({$record->category})")
+                            ->getOptionLabelFromRecordUsing(fn ($record) => "[{$record->computer_code}] {$record->brand} {$record->model} (" . ($record->category->name ?? '') . ")")
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Especificaciones Técnicas')
-                    ->description('Características de hardware interno del equipo (si aplica).')
-                    ->compact()
-                    ->columns(3)
-                    ->schema([
-                        TextInput::make('processor')
-                            ->label('Procesador')
-                            ->placeholder('Ej. Intel Core i5-12500'),
-                        TextInput::make('ram')
-                            ->label('Memoria RAM')
-                            ->placeholder('Ej. 16 GB DDR4'),
-                        TextInput::make('storage')
-                            ->label('Almacenamiento')
-                            ->placeholder('Ej. 512 GB SSD'),
-                    ]),
-
-                Section::make('Red y Estado')
-                    ->description('Parámetros de red y estado operativo del activo.')
-                    ->compact()
-                    ->columns(3)
-                    ->schema([
-                        TextInput::make('ip_address')
-                            ->label('Dirección IP')
-                            ->ip()
-                            ->placeholder('Ej. 192.168.10.150'),
-                        TextInput::make('mac_address')
-                            ->label('Dirección MAC')
-                            ->regex('/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/')
-                            ->placeholder('Ej. AA:BB:CC:DD:EE:FF'),
-                        Select::make('status')
-                            ->label('Estado')
-                            ->options([
-                                'Disponible' => 'Disponible',
-                                'Asignado' => 'Asignado',
-                                'Mantenimiento' => 'Mantenimiento',
-                                'Baja' => 'Dado de Baja',
-                            ])
-                            ->default('Disponible')
-                            ->required(),
-                    ]),
+                Group::make()
+                    ->schema(fn (Get $get) => self::getDynamicFields(
+                        $get('asset_category_id') ? (int) $get('asset_category_id') : null
+                    )),
 
                 Section::make('Garantía y Adquisición')
                     ->compact()
@@ -153,5 +109,65 @@ class AssetForm
                     ->maxLength(500)
                     ->columnSpanFull(),
             ]);
+    }
+
+    public static function getDynamicFields(?int $categoryId): array
+    {
+        if (! $categoryId) {
+            return [];
+        }
+
+        $blocks = \App\Models\AssetBlock::with('characteristics')
+            ->where('asset_category_id', $categoryId)
+            ->orderBy('sort_order')
+            ->get();
+
+        $components = [];
+
+        foreach ($blocks as $block) {
+            $fields = [];
+            foreach ($block->characteristics as $char) {
+                $field = match ($char->type) {
+                    'number' => TextInput::make('char_' . $char->id)->numeric(),
+                    'date' => DatePicker::make('char_' . $char->id),
+                    'select' => Select::make('char_' . $char->id)
+                        ->options(self::parseOptions($char->options)),
+                    'boolean' => Toggle::make('char_' . $char->id),
+                    default => TextInput::make('char_' . $char->id),
+                };
+
+                $field->label($char->name);
+                if ($char->is_required) {
+                    $field->required();
+                }
+
+                $fields[] = $field;
+            }
+
+            if (count($fields) > 0) {
+                $components[] = Section::make($block->name)
+                    ->compact()
+                    ->columns(3)
+                    ->schema($fields);
+            }
+        }
+
+        return $components;
+    }
+
+    private static function parseOptions(?string $options): array
+    {
+        if (! $options) {
+            return [];
+        }
+
+        $parsed = [];
+        $parts = explode(',', $options);
+        foreach ($parts as $part) {
+            $trimmed = trim($part);
+            $parsed[$trimmed] = $trimmed;
+        }
+
+        return $parsed;
     }
 }
