@@ -26,10 +26,10 @@ class ComponentsRelationManager extends RelationManager
                 TextInput::make('computer_code')
                     ->label('Código Informático')
                     ->disabled(),
-                TextInput::make('brand')
+                TextInput::make('model.brand.name')
                     ->label('Marca')
                     ->disabled(),
-                TextInput::make('model')
+                TextInput::make('model.name')
                     ->label('Modelo')
                     ->disabled(),
             ]);
@@ -38,7 +38,7 @@ class ComponentsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitle(fn ($record) => "[{$record->computer_code}] {$record->brand} {$record->model} (" . ($record->category->name ?? '') . ")")
+            ->recordTitle(fn ($record) => "[{$record->computer_code}] " . ($record->model?->brand?->name ?? '') . " " . ($record->model?->name ?? '') . " (" . ($record->category->name ?? '') . ")")
             ->columns([
                 TextColumn::make('category.name')
                     ->label('Categoría'),
@@ -46,9 +46,9 @@ class ComponentsRelationManager extends RelationManager
                     ->label('Cód. Informático'),
                 TextColumn::make('asset_code')
                     ->label('Cód. Patrimonial'),
-                TextColumn::make('brand')
+                TextColumn::make('model.brand.name')
                     ->label('Marca'),
-                TextColumn::make('model')
+                TextColumn::make('model.name')
                     ->label('Modelo'),
                 TextColumn::make('serial_number')
                     ->label('S/N'),

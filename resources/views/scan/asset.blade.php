@@ -77,7 +77,7 @@
                         <span class="bg-castilla-600 text-emerald-100 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                             {{ $asset->category->name ?? 'Activo' }}
                         </span>
-                        <h1 class="text-2xl font-extrabold mt-2 tracking-tight">{{ $asset->brand }} {{ $asset->model }}</h1>
+                        <h1 class="text-2xl font-extrabold mt-2 tracking-tight">{{ $asset->model?->brand?->name ?? '' }} {{ $asset->model?->name ?? 'Activo sin Modelo' }}</h1>
                         <p class="text-xs text-emerald-200 mt-1">S/N: {{ $asset->serial_number }}</p>
                     </div>
                     <!-- Status Badge -->

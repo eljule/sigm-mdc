@@ -8,6 +8,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class AssetsTable
@@ -19,25 +20,31 @@ class AssetsTable
                 TextColumn::make('computer_code')
                     ->label('Cód. Informático')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('asset_code')
                     ->label('Cód. Patrimonial')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('category.name')
                     ->label('Categoría')
                     ->searchable()
-                    ->sortable(),
-                TextColumn::make('brand')
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('model.brand.name')
                     ->label('Marca')
                     ->searchable()
-                    ->sortable(),
-                TextColumn::make('model')
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('model.name')
                     ->label('Modelo')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('serial_number')
                     ->label('S/N')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('status')
                     ->label('Estado')
                     ->badge()
@@ -48,17 +55,32 @@ class AssetsTable
                         'Baja' => 'danger',
                         default => 'gray',
                     })
-                    ->sortable(),
-                TextColumn::make('ip_address')
-                    ->label('Dirección IP')
-                    ->searchable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('warranty_expiration')
                     ->label('Fin Garantía')
                     ->date()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('asset_category_id')
+                    ->label('Categoría')
+                    ->relationship('category', 'name')
+                    ->preload()
+                    ->multiple(),
+                SelectFilter::make('status')
+                    ->label('Estado')
+                    ->options([
+                        'Disponible' => 'Disponible',
+                        'Asignado' => 'Asignado',
+                        'Mantenimiento' => 'Mantenimiento',
+                        'Baja' => 'Baja',
+                    ]),
+                SelectFilter::make('brand')
+                    ->label('Marca')
+                    ->relationship('model.brand', 'name')
+                    ->preload(),
             ])
             ->recordActions([
                 EditAction::make(),

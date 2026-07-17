@@ -190,6 +190,35 @@ class DatabaseSeeder extends Seeder
         $userMaria->allRoles()->attach($operadorRentasRole->id, ['subsystem_id' => $subsystemRentas->id]);
 
         // 8. Seeding para ITAM (Equipos y Software)
+        $brandHP = \App\Models\AssetBrand::create(['name' => 'HP', 'description' => 'Hewlett-Packard']);
+        $brandLenovo = \App\Models\AssetBrand::create(['name' => 'Lenovo', 'description' => 'Lenovo Group']);
+
+        $modelThinkPad = \App\Models\AssetModel::create([
+            'asset_brand_id' => $brandLenovo->id,
+            'name' => 'ThinkPad L14 Gen 4',
+            'description' => 'Laptop corporativa'
+        ]);
+        $modelProDesk = \App\Models\AssetModel::create([
+            'asset_brand_id' => $brandHP->id,
+            'name' => 'ProDesk 400 G9 SFF',
+            'description' => 'Computadora de escritorio SFF'
+        ]);
+        $modelKeyboard = \App\Models\AssetModel::create([
+            'asset_brand_id' => $brandHP->id,
+            'name' => 'Keyboard 150 USB',
+            'description' => 'Teclado USB de oficina'
+        ]);
+        $modelMouse = \App\Models\AssetModel::create([
+            'asset_brand_id' => $brandHP->id,
+            'name' => 'Mouse 150 USB',
+            'description' => 'Mouse USB óptico'
+        ]);
+        $modelMonitor = \App\Models\AssetModel::create([
+            'asset_brand_id' => $brandHP->id,
+            'name' => 'P24h G5 FHD',
+            'description' => 'Monitor de 24 pulgadas FHD'
+        ]);
+
         $catLaptop = \App\Models\AssetCategory::create(['name' => 'Laptop', 'description' => 'Laptops y computadoras portátiles']);
         $catPC = \App\Models\AssetCategory::create(['name' => 'PC de Escritorio', 'description' => 'Computadoras de escritorio']);
         $catTeclado = \App\Models\AssetCategory::create(['name' => 'Teclado', 'description' => 'Teclados de computadora']);
@@ -308,13 +337,12 @@ class DatabaseSeeder extends Seeder
             'sort_order' => 1
         ]);
 
-        // Creación de activos con FK de categoría
+        // Creación de activos con FK de categoría y modelo
         $laptop = Asset::create([
             'asset_category_id' => $catLaptop->id,
+            'asset_model_id' => $modelThinkPad->id,
             'asset_code' => 'PAT-2026-0001',
             'computer_code' => 'COD-TI-0001',
-            'brand' => 'Lenovo',
-            'model' => 'ThinkPad L14 Gen 4',
             'serial_number' => 'L3N0V014G4',
             'status' => 'Asignado',
             'purchase_date' => '2026-01-15',
@@ -330,10 +358,9 @@ class DatabaseSeeder extends Seeder
 
         $pc = Asset::create([
             'asset_category_id' => $catPC->id,
+            'asset_model_id' => $modelProDesk->id,
             'asset_code' => 'PAT-2026-0002',
             'computer_code' => 'COD-TI-0002',
-            'brand' => 'HP',
-            'model' => 'ProDesk 400 G9 SFF',
             'serial_number' => 'HPP400G9SFF',
             'status' => 'Disponible',
             'purchase_date' => '2026-02-20',
@@ -350,10 +377,9 @@ class DatabaseSeeder extends Seeder
         $keyboard = Asset::create([
             'parent_id' => $pc->id,
             'asset_category_id' => $catTeclado->id,
+            'asset_model_id' => $modelKeyboard->id,
             'asset_code' => 'PAT-2026-0003',
             'computer_code' => 'COD-TI-0003',
-            'brand' => 'HP',
-            'model' => 'Keyboard 150 USB',
             'serial_number' => 'HPKB150USB',
             'status' => 'Disponible',
             'notes' => 'Teclado USB estándar de la PC principal.',
@@ -362,10 +388,9 @@ class DatabaseSeeder extends Seeder
         $mouse = Asset::create([
             'parent_id' => $pc->id,
             'asset_category_id' => $catMouse->id,
+            'asset_model_id' => $modelMouse->id,
             'asset_code' => 'PAT-2026-0004',
             'computer_code' => 'COD-TI-0004',
-            'brand' => 'HP',
-            'model' => 'Mouse 150 USB',
             'serial_number' => 'HPMS150USB',
             'status' => 'Disponible',
             'notes' => 'Mouse óptico USB estándar de la PC principal.',
@@ -374,10 +399,9 @@ class DatabaseSeeder extends Seeder
         $monitor = Asset::create([
             'parent_id' => $pc->id,
             'asset_category_id' => $catMonitor->id,
+            'asset_model_id' => $modelMonitor->id,
             'asset_code' => 'PAT-2026-0005',
             'computer_code' => 'COD-TI-0005',
-            'brand' => 'HP',
-            'model' => 'P24h G5 FHD',
             'serial_number' => 'HPMON24G5',
             'status' => 'Disponible',
             'notes' => 'Monitor FHD de 24 pulgadas.',
@@ -403,6 +427,15 @@ class DatabaseSeeder extends Seeder
 
         $laptop->softwares()->attach($win11->id, ['installed_at' => '2026-01-16']);
         $laptop->softwares()->attach($office365->id, ['installed_at' => '2026-01-16']);
+
+        // Registrar la asignación correspondiente para el activo que tiene estado 'Asignado'
+        \App\Models\AssetAssignment::create([
+            'asset_id' => $laptop->id,
+            'user_id' => $userMaria->id,
+            'office_id' => $rentasOffice->id,
+            'assigned_at' => '2026-01-16 09:00:00',
+            'notes' => 'Entregado a María Gomez en perfecto estado.',
+        ]);
 
         // 9. Seeding para HELPDESK (Categorías y Tickets)
         $catRed = TicketCategory::create([

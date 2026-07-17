@@ -12,10 +12,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('parent_id')->nullable()->constrained('assets')->nullOnDelete();
             $table->foreignId('asset_category_id')->constrained('asset_categories')->restrictOnDelete();
+            $table->foreignId('asset_model_id')->constrained('asset_models')->restrictOnDelete();
             $table->string('computer_code', 50)->unique();
             $table->string('asset_code', 50)->unique()->nullable();
-            $table->string('brand', 50);
-            $table->string('model', 100);
             $table->string('serial_number', 100)->unique();
             $table->string('status', 30)->default('Disponible'); // Disponible, Asignado, Mantenimiento, Baja
             $table->date('warranty_expiration')->nullable();

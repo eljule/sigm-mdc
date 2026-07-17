@@ -15,16 +15,23 @@ class Asset extends Model
     protected $fillable = [
         'parent_id',
         'asset_category_id',
+        'asset_model_id',
         'asset_code',
         'computer_code',
-        'brand',
-        'model',
         'serial_number',
         'status',
         'warranty_expiration',
         'purchase_date',
         'notes',
     ];
+
+    /**
+     * @return BelongsTo<AssetModel, $this>
+     */
+    public function model(): BelongsTo
+    {
+        return $this->belongsTo(AssetModel::class, 'asset_model_id');
+    }
 
     /**
      * @return BelongsTo<AssetCategory, $this>

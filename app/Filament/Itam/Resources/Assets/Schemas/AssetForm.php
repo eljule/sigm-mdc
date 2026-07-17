@@ -66,14 +66,23 @@ class AssetForm
                     ->compact()
                     ->columns(3)
                     ->schema([
-                        TextInput::make('brand')
+                        Select::make('brand_id')
                             ->label('Marca')
+                            ->options(\App\Models\AssetBrand::pluck('name', 'id'))
+                            ->searchable()
+                            ->preload()
                             ->required()
-                            ->placeholder('Ej. HP, Dell, Lenovo'),
-                        TextInput::make('model')
+                            ->live()
+                            ->dehydrated(false)
+                            ->afterStateHydrated(fn (Select $component, $record) => $component->state($record?->model?->asset_brand_id))
+                            ->afterStateUpdated(fn (callable $set) => $set('asset_model_id', null)),
+                        Select::make('asset_model_id')
                             ->label('Modelo')
+                            ->options(fn (Get $get) => \App\Models\AssetModel::where('asset_brand_id', $get('brand_id'))->pluck('name', 'id'))
+                            ->searchable()
+                            ->preload()
                             ->required()
-                            ->placeholder('Ej. ProDesk 400'),
+                            ->disabled(fn (Get $get) => !$get('brand_id')),
                         TextInput::make('serial_number')
                             ->label('Número de Serie')
                             ->required()
@@ -81,11 +90,11 @@ class AssetForm
                             ->placeholder('Ej. SGH1234567'),
                         Select::make('parent_id')
                             ->label('Activo Principal (Padre)')
-                            ->relationship('parent', 'model')
+                            ->relationship('parent', 'computer_code')
                             ->placeholder('Seleccione el equipo principal (ej. CPU)')
                             ->searchable()
                             ->preload()
-                            ->getOptionLabelFromRecordUsing(fn ($record) => "[{$record->computer_code}] {$record->brand} {$record->model} (" . ($record->category->name ?? '') . ")")
+                            ->getOptionLabelFromRecordUsing(fn ($record) => "[{$record->computer_code}] " . ($record->model?->brand?->name ?? '') . " " . ($record->model?->name ?? '') . " (" . ($record->category->name ?? '') . ")")
                             ->columnSpanFull(),
                     ]),
 
