@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\AssetCategories\Pages;
+namespace App\Filament\Itam\Resources\AssetCategories\Pages;
 
-use App\Filament\Resources\AssetCategories\AssetCategoryResource;
+use App\Filament\Itam\Resources\AssetCategories\AssetCategoryResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 

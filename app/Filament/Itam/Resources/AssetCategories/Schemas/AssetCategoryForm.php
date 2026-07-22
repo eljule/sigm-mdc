@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\AssetCategories\Schemas;
+namespace App\Filament\Itam\Resources\AssetCategories\Schemas;
 
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;

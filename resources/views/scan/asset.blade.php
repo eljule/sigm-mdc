@@ -182,7 +182,7 @@
                     <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-4 rounded-2xl border border-emerald-200/50 shadow-sm flex justify-between items-center">
                         <div>
                             <span class="text-[9px] text-emerald-600 uppercase font-bold tracking-wider block">Parte del Equipo Principal</span>
-                            <span class="text-xs font-bold text-slate-800">{{ $asset->parent->brand }} {{ $asset->parent->model }}</span>
+                            <span class="text-xs font-bold text-slate-800">{{ $asset->parent->model?->brand?->name ?? '' }} {{ $asset->parent->model?->name ?? 'Equipo Principal sin Modelo' }}</span>
                             <span class="text-[10px] text-slate-500 block">Cód: {{ $asset->parent->computer_code }}</span>
                         </div>
                         <a href="{{ url('/scan/activo/' . $asset->parent->computer_code) }}" class="bg-castilla-600 hover:bg-castilla-700 text-white font-semibold text-[10px] px-3 py-1.5 rounded-xl shadow-sm transition-all" style="text-decoration:none;">
@@ -203,7 +203,7 @@
                                 <div class="bg-white/80 p-3 rounded-2xl border border-slate-200/60 flex justify-between items-center shadow-sm">
                                     <div>
                                         <span class="text-[9px] bg-slate-100 text-slate-600 border border-slate-200/50 px-2 py-0.5 rounded-full font-bold uppercase">{{ $comp->category->name ?? 'Componente' }}</span>
-                                        <span class="text-xs font-semibold text-slate-800 block mt-1">{{ $comp->brand }} {{ $comp->model }}</span>
+                                        <span class="text-xs font-semibold text-slate-800 block mt-1">{{ $comp->model?->brand?->name ?? '' }} {{ $comp->model?->name ?? 'Componente sin Modelo' }}</span>
                                         <span class="text-[10px] text-slate-400">S/N: {{ $comp->serial_number }} | Cód: {{ $comp->computer_code }}</span>
                                     </div>
                                     <a href="{{ url('/scan/activo/' . $comp->computer_code) }}" class="text-castilla-600 hover:text-castilla-700 font-bold text-[10px] flex items-center gap-1 hover:underline" style="text-decoration:none;">

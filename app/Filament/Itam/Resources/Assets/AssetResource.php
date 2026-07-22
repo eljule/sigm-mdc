@@ -15,6 +15,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 use App\Filament\Itam\Resources\Assets\RelationManagers\ComponentsRelationManager;
+use App\Filament\Itam\Resources\Assets\RelationManagers\SoftwaresRelationManager;
 
 class AssetResource extends Resource
 {
@@ -40,6 +41,7 @@ class AssetResource extends Resource
     {
         return [
             ComponentsRelationManager::class,
+            SoftwaresRelationManager::class,
         ];
     }
 

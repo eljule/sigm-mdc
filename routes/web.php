@@ -2,6 +2,7 @@
 
 use App\Models\Subsystem;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HelpdeskPortalController;
 
 Route::get('/', function () {
     $subsystems = Subsystem::where('is_active', true)->orderBy('id')->get();
@@ -15,4 +16,16 @@ Route::get('/scan/activo/{computer_code}', function (string $computerCode) {
         ->firstOrFail();
 
     return view('scan.asset', compact('asset'));
+});
+
+// Ruta nombrada 'login' requerida por el middleware auth de Laravel.
+// Redirige al login del panel Admin de Filament, guardando la URL de destino para retornar tras autenticarse.
+Route::get('/login', function () {
+    session(['url.intended' => url()->previous()]);
+    return redirect('/admin/login');
+})->name('login');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/soporte', [HelpdeskPortalController::class, 'index'])->name('helpdesk.portal');
+    Route::post('/soporte', [HelpdeskPortalController::class, 'store'])->name('helpdesk.portal.store');
 });

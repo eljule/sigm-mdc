@@ -115,12 +115,22 @@
                         </div>
 
                         <!-- Button -->
-                        <a href="{{ url($subsystem->url_path) }}" class="w-full bg-castilla-600 hover:bg-castilla-700 text-white font-semibold py-2.5 px-4 rounded-xl text-center text-sm shadow hover:shadow-md transition-all duration-150 flex items-center justify-center gap-2">
-                            <span>Ingresar al Sistema</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </a>
+                        <div class="space-y-2 w-full">
+                            <a href="{{ url($subsystem->url_path) }}" class="w-full bg-castilla-600 hover:bg-castilla-700 text-white font-semibold py-2.5 px-4 rounded-xl text-center text-sm shadow hover:shadow-md transition-all duration-150 flex items-center justify-center gap-2">
+                                <span>Ingresar al Sistema</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </a>
+                            @if($subsystem->code === 'helpdesk')
+                                <a href="{{ url('/soporte') }}" class="w-full bg-white hover:bg-emerald-50 border border-castilla-600 text-castilla-600 font-semibold py-2.5 px-4 rounded-xl text-center text-sm shadow hover:shadow-md transition-all duration-150 flex items-center justify-center gap-2">
+                                    <span>Generar Ticket de Soporte</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 </div>
             @endforeach

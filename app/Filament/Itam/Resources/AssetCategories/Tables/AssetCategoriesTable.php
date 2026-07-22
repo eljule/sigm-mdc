@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Filament\Resources\AssetCategories\Tables;
+namespace App\Filament\Itam\Resources\AssetCategories\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
