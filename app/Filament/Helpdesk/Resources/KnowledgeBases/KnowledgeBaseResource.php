@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 
 class KnowledgeBaseResource extends Resource
 {
@@ -23,6 +24,20 @@ class KnowledgeBaseResource extends Resource
     protected static ?string $pluralModelLabel = 'base de conocimiento';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    /**
+     * Solo técnicos de soporte y administradores pueden acceder a este recurso.
+     * Los usuarios con rol 'Usuario Reportante' deben usar el portal /soporte.
+     */
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->hasRole('Técnico de Soporte') || $user->hasRole('Administrador Central');
+    }
 
     public static function form(Schema $schema): Schema
     {

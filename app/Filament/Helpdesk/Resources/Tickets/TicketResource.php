@@ -25,6 +25,20 @@ class TicketResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    /**
+     * Solo técnicos de soporte y administradores acceden al panel de tickets.
+     * Los usuarios reportantes deben usar el portal /soporte.
+     */
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->hasRole('Técnico de Soporte') || $user->hasRole('Administrador Central');
+    }
+
     public static function getEloquentQuery(): Builder
     {
         $user = auth()->user();

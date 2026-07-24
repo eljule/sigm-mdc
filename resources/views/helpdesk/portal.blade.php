@@ -53,21 +53,37 @@
                 <div class="h-8 w-[1px] bg-emerald-500/50 hidden sm:block"></div>
                 <span class="text-white font-bold tracking-tight text-sm sm:text-base hidden sm:inline-block">Mesa de Ayuda y Soporte</span>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
                 <a href="{{ url('/') }}" class="text-emerald-100 hover:text-white text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
-                    Inicio
+                    <span class="hidden sm:inline">Inicio</span>
                 </a>
                 <div class="h-6 w-[1px] bg-emerald-500/50"></div>
-                <div class="text-right">
+                <div class="text-right hidden sm:block">
                     <span class="text-white text-xs sm:text-sm font-medium block">{{ $user->name }}</span>
                     <span class="text-emerald-200 text-[10px] sm:text-xs block">{{ $office->name ?? 'Sin Oficina' }}</span>
                 </div>
+                <div class="h-6 w-[1px] bg-emerald-500/50 hidden sm:block"></div>
+                <!-- Botón de Cierre de Sesión -->
+                <form method="POST" action="{{ route('helpdesk.portal.logout') }}" class="flex items-center">
+                    @csrf
+                    <button
+                        type="submit"
+                        title="Cerrar Sesión"
+                        class="flex items-center gap-1.5 text-emerald-100 hover:text-white hover:bg-emerald-700/40 border border-emerald-500/40 hover:border-emerald-400/60 rounded-xl px-2.5 py-1.5 text-xs font-semibold transition-all duration-150 group"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:translate-x-0.5 transition-transform duration-150" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span class="hidden sm:inline">Salir</span>
+                    </button>
+                </form>
             </div>
         </div>
     </header>
+
 
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">

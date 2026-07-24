@@ -28,4 +28,10 @@ Route::get('/login', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/soporte', [HelpdeskPortalController::class, 'index'])->name('helpdesk.portal');
     Route::post('/soporte', [HelpdeskPortalController::class, 'store'])->name('helpdesk.portal.store');
+    Route::post('/soporte/logout', function () {
+        auth()->logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+        return redirect('/');
+    })->name('helpdesk.portal.logout');
 });

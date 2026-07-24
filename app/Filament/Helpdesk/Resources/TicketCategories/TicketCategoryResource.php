@@ -24,6 +24,19 @@ class TicketCategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    /**
+     * Solo técnicos de soporte y administradores pueden gestionar categorías.
+     */
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->hasRole('Técnico de Soporte') || $user->hasRole('Administrador Central');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return TicketCategoryForm::configure($schema);

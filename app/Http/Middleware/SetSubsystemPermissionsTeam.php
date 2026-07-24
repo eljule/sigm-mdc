@@ -11,6 +11,14 @@ use Spatie\Permission\PermissionRegistrar;
 
 class SetSubsystemPermissionsTeam
 {
+    /**
+     * Roles que solo pueden usar el portal /soporte y NO el panel administrativo de Helpdesk.
+     * Agrega aquí cualquier rol "solo-portal" adicional que se cree en el futuro.
+     */
+    protected const PORTAL_ONLY_ROLES = [
+        'Usuario Reportante',
+    ];
+
     public function handle(Request $request, Closure $next, string $subsystemCode)
     {
         $user = auth()->user();
@@ -34,6 +42,21 @@ class SetSubsystemPermissionsTeam
 
         if (! $hasAccess) {
             abort(403, 'No tienes permisos para acceder a este subsistema.');
+        }
+
+        // Verificar que no sea un rol de solo-portal (ej: Usuario Reportante en Helpdesk).
+        // Estos usuarios deben usar /soporte en lugar del panel administrativo de Filament.
+        if ($subsystemCode === 'helpdesk') {
+            $userRolesInSubsystem = $user->allRoles()
+                ->where('model_has_roles.subsystem_id', $subsystemId)
+                ->pluck('name')
+                ->toArray();
+
+            $hasOperativeRole = ! empty(array_diff($userRolesInSubsystem, self::PORTAL_ONLY_ROLES));
+
+            if (! $hasOperativeRole) {
+                return redirect('/soporte');
+            }
         }
 
         return $next($request);
