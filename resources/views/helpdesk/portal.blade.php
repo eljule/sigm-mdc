@@ -133,36 +133,43 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('helpdesk.portal.store') }}" method="POST" class="space-y-4">
+                    <form action="{{ route('helpdesk.portal.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                         @csrf
                         
                         <div>
-                            <label for="category_id" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Categoría del Problema</label>
-                            <select name="category_id" id="category_id" required class="w-full bg-slate-50 border border-slate-200 focus:border-castilla-600 focus:bg-white rounded-2xl px-4 py-3 text-sm transition-all outline-none">
-                                <option value="" disabled selected>Selecciona una opción</option>
-                                @foreach($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->name }} (SLA: {{ $category->sla_hours }}h)</option>
-                                @endforeach
+                            <label for="user_category" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">¿Con qué tiene que ver tu problema? (Categoría)</label>
+                            <select name="user_category" id="user_category" required class="w-full bg-slate-50 border border-slate-200 focus:border-castilla-600 focus:bg-white rounded-2xl px-4 py-3 text-sm transition-all outline-none">
+                                <option value="" disabled selected>Selecciona la opción más adecuada</option>
+                                <option value="Equipos/Hardware">Equipos / Hardware (Computadora, Impresora, Teclado, etc.)</option>
+                                <option value="Sistemas/Programas">Sistemas / Programas (SIGM, Navegador, Office)</option>
+                                <option value="Accesos/Contraseñas">Accesos / Contraseñas (Restablecer clave, crear cuenta)</option>
+                                <option value="Red/Internet">Red / Internet (Sin conexión, Wifi lento, cable suelto)</option>
+                                <option value="Otros">Otros problemas</option>
                             </select>
                         </div>
 
                         <div>
-                            <label for="priority" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Prioridad Estimada</label>
-                            <select name="priority" id="priority" required class="w-full bg-slate-50 border border-slate-200 focus:border-castilla-600 focus:bg-white rounded-2xl px-4 py-3 text-sm transition-all outline-none">
-                                <option value="Baja" selected>Baja (Atención rutinaria)</option>
-                                <option value="Media">Media (Afecta parcialmente el trabajo)</option>
-                                <option value="Alta">Alta (No permite trabajar / Urgente)</option>
+                            <label for="impact" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">¿Qué tanto afecta a tu trabajo? (Urgencia)</label>
+                            <select name="impact" id="impact" required class="w-full bg-slate-50 border border-slate-200 focus:border-castilla-600 focus:bg-white rounded-2xl px-4 py-3 text-sm transition-all outline-none">
+                                <option value="Individual" selected>Solo me pasa a mí (Trabajo parcial detenido)</option>
+                                <option value="Grupal">Afecta a mi área / oficina (Varios usuarios afectados)</option>
+                                <option value="Critico">Todo el departamento / oficina está parado (Operación crítica detenida)</option>
                             </select>
                         </div>
 
                         <div>
                             <label for="title" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5 font-bold">Resumen / Asunto</label>
-                            <input type="text" name="title" id="title" required placeholder="Ej. Impresora no enciende o sin internet" class="w-full bg-slate-50 border border-slate-200 focus:border-castilla-600 focus:bg-white rounded-2xl px-4 py-3 text-sm transition-all outline-none">
+                            <input type="text" name="title" id="title" required placeholder="Ej. No puedo imprimir mi documento" class="w-full bg-slate-50 border border-slate-200 focus:border-castilla-600 focus:bg-white rounded-2xl px-4 py-3 text-sm transition-all outline-none">
                         </div>
 
                         <div>
-                            <label for="description" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Detalle del Inconveniente</label>
-                            <textarea name="description" id="description" rows="4" required placeholder="Indica detalles como: código patrimonial del equipo (si aplica), mensajes de error en pantalla y desde cuándo se presenta la falla." class="w-full bg-slate-50 border border-slate-200 focus:border-castilla-600 focus:bg-white rounded-2xl px-4 py-3 text-sm transition-all outline-none resize-none"></textarea>
+                            <label for="description" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Detalle del Inconveniente (Síntoma)</label>
+                            <textarea name="description" id="description" rows="4" required placeholder="Describe libremente qué intentabas hacer, qué pasó y si salió algún mensaje de error en pantalla." class="w-full bg-slate-50 border border-slate-200 focus:border-castilla-600 focus:bg-white rounded-2xl px-4 py-3 text-sm transition-all outline-none resize-none"></textarea>
+                        </div>
+
+                        <div>
+                            <label for="attachments" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Adjuntar capturas de pantalla o fotos del error (Opcional)</label>
+                            <input type="file" name="attachments[]" id="attachments" multiple accept="image/*,video/*,application/pdf" class="w-full bg-slate-50 border border-slate-200 focus:border-castilla-600 focus:bg-white rounded-2xl px-4 py-2.5 text-sm transition-all outline-none">
                         </div>
 
                         <button type="submit" class="w-full bg-castilla-600 hover:bg-castilla-700 text-white font-semibold py-3.5 rounded-2xl text-center text-sm shadow hover:shadow-md transition-all duration-150 flex items-center justify-center gap-2 mt-2">
@@ -235,12 +242,26 @@
                                     <h3 class="text-sm font-bold text-slate-800 mb-1 leading-snug">{{ $ticket->title }}</h3>
                                     <p class="text-xs text-slate-500 font-light leading-relaxed mb-3">{{ $ticket->description }}</p>
 
+                                    @if(!empty($ticket->attachments))
+                                        <div class="mb-3 text-[10px] flex flex-wrap gap-2 items-center bg-slate-50 p-2 rounded-lg">
+                                            <span class="text-slate-400 font-bold uppercase">Adjuntos:</span>
+                                            @foreach($ticket->attachments as $attachment)
+                                                <a href="{{ Storage::url($attachment) }}" target="_blank" class="text-castilla-600 hover:text-castilla-700 hover:underline font-semibold flex items-center gap-1 bg-white px-2 py-1 border border-slate-200 rounded-md">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                      <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                    </svg>
+                                                    {{ basename($attachment) }}
+                                                </a>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
                                     <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-100 text-[10px] text-slate-400">
                                         <div class="flex items-center gap-1.5">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                               <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
-                                            <span>Categoría: <strong>{{ $ticket->category->name }}</strong></span>
+                                            <span>Categoría Reportada: <strong>{{ $ticket->user_category ?? $ticket->category->name }}</strong></span>
                                         </div>
                                         <div class="flex items-center gap-1.5">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

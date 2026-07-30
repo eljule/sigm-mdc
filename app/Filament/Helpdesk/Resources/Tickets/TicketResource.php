@@ -33,10 +33,22 @@ class TicketResource extends Resource
     {
         $user = auth()->user();
         if (! $user) {
+            \Illuminate\Support\Facades\Log::info('canAccess: No user logged in');
             return false;
         }
 
-        return $user->hasRole('Técnico de Soporte') || $user->hasRole('Administrador Central');
+        $roles = $user->allRoles()->pluck('name')->toArray();
+        $teamId = app(\Spatie\Permission\PermissionRegistrar::class)->getPermissionsTeamId();
+        \Illuminate\Support\Facades\Log::info('canAccess checking. Method: ' . request()->method() . ' URL: ' . request()->fullUrl() . ' User: ' . $user->email . ' with roles: ' . implode(', ', $roles) . ' and Spatie Team ID: ' . var_export($teamId, true));
+
+        $can = $user->hasRole('Técnico de Soporte') || $user->hasRole('Administrador Central');
+        \Illuminate\Support\Facades\Log::info('canAccess result: ' . ($can ? 'true' : 'false'));
+        return $can;
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('eliminar-tickets') ?? false;
     }
 
     public static function getEloquentQuery(): Builder

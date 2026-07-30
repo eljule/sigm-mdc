@@ -8,6 +8,7 @@ use App\Models\Asset;
 use App\Models\DocumentType;
 use App\Models\LaborCondition;
 use App\Models\Office;
+use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Software;
 use App\Models\Subsystem;
@@ -42,10 +43,10 @@ class DatabaseSeeder extends Seeder
 
         // 2. Ubigeo demo (Lima)
         Ubigeo::create([
-            'code' => '150101',
-            'department' => 'LIMA',
-            'province' => 'LIMA',
-            'district' => 'LIMA',
+            'code' => '200104',
+            'department' => 'PIURA',
+            'province' => 'PIURA',
+            'district' => 'CASTILLA',
             'is_active' => true,
         ]);
 
@@ -62,26 +63,56 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
+        $locador = LaborCondition::create([
+            'code' => 'LOC',
+            'name' => 'Locador',
+            'is_active' => true,
+        ]);
+
         // 4. Estructura de Oficinas
+        $alcaldia = Office::create([
+            'parent_id' => null,
+            'code' => '02',
+            'name' => 'Alcaldia',
+            'acronym' => 'GM',
+            'is_active' => true,
+        ]);
+
         $gerencia = Office::create([
             'parent_id' => null,
-            'code' => '01',
+            'code' => '02.01',
             'name' => 'Gerencia Municipal',
             'acronym' => 'GM',
             'is_active' => true,
         ]);
 
+        $secretariaOffice = Office::create([
+            'parent_id' => $gerencia->id,
+            'code' => '02.01.01',
+            'name' => 'Secretaría General',
+            'acronym' => 'SG',
+            'is_active' => true,
+        ]);
+        
+        $adminOffice = Office::create([
+            'parent_id' => $gerencia->id,
+            'code' => '02.01.02',
+            'name' => 'Oficina General de Administración y Finanzas',
+            'acronym' => 'OGAF',
+            'is_active' => true,
+        ]);
+        
         $rentasOffice = Office::create([
             'parent_id' => $gerencia->id,
-            'code' => '01.03.02',
-            'name' => 'Subgerencia de Rentas',
-            'acronym' => 'SGR',
+            'code' => '02.01.05',
+            'name' => 'Gerencia de Administración Tributaria',
+            'acronym' => 'GAT',
             'is_active' => true,
         ]);
 
         $sistemasOffice = Office::create([
-            'parent_id' => $gerencia->id,
-            'code' => '01.05.01',
+            'parent_id' => $adminOffice->id,
+            'code' => '02.01.02.05',
             'name' => 'Oficina de Desarrollo Tecnológico',
             'acronym' => 'ODT',
             'is_active' => true,
@@ -143,6 +174,20 @@ class DatabaseSeeder extends Seeder
             'guard_name' => 'web',
         ]);
 
+        $adminHelpdeskRole = Role::create([
+            'subsystem_id' => $subsystemHelpdesk->id,
+            'name' => 'Administrador de Helpdesk',
+            'guard_name' => 'web',
+        ]);
+
+        // Permiso de ejemplo
+        $permissionDeleteTicket = Permission::create([
+            'subsystem_id' => $subsystemHelpdesk->id,
+            'name' => 'eliminar-tickets',
+            'guard_name' => 'web',
+        ]);
+        $adminHelpdeskRole->givePermissionTo($permissionDeleteTicket);
+
         $tecnicoHelpdeskRole = Role::create([
             'subsystem_id' => $subsystemHelpdesk->id,
             'name' => 'Técnico de Soporte',
@@ -188,6 +233,36 @@ class DatabaseSeeder extends Seeder
         // Asignar roles a Maria Gomez
         $userMaria->allRoles()->attach($usuarioHelpdeskRole->id, ['subsystem_id' => $subsystemHelpdesk->id]);
         $userMaria->allRoles()->attach($operadorRentasRole->id, ['subsystem_id' => $subsystemRentas->id]);
+
+         // Carlos Mendoza (Usuario ordinario de Rentas)
+        $userCarlos = User::create([
+            'name' => 'Carlos Mendoza',
+            'email' => 'cmendoza@sigm.gob.pe',
+            'password' => Hash::make('password'),
+            'document_type_id' => $dni->id,
+            'document_number' => '44679876',
+            'labor_condition_id' => $cas->id,
+            'office_id' => $secretariaOffice->id,
+            'is_active' => true,
+        ]);
+
+        // Asignar roles a Carlos Mendoza
+        $userCarlos->allRoles()->attach($usuarioHelpdeskRole->id, ['subsystem_id' => $subsystemHelpdesk->id]);
+
+        // Josue Espinoza (Usuario soporte tecnico)
+        $userJosue = User::create([
+            'name' => 'Josue Espinoza',
+            'email' => 'jespinoza@sigm.gob.pe',
+            'password' => Hash::make('password'),
+            'document_type_id' => $dni->id,
+            'document_number' => '44889977',
+            'labor_condition_id' => $locador->id,
+            'office_id' => $sistemasOffice->id,
+            'is_active' => true,
+        ]);
+
+        // Asignar roles a Josue Espinoza
+        $userJosue->allRoles()->attach($tecnicoHelpdeskRole->id, ['subsystem_id' => $subsystemHelpdesk->id]);
 
         // 8. Seeding para ITAM (Equipos y Software)
         $brandHP = \App\Models\AssetBrand::create(['name' => 'HP', 'description' => 'Hewlett-Packard']);
@@ -456,13 +531,44 @@ class DatabaseSeeder extends Seeder
             'sla_hours' => 8,
         ]);
 
+        // 10. Seeding de Insumos y Consumibles (ITAM)
+        $vga = \App\Models\Consumable::create([
+            'name' => 'Cable VGA 1.8m',
+            'stock' => 15,
+            'unit' => 'Unidades',
+            'min_stock' => 3,
+        ]);
+
+        $cat6 = \App\Models\Consumable::create([
+            'name' => 'Cable de Red Cat6 3m',
+            'stock' => 40,
+            'unit' => 'Unidades',
+            'min_stock' => 5,
+        ]);
+
+        $rj45 = \App\Models\Consumable::create([
+            'name' => 'Conector RJ45 Amp',
+            'stock' => 100,
+            'unit' => 'Unidades',
+            'min_stock' => 10,
+        ]);
+
+        $toner = \App\Models\Consumable::create([
+            'name' => 'Tóner HP LaserJet 85A',
+            'stock' => 8,
+            'unit' => 'Unidades',
+            'min_stock' => 2,
+        ]);
+
         // Registrar un ticket de ejemplo
         Ticket::create([
             'category_id' => $catRed->id,
+            'user_category' => 'Red/Internet',
             'requester_id' => $userMaria->id,
             'office_id' => $rentasOffice->id,
             'title' => 'Sin conexión al servidor tributario',
             'description' => 'No puedo ingresar al módulo de recaudación. Sale error de tiempo de espera agotado. Mis compañeros sí tienen internet pero no pueden abrir el sistema.',
+            'impact' => 'Critico',
             'priority' => 'Alta',
             'status' => 'Abierto',
         ]);

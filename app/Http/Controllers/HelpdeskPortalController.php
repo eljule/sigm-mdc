@@ -29,10 +29,11 @@ class HelpdeskPortalController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'category_id' => 'required|exists:ticket_categories,id',
+            'user_category' => 'required|string|in:Equipos/Hardware,Sistemas/Programas,Accesos/Contraseñas,Red/Internet,Otros',
+            'impact' => 'required|string|in:Individual,Grupal,Critico',
             'title' => 'required|string|max:150',
             'description' => 'required|string',
-            'priority' => 'required|string|in:Baja,Media,Alta',
+            'attachments.*' => 'nullable|file|max:10240', // 10MB max per file
         ]);
 
         $user = Auth::user();
@@ -41,13 +42,34 @@ class HelpdeskPortalController extends Controller
             return back()->withErrors(['office_id' => 'El usuario no tiene una oficina asignada para reportar el ticket.']);
         }
 
+        // Mapear el impacto del usuario a prioridad de backend
+        $priorityMap = [
+            'Individual' => 'Baja',
+            'Grupal' => 'Media',
+            'Critico' => 'Alta',
+        ];
+        $priority = $priorityMap[$request->impact] ?? 'Baja';
+
+        // Manejar subida de archivos
+        $attachmentPaths = [];
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                if ($file->isValid()) {
+                    $path = $file->store('ticket-attachments', 'public');
+                    $attachmentPaths[] = $path;
+                }
+            }
+        }
+
         Ticket::create([
-            'category_id' => $request->category_id,
+            'user_category' => $request->user_category,
             'requester_id' => $user->id,
             'office_id' => $user->office_id,
             'title' => $request->title,
             'description' => $request->description,
-            'priority' => $request->priority,
+            'priority' => $priority,
+            'impact' => $request->impact,
+            'attachments' => !empty($attachmentPaths) ? $attachmentPaths : null,
             'status' => 'Abierto',
         ]);
 
