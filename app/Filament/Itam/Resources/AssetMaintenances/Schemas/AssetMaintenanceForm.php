@@ -23,6 +23,12 @@ class AssetMaintenanceForm
                     ->searchable()
                     ->preload()
                     ->required(),
+                Select::make('ticket_id')
+                    ->relationship('ticket', 'ticket_code')
+                    ->label('Ticket de Origen (Opcional)')
+                    ->placeholder('Seleccione si fue originado por un Ticket de Soporte')
+                    ->searchable()
+                    ->preload(),
                 Select::make('type')
                     ->label('Tipo de Mantenimiento')
                     ->options([

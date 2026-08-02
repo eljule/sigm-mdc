@@ -11,6 +11,7 @@ class AssetMaintenance extends Model
 {
     protected $fillable = [
         'asset_id',
+        'ticket_id',
         'type',
         'scheduled_date',
         'performed_date',
@@ -23,6 +24,8 @@ class AssetMaintenance extends Model
         'scheduled_date' => 'date',
         'performed_date' => 'date',
         'cost' => 'decimal:2',
+        'ticket_id' => 'integer',
+        'asset_id' => 'integer',
     ];
 
     /**
@@ -31,5 +34,13 @@ class AssetMaintenance extends Model
     public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);
+    }
+
+    /**
+     * @return BelongsTo<Ticket, $this>
+     */
+    public function ticket(): BelongsTo
+    {
+        return $this->belongsTo(Ticket::class);
     }
 }

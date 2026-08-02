@@ -138,6 +138,15 @@ class TicketsTable
                     ->outlined()
                     ->color('gray')
                     ->label('Gestionar'),
+                Action::make('imprimir_ficha')
+                    ->label('Ficha')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->button()
+                    ->outlined()
+                    ->url(fn ($record) => route('fichas.ticket', $record->id))
+                    ->openUrlInNewTab()
+                    ->visible(fn ($record) => in_array($record->status, ['Resuelto', 'Cerrado'])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

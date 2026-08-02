@@ -7,6 +7,7 @@ namespace App\Filament\Itam\Resources\AssetMaintenances\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -22,6 +23,11 @@ class AssetMaintenancesTable
                     ->sortable(),
                 TextColumn::make('asset.asset_code')
                     ->label('Cód. Patrimonial')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('ticket.ticket_code')
+                    ->label('Ticket Origen')
+                    ->placeholder('-')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('type')
@@ -59,6 +65,12 @@ class AssetMaintenancesTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('print_ficha')
+                    ->label('Ficha')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->url(fn ($record) => route('fichas.mantenimiento', $record->id))
+                    ->openUrlInNewTab(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

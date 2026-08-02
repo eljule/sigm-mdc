@@ -34,4 +34,10 @@ Route::middleware('auth')->group(function () {
         request()->session()->regenerateToken();
         return redirect('/');
     })->name('helpdesk.portal.logout');
+
+    // Fichas de reporte e impresión
+    Route::get('/fichas/asignacion/{id}', [\App\Http\Controllers\FichaController::class, 'asignacion'])->name('fichas.asignacion');
+    Route::get('/fichas/componente/{id}', [\App\Http\Controllers\FichaController::class, 'componente'])->name('fichas.componente');
+    Route::get('/fichas/ticket/{id}', [\App\Http\Controllers\FichaController::class, 'ticket'])->name('fichas.ticket');
+    Route::get('/fichas/mantenimiento/{id}', [\App\Http\Controllers\FichaController::class, 'mantenimiento'])->name('fichas.mantenimiento');
 });

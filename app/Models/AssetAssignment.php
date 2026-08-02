@@ -31,7 +31,10 @@ class AssetAssignment extends Model
 
         static::updated(function (AssetAssignment $assignment) {
             if ($assignment->isDirty('returned_at') && $assignment->returned_at !== null) {
-                $assignment->asset->update(['status' => 'Disponible']);
+                $asset = $assignment->asset;
+                if ($asset && ! in_array($asset->status, ['Baja', 'Mantenimiento'])) {
+                    $asset->update(['status' => 'Disponible']);
+                }
             }
         });
     }

@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Ticket extends Model
 {
@@ -246,5 +247,13 @@ class Ticket extends Model
     public function ticketConsumables(): HasMany
     {
         return $this->hasMany(TicketConsumable::class);
+    }
+
+    /**
+     * @return HasMany<AssetMaintenance, $this>
+     */
+    public function maintenances(): HasMany
+    {
+        return $this->hasMany(AssetMaintenance::class);
     }
 }

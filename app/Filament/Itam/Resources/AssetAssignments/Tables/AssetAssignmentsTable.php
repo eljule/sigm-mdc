@@ -7,6 +7,7 @@ namespace App\Filament\Itam\Resources\AssetAssignments\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -82,6 +83,12 @@ class AssetAssignmentsTable
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('print_ficha')
+                    ->label('Acta de Asignación')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->url(fn ($record) => route('fichas.asignacion', $record->id))
+                    ->openUrlInNewTab(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
