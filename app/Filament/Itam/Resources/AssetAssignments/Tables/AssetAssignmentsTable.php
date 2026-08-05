@@ -59,7 +59,7 @@ class AssetAssignmentsTable
                     ->dateTime()
                     ->sortable()
                     ->placeholder('Activo actualmente')
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('office_id')
