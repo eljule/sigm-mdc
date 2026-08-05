@@ -70,6 +70,17 @@ class Asset extends Model
         'purchase_date' => 'date',
     ];
 
+    protected static function booted(): void
+    {
+        static::updated(function (Asset $asset) {
+            if ($asset->isDirty('status')) {
+                foreach ($asset->components as $component) {
+                    $component->update(['status' => $asset->status]);
+                }
+            }
+        });
+    }
+
     /**
      * @return HasMany<AssetAssignment, $this>
      */

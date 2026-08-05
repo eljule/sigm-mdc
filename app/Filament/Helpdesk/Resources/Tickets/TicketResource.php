@@ -8,6 +8,7 @@ use App\Filament\Helpdesk\Resources\Tickets\Pages\ListTickets;
 use App\Filament\Helpdesk\Resources\Tickets\Schemas\TicketForm;
 use App\Filament\Helpdesk\Resources\Tickets\Tables\TicketsTable;
 use App\Models\Ticket;
+use App\Filament\Helpdesk\Resources\Tickets\RelationManagers\MaintenancesRelationManager;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -80,7 +81,7 @@ class TicketResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            MaintenancesRelationManager::class,
         ];
     }
 

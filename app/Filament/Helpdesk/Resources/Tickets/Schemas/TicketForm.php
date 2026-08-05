@@ -144,10 +144,18 @@ class TicketForm
                             ->disabled($disableTechnicalFields),
                         Select::make('affected_asset_id')
                             ->label('Activo con Falla (Entrada / Desvincular)')
-                            ->relationship('affectedAsset', 'computer_code', fn ($query, $get) => 
-                                $query->whereHas('assignments', fn ($q) => 
-                                    $q->where('user_id', $get('requester_id'))->whereNull('returned_at')
-                                )
+                            ->relationship('affectedAsset', 'computer_code', fn ($query, $get, $record) => 
+                                $query->where(function ($q1) use ($get, $record) {
+                                    $q1->whereHas('assignments', fn ($q) => 
+                                        $q->where('user_id', $get('requester_id'))->whereNull('returned_at')
+                                    )->orWhereHas('parent.assignments', fn ($q) => 
+                                        $q->where('user_id', $get('requester_id'))->whereNull('returned_at')
+                                    );
+
+                                    if ($record && $record->affected_asset_id) {
+                                        $q1->orWhere('id', $record->affected_asset_id);
+                                    }
+                                })
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->computer_code} - {$record->category->name} (S/N: {$record->serial_number})")
                             ->placeholder('Ningún activo asociado')
@@ -156,8 +164,14 @@ class TicketForm
                             ->disabled($disableTechnicalFields),
                         Select::make('replacement_asset_id')
                             ->label('Activo de Repuesto (Salida / Asignar)')
-                            ->relationship('replacementAsset', 'computer_code', fn ($query) => 
-                                $query->where('status', 'Disponible')
+                            ->relationship('replacementAsset', 'computer_code', fn ($query, $record) => 
+                                $query->where(function ($q) use ($record) {
+                                    $q->where('status', 'Disponible');
+
+                                    if ($record && $record->replacement_asset_id) {
+                                        $q->orWhere('id', $record->replacement_asset_id);
+                                    }
+                                })
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->computer_code} - {$record->category->name} (S/N: {$record->serial_number})")
                             ->placeholder('Sin reemplazo / No aplica')

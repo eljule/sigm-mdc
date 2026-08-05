@@ -10,6 +10,7 @@ use Filament\Schemas\Schema;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\DissociateAction;
 use Filament\Actions\DissociateBulkAction;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -75,6 +76,12 @@ class ComponentsRelationManager extends RelationManager
                 DissociateAction::make()
                     ->label('Desasociar')
                     ->modalHeading('Desasociar de este activo principal'),
+                Action::make('print_ficha')
+                    ->label('Ficha')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->url(fn ($record) => route('fichas.componente', $record->id))
+                    ->openUrlInNewTab(),
             ])
             ->bulkActions([
                 DissociateBulkAction::make(),
