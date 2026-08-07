@@ -16,12 +16,24 @@ class AssetAssignmentForm
         return $schema
             ->components([
                 Select::make('asset_id')
-                    ->relationship('asset', 'computer_code')
+                    ->relationship(
+                        'asset',
+                        'computer_code',
+                        fn ($query, $get, $record) => $query->where(function ($q) use ($record) {
+                            // Solo mostrar activos disponibles
+                            $q->where('status', 'Disponible');
+                            // En edición: también incluir el activo actual del registro
+                            if ($record && $record->asset_id) {
+                                $q->orWhere('id', $record->asset_id);
+                            }
+                        })
+                    )
                     ->label('Activo Tecnológico')
                     ->getOptionLabelFromRecordUsing(fn ($record) => "[{$record->computer_code}] " . ($record->model?->brand?->name ?? '') . " " . ($record->model?->name ?? '') . " ({$record->status})" . ($record->asset_code ? " (Patrimonial: {$record->asset_code})" : ''))
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->helperText('Solo se muestran activos con estado Disponible.'),
                 Select::make('user_id')
                     ->relationship('user', 'name')
                     ->label('Empleado Asignado')

@@ -86,6 +86,7 @@
                             'Disponible' => 'bg-emerald-400 text-emerald-950 border-emerald-300',
                             'Asignado' => 'bg-sky-400 text-sky-950 border-sky-300',
                             'Mantenimiento' => 'bg-amber-400 text-amber-950 border-amber-300',
+                            'En Evaluación' => 'bg-orange-400 text-orange-950 border-orange-300',
                             'Baja' => 'bg-rose-400 text-rose-950 border-rose-300',
                             default => 'bg-slate-400 text-slate-950 border-slate-300'
                         };

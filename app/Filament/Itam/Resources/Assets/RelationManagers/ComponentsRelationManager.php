@@ -60,8 +60,13 @@ class ComponentsRelationManager extends RelationManager
                         'Disponible' => 'success',
                         'Asignado' => 'info',
                         'Mantenimiento' => 'warning',
+                        'En Evaluación' => 'warning',
                         'Baja' => 'danger',
                         default => 'gray',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'En Evaluación' => 'heroicon-o-magnifying-glass',
+                        default => '',
                     }),
             ])
             ->filters([

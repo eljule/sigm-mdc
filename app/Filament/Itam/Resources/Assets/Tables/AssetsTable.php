@@ -52,8 +52,17 @@ class AssetsTable
                         'Disponible' => 'success',
                         'Asignado' => 'info',
                         'Mantenimiento' => 'warning',
+                        'En Evaluación' => 'warning',
                         'Baja' => 'danger',
                         default => 'gray',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'Disponible' => 'heroicon-o-check-circle',
+                        'Asignado' => 'heroicon-o-user',
+                        'Mantenimiento' => 'heroicon-o-wrench-screwdriver',
+                        'En Evaluación' => 'heroicon-o-magnifying-glass',
+                        'Baja' => 'heroicon-o-x-circle',
+                        default => 'heroicon-o-question-mark-circle',
                     })
                     ->sortable()
                     ->toggleable(),
@@ -75,6 +84,7 @@ class AssetsTable
                         'Disponible' => 'Disponible',
                         'Asignado' => 'Asignado',
                         'Mantenimiento' => 'Mantenimiento',
+                        'En Evaluación' => 'En Evaluación',
                         'Baja' => 'Baja',
                     ]),
                 SelectFilter::make('brand')

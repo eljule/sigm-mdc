@@ -125,18 +125,19 @@ class Ticket extends Model
                 $ticket->closed_at = now();
             }
 
-            // Ejecutar reemplazo de activos en inventario si pasa a Resuelto o Cerrado
-            if ($ticket->isDirty('status') && in_array($ticket->status, ['Resuelto', 'Cerrado'])) {
+            // Ejecutar reemplazo de activos en inventario SOLO al pasar a Resuelto.
+            // 'Cerrado' es una confirmación administrativa y no debe repetir la lógica de inventario.
+            if ($ticket->isDirty('status') && $ticket->status === 'Resuelto') {
                 if ($ticket->affected_asset_id) {
                     $affected = $ticket->affectedAsset;
                     if ($affected) {
                         $parentId = $affected->parent_id;
 
-                        // Cambiar estado a Baja, limpiar parent y registrar nota
+                        // Cambiar estado a En Evaluación (pendiente dictamen técnico)
                         $affected->update([
-                            'status' => 'Baja',
+                            'status' => 'En Evaluación',
                             'parent_id' => null,
-                            'notes' => trim(($affected->notes ?? "") . "\nDado de baja por reemplazo en Ticket " . $ticket->ticket_code),
+                            'notes' => trim(($affected->notes ?? "") . "\nPuesto En Evaluación por reemplazo en Ticket " . $ticket->ticket_code . ". Pendiente dictamen técnico para determinar baja definitiva."),
                         ]);
 
                         // Finalizar asignación activa del afectado

@@ -25,6 +25,22 @@ class AssetAssignment extends Model
 
     protected static function booted(): void
     {
+        static::creating(function (AssetAssignment $assignment) {
+            // Verificar que el activo no tenga ya una asignación activa
+            $activeExists = static::where('asset_id', $assignment->asset_id)
+                ->whereNull('returned_at')
+                ->exists();
+
+            if ($activeExists) {
+                $asset = \App\Models\Asset::find($assignment->asset_id);
+                $code = $asset ? $asset->computer_code : "#{$assignment->asset_id}";
+
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'asset_id' => "El activo [{$code}] ya tiene una asignación activa. Primero debe registrar su devolución antes de asignarlo nuevamente.",
+                ]);
+            }
+        });
+
         static::created(function (AssetAssignment $assignment) {
             $assignment->asset->update(['status' => 'Asignado']);
         });
@@ -32,12 +48,13 @@ class AssetAssignment extends Model
         static::updated(function (AssetAssignment $assignment) {
             if ($assignment->isDirty('returned_at') && $assignment->returned_at !== null) {
                 $asset = $assignment->asset;
-                if ($asset && ! in_array($asset->status, ['Baja', 'Mantenimiento'])) {
+                if ($asset && ! in_array($asset->status, ['Baja', 'Mantenimiento', 'En Evaluación'])) {
                     $asset->update(['status' => 'Disponible']);
                 }
             }
         });
     }
+
 
     /**
      * @return BelongsTo<Asset, $this>
