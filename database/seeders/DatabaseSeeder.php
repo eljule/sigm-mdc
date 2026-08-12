@@ -155,50 +155,15 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 6. Roles Específicos por Subsistema
-        $adminCentralRole = Role::create([
-            'subsystem_id' => $subsystemCentral->id,
-            'name' => 'Administrador Central',
-            'guard_name' => 'web',
-        ]);
+        // 6. Roles y Permisos Específicos por Subsistema
+        $this->call(RoleAndPermissionSeeder::class);
 
-        $operadorRentasRole = Role::create([
-            'subsystem_id' => $subsystemRentas->id,
-            'name' => 'Operador de Rentas',
-            'guard_name' => 'web',
-        ]);
-
-        $adminItamRole = Role::create([
-            'subsystem_id' => $subsystemItam->id,
-            'name' => 'Administrador de TI',
-            'guard_name' => 'web',
-        ]);
-
-        $adminHelpdeskRole = Role::create([
-            'subsystem_id' => $subsystemHelpdesk->id,
-            'name' => 'Administrador de Helpdesk',
-            'guard_name' => 'web',
-        ]);
-
-        // Permiso de ejemplo
-        $permissionDeleteTicket = Permission::create([
-            'subsystem_id' => $subsystemHelpdesk->id,
-            'name' => 'eliminar-tickets',
-            'guard_name' => 'web',
-        ]);
-        $adminHelpdeskRole->givePermissionTo($permissionDeleteTicket);
-
-        $tecnicoHelpdeskRole = Role::create([
-            'subsystem_id' => $subsystemHelpdesk->id,
-            'name' => 'Técnico de Soporte',
-            'guard_name' => 'web',
-        ]);
-
-        $usuarioHelpdeskRole = Role::create([
-            'subsystem_id' => $subsystemHelpdesk->id,
-            'name' => 'Usuario Reportante',
-            'guard_name' => 'web',
-        ]);
+        $adminCentralRole     = Role::where('name', 'Administrador Central')->first();
+        $operadorRentasRole   = Role::where('name', 'Operador de Rentas')->first();
+        $adminItamRole        = Role::where('name', 'Administrador de TI')->first();
+        $adminHelpdeskRole    = Role::where('name', 'Administrador de Helpdesk')->first();
+        $tecnicoHelpdeskRole  = Role::where('name', 'Técnico de Soporte')->first();
+        $usuarioHelpdeskRole  = Role::where('name', 'Usuario Reportante')->first();
 
         // 7. Usuarios de Prueba
         // Juan Perez (Técnico de TI / Admin central / Admin ITAM)
@@ -217,6 +182,7 @@ class DatabaseSeeder extends Seeder
         $userJuan->allRoles()->attach($adminCentralRole->id, ['subsystem_id' => $subsystemCentral->id]);
         $userJuan->allRoles()->attach($adminItamRole->id, ['subsystem_id' => $subsystemItam->id]);
         $userJuan->allRoles()->attach($tecnicoHelpdeskRole->id, ['subsystem_id' => $subsystemHelpdesk->id]);
+
 
         // Maria Gomez (Usuario ordinario de Rentas)
         $userMaria = User::create([

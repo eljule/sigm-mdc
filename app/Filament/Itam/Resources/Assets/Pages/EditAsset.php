@@ -3,8 +3,12 @@
 namespace App\Filament\Itam\Resources\Assets\Pages;
 
 use App\Filament\Itam\Resources\Assets\AssetResource;
+use App\Models\AssetDecommission;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\EditRecord;
 
 class EditAsset extends EditRecord
@@ -14,29 +18,119 @@ class EditAsset extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            // Acción: Dar de Baja Definitiva (solo cuando está En Evaluación)
+            // ─── ACCIÓN: Ver Ficha de Baja (cuando ya existe registro de baja) ───
+            Action::make('ver_ficha_baja')
+                ->label('Ver Ficha de Baja')
+                ->icon('heroicon-o-document-text')
+                ->color('gray')
+                ->visible(function () {
+                    if ($this->record->status !== 'Baja') return false;
+                    return AssetDecommission::where('asset_id', $this->record->id)->exists();
+                })
+                ->url(function () {
+                    $decommission = AssetDecommission::where('asset_id', $this->record->id)
+                        ->latest()
+                        ->first();
+                    return $decommission
+                        ? route('fichas.baja', ['id' => $decommission->id])
+                        : null;
+                })
+                ->openUrlInNewTab(),
+
+            // ─── ACCIÓN: Dar de Baja Definitiva (solo En Evaluación y Personal TI) ───
             Action::make('confirmar_baja')
                 ->label('Dar de Baja Definitiva')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
-                ->requiresConfirmation()
-                ->modalHeading('Confirmar Baja Definitiva')
-                ->modalDescription('¿Estás seguro de que este activo debe darse de baja definitivamente? Esta acción registrará el activo como dado de baja y no podrá asignarse nuevamente.')
-                ->modalSubmitActionLabel('Sí, dar de baja')
-                ->visible(fn () => $this->record->status === 'En Evaluación')
-                ->action(function () {
-                    $this->record->update([
-                        'status' => 'Baja',
-                        'notes' => trim(($this->record->notes ?? '') . "\nBaja definitiva confirmada por dictamen técnico el " . now()->format('d/m/Y H:i') . '.'),
+                ->modalHeading('Registro de Baja Definitiva')
+                ->modalSubmitActionLabel('Confirmar Baja')
+                ->modalWidth('2xl')
+                ->visible(fn () => $this->record->status === 'En Evaluación' && (auth()->user()?->isTiStaff() ?? false))
+                ->form([
+                    Select::make('decommissioned_by')
+                        ->label('Técnico Responsable (TI)')
+                        ->options(function () {
+                            $techRoles = ['Administrador Central', 'Administrador de TI', 'Técnico de Soporte'];
+                            return \App\Models\User::whereHas('allRoles', fn ($q) => $q->whereIn('name', $techRoles))
+                                ->pluck('name', 'id')
+                                ->toArray();
+                        })
+                        ->default(auth()->id())
+                        ->required()
+                        ->native(false)
+                        ->helperText('Solo personal técnico del área de Desarrollo Tecnológico / TI está facultado.'),
+
+                    Select::make('reason')
+                        ->label('Motivo de Baja')
+                        ->options(AssetDecommission::reasonOptions())
+                        ->required()
+                        ->native(false),
+
+                    Select::make('resolution_type')
+                        ->label('Tipo de Resolución')
+                        ->options(AssetDecommission::resolutionTypeOptions())
+                        ->required()
+                        ->native(false)
+                        ->helperText('Destino final del activo después de la baja.'),
+
+                    Select::make('ticket_id')
+                        ->label('Ticket de Origen (opcional)')
+                        ->options(function () {
+                            return \App\Models\Ticket::whereIn('status', ['Resuelto', 'Cerrado'])
+                                ->orderByDesc('id')
+                                ->limit(50)
+                                ->get()
+                                ->mapWithKeys(fn ($t) => [$t->id => "{$t->ticket_code} — {$t->title}"])
+                                ->toArray();
+                        })
+                        ->searchable()
+                        ->nullable()
+                        ->helperText('Si esta baja fue originada por un ticket, selecciónelo.'),
+
+                    Textarea::make('evaluation_summary')
+                        ->label('Dictamen Técnico')
+                        ->placeholder('Describa detalladamente la evaluación técnica que determina la baja del activo...')
+                        ->rows(4)
+                        ->columnSpanFull(),
+
+                    TextInput::make('authorized_by')
+                        ->label('Autorizado por')
+                        ->placeholder('Nombre del responsable que autoriza la baja')
+                        ->helperText('Funcionario o jefe de área que autoriza este dictamen.')
+                        ->nullable(),
+                ])
+                ->action(function (array $data) {
+                    $asset = $this->record;
+
+                    // Crear el registro formal de baja
+                    $decommission = AssetDecommission::create([
+                        'asset_id'           => $asset->id,
+                        'ticket_id'          => $data['ticket_id'] ?? null,
+                        'decommissioned_by'  => $data['decommissioned_by'] ?? auth()->id(),
+                        'authorized_by'      => $data['authorized_by'] ?? null,
+                        'decommissioned_at'  => now(),
+                        'reason'             => $data['reason'],
+                        'resolution_type'    => $data['resolution_type'],
+                        'evaluation_summary' => $data['evaluation_summary'] ?? null,
+                        'notes'              => null,
                     ]);
+
+                    // Actualizar el estado del activo
+                    $asset->update([
+                        'status' => 'Baja',
+                        'notes'  => trim(($asset->notes ?? '') . "\nBaja definitiva registrada ({$decommission->ficha_number}) el " . now()->format('d/m/Y H:i') . ". Motivo: {$data['reason']}. Resolución: {$data['resolution_type']}."),
+                    ]);
+
                     $this->refreshFormData(['status', 'notes']);
+
                     \Filament\Notifications\Notification::make()
-                        ->title('Activo dado de baja definitivamente')
+                        ->title("Baja registrada — {$decommission->ficha_number}")
+                        ->body('El activo fue dado de baja definitivamente. Puede imprimir la ficha desde el botón "Ver Ficha de Baja".')
                         ->danger()
                         ->send();
                 }),
 
-            // Acción: Recuperar Activo (solo cuando está En Evaluación)
+            // ─── ACCIÓN: Recuperar Activo (solo En Evaluación y Personal TI) ───
             Action::make('recuperar_activo')
                 ->label('Recuperar Activo')
                 ->icon('heroicon-o-check-circle')
@@ -44,14 +138,13 @@ class EditAsset extends EditRecord
                 ->requiresConfirmation()
                 ->modalHeading('Recuperar Activo')
                 ->modalDescription(function () {
-                    // Buscar la última asignación cerrada para determinar el estado previo
                     $lastAssignment = \App\Models\AssetAssignment::where('asset_id', $this->record->id)
                         ->whereNotNull('returned_at')
                         ->orderByDesc('returned_at')
                         ->first();
 
                     if ($lastAssignment) {
-                        $user = $lastAssignment->user?->name ?? "usuario #{$lastAssignment->user_id}";
+                        $user   = $lastAssignment->user?->name ?? "usuario #{$lastAssignment->user_id}";
                         $office = $lastAssignment->office?->name ?? '';
                         return "El activo fue evaluado positivamente. Se reactivará su asignación anterior a {$user}" . ($office ? " — {$office}" : '') . " y volverá al estado Asignado.";
                     }
@@ -59,42 +152,35 @@ class EditAsset extends EditRecord
                     return 'El activo fue evaluado positivamente. No tenía asignación previa, por lo que pasará al estado Disponible.';
                 })
                 ->modalSubmitActionLabel('Sí, recuperar activo')
-                ->visible(fn () => $this->record->status === 'En Evaluación')
+                ->visible(fn () => $this->record->status === 'En Evaluación' && (auth()->user()?->isTiStaff() ?? false))
                 ->action(function () {
                     $asset = $this->record;
 
-                    // Buscar la última asignación cerrada de este activo
                     $lastAssignment = \App\Models\AssetAssignment::where('asset_id', $asset->id)
                         ->whereNotNull('returned_at')
                         ->orderByDesc('returned_at')
                         ->first();
 
                     if ($lastAssignment) {
-                        // Reactivar la asignación anterior: borrar returned_at
                         $lastAssignment->update([
                             'returned_at' => null,
-                            'notes' => trim(($lastAssignment->notes ?? '') . "\nAsignación reactivada por recuperación del activo el " . now()->format('d/m/Y H:i') . '.'),
+                            'notes'       => trim(($lastAssignment->notes ?? '') . "\nAsignación reactivada por recuperación del activo el " . now()->format('d/m/Y H:i') . '.'),
                         ]);
-
                         $asset->update([
                             'status' => 'Asignado',
-                            'notes' => trim(($asset->notes ?? '') . "\nActivo recuperado por dictamen técnico el " . now()->format('d/m/Y H:i') . '. Asignación reactivada.'),
+                            'notes'  => trim(($asset->notes ?? '') . "\nActivo recuperado por dictamen técnico el " . now()->format('d/m/Y H:i') . '. Asignación reactivada.'),
                         ]);
-
                         $userName = $lastAssignment->user?->name ?? "usuario #{$lastAssignment->user_id}";
-
                         \Filament\Notifications\Notification::make()
                             ->title("Activo recuperado — Asignado a {$userName}")
                             ->body('La asignación anterior fue reactivada.')
                             ->success()
                             ->send();
                     } else {
-                        // Sin asignación previa: dejar como Disponible
                         $asset->update([
                             'status' => 'Disponible',
-                            'notes' => trim(($asset->notes ?? '') . "\nActivo recuperado y marcado como Disponible por dictamen técnico el " . now()->format('d/m/Y H:i') . '.'),
+                            'notes'  => trim(($asset->notes ?? '') . "\nActivo recuperado y marcado como Disponible por dictamen técnico el " . now()->format('d/m/Y H:i') . '.'),
                         ]);
-
                         \Filament\Notifications\Notification::make()
                             ->title('Activo recuperado y disponible')
                             ->body('El activo no tenía asignación previa. Marcado como Disponible.')

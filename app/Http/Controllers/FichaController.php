@@ -55,9 +55,23 @@ class FichaController extends Controller
     {
         $maintenance = AssetMaintenance::with([
             'asset.model.brand',
-            'asset.category'
+            'asset.category',
+            'ticket',
         ])->findOrFail($id);
 
         return view('fichas.mantenimiento', compact('maintenance'));
+    }
+
+    public function baja(int $id)
+    {
+        $decommission = \App\Models\AssetDecommission::with([
+            'asset.model.brand',
+            'asset.category',
+            'asset.assignments' => fn ($q) => $q->with(['user', 'office'])->orderByDesc('assigned_at'),
+            'ticket',
+            'decommissionedBy',
+        ])->findOrFail($id);
+
+        return view('fichas.baja', compact('decommission'));
     }
 }

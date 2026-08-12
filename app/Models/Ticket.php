@@ -125,48 +125,87 @@ class Ticket extends Model
                 $ticket->closed_at = now();
             }
 
-            // Ejecutar reemplazo de activos en inventario SOLO al pasar a Resuelto.
-            // 'Cerrado' es una confirmación administrativa y no debe repetir la lógica de inventario.
-            if ($ticket->isDirty('status') && $ticket->status === 'Resuelto') {
-                if ($ticket->affected_asset_id) {
-                    $affected = $ticket->affectedAsset;
-                    if ($affected) {
-                        $parentId = $affected->parent_id;
+            // ─────────────────────────────────────────────────────────────────
+            // LÓGICA DE ACTIVOS EN INVENTARIO
+            // ─────────────────────────────────────────────────────────────────
+            // "Internado" → El equipo entra al taller para evaluación profunda.
+            //               El activo pasa a "En Evaluación" y se cierra su asignación.
+            //               Si hay un activo de préstamo, se asigna temporalmente al solicitante.
+            //
+            // "Resuelto"  → Solo actúa si el activo NO está ya en "En Evaluación"
+            //               (evita doble procesamiento cuando el ticket pasó por "Internado").
+            //               Para tickets resueltos directamente (sin internar), funciona igual.
+            //
+            // "Cerrado"   → Solo cierre administrativo. No modifica el inventario.
+            // ─────────────────────────────────────────────────────────────────
 
-                        // Cambiar estado a En Evaluación (pendiente dictamen técnico)
-                        $affected->update([
-                            'status' => 'En Evaluación',
-                            'parent_id' => null,
-                            'notes' => trim(($affected->notes ?? "") . "\nPuesto En Evaluación por reemplazo en Ticket " . $ticket->ticket_code . ". Pendiente dictamen técnico para determinar baja definitiva."),
+            $debeProcessarActivos =
+                $ticket->isDirty('status') && (
+                    // Caso 1: Internado → siempre procesa
+                    $ticket->status === 'Internado'
+                    ||
+                    // Caso 2: Resuelto → solo si el activo afectado NO está ya en Evaluación
+                    (
+                        $ticket->status === 'Resuelto'
+                        && (function () use ($ticket): bool {
+                            if (! $ticket->affected_asset_id) return true; // sin activo: procesar normalmente
+                            $affected = \App\Models\Asset::find($ticket->affected_asset_id);
+                            // Si ya está En Evaluación, significa que "Internado" ya lo procesó → omitir
+                            return $affected && $affected->status !== 'En Evaluación';
+                        })()
+                    )
+                );
+
+            if ($debeProcessarActivos && $ticket->affected_asset_id) {
+                $affected = $ticket->affectedAsset;
+                if ($affected) {
+                    $parentId = $affected->parent_id;
+
+                    // Determinar contexto para la nota
+                    $contexto = $ticket->status === 'Internado'
+                        ? "Internado al taller en Ticket {$ticket->ticket_code}. Pendiente evaluación técnica."
+                        : "Puesto En Evaluación por reemplazo en Ticket {$ticket->ticket_code}. Pendiente dictamen técnico para determinar baja definitiva.";
+
+                    // Cambiar estado a En Evaluación
+                    $affected->update([
+                        'status'    => 'En Evaluación',
+                        'parent_id' => null,
+                        'notes'     => trim(($affected->notes ?? '') . "\n" . $contexto),
+                    ]);
+
+                    // Finalizar asignación activa del afectado
+                    \App\Models\AssetAssignment::where('asset_id', $affected->id)
+                        ->whereNull('returned_at')
+                        ->update([
+                            'returned_at' => now(),
+                            'notes'       => $ticket->status === 'Internado'
+                                ? "Asignación suspendida por internado del equipo en Ticket {$ticket->ticket_code}"
+                                : "Asignación finalizada por reemplazo en Ticket {$ticket->ticket_code}",
                         ]);
 
-                        // Finalizar asignación activa del afectado
-                        \App\Models\AssetAssignment::where('asset_id', $affected->id)
-                            ->whereNull('returned_at')
-                            ->update([
-                                'returned_at' => now(),
-                                'notes' => "Asignación finalizada por baja en Ticket " . $ticket->ticket_code,
+                    // Si hay activo de préstamo/repuesto, asignarlo al solicitante
+                    if ($ticket->replacement_asset_id) {
+                        $replacement = $ticket->replacementAsset;
+                        if ($replacement) {
+                            $esInterno     = $ticket->status === 'Internado';
+                            $notaRepuesto  = $esInterno
+                                ? "Prestado temporalmente mientras {$affected->computer_code} está internado — Ticket {$ticket->ticket_code}"
+                                : "Asignado como reemplazo de {$affected->computer_code} en Ticket {$ticket->ticket_code}";
+
+                            $replacement->update([
+                                'status'   => 'Asignado',
+                                'parent_id' => $parentId,
+                                'notes'    => trim(($replacement->notes ?? '') . "\n" . $notaRepuesto),
                             ]);
 
-                        // Si hay un repuesto disponible, reasignarlo y reconstruir jerarquía
-                        if ($ticket->replacement_asset_id) {
-                            $replacement = $ticket->replacementAsset;
-                            if ($replacement) {
-                                $replacement->update([
-                                    'status' => 'Asignado',
-                                    'parent_id' => $parentId,
-                                    'notes' => trim(($replacement->notes ?? "") . "\nAsignado como reemplazo de " . $affected->computer_code . " en Ticket " . $ticket->ticket_code),
-                                ]);
-
-                                // Crear nueva asignación para el solicitante
-                                \App\Models\AssetAssignment::create([
-                                    'asset_id' => $replacement->id,
-                                    'user_id' => $ticket->requester_id,
-                                    'office_id' => $ticket->office_id,
-                                    'assigned_at' => now(),
-                                    'notes' => "Asignado como reemplazo de " . $affected->computer_code . " en Ticket " . $ticket->ticket_code,
-                                ]);
-                            }
+                            // Crear asignación para el solicitante
+                            \App\Models\AssetAssignment::create([
+                                'asset_id'    => $replacement->id,
+                                'user_id'     => $ticket->requester_id,
+                                'office_id'   => $ticket->office_id,
+                                'assigned_at' => now(),
+                                'notes'       => $notaRepuesto,
+                            ]);
                         }
                     }
                 }

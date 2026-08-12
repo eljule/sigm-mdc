@@ -71,12 +71,22 @@ class TicketsTable
                         TextColumn::make('status')
                             ->badge()
                             ->color(fn (string $state): string => match ($state) {
-                                'Abierto' => 'danger',
-                                'En Proceso' => 'warning',
+                                'Abierto'            => 'danger',
+                                'En Proceso'         => 'warning',
+                                'Internado'          => 'orange',
+                                'En Espera'          => 'info',
                                 'Esperando Terceros' => 'gray',
-                                'Resuelto' => 'info',
-                                'Cerrado' => 'success',
-                                default => 'gray',
+                                'Resuelto'           => 'info',
+                                'Cerrado'            => 'success',
+                                default              => 'gray',
+                            })
+                            ->icon(fn (string $state): string => match ($state) {
+                                'Internado'  => 'heroicon-o-building-storefront',
+                                'En Espera'  => 'heroicon-o-clock',
+                                'Resuelto'   => 'heroicon-o-check-circle',
+                                'Cerrado'    => 'heroicon-o-lock-closed',
+                                'Abierto'    => 'heroicon-o-fire',
+                                default      => '',
                             }),
                         TextColumn::make('assignee.name')
                             ->placeholder('Sin asignar')
@@ -104,11 +114,13 @@ class TicketsTable
                 SelectFilter::make('status')
                     ->label('Estado')
                     ->options([
-                        'Abierto' => 'Abierto',
-                        'En Proceso' => 'En Proceso',
+                        'Abierto'            => 'Abierto',
+                        'En Proceso'         => 'En Proceso',
+                        'Internado'          => 'Internado',
+                        'En Espera'          => 'En Espera',
                         'Esperando Terceros' => 'Esperando Terceros',
-                        'Resuelto' => 'Resuelto',
-                        'Cerrado' => 'Cerrado',
+                        'Resuelto'           => 'Resuelto',
+                        'Cerrado'            => 'Cerrado',
                     ]),
             ])
             ->recordActions([

@@ -135,6 +135,8 @@ class TicketForm
                             ->options([
                                 'Abierto' => 'Abierto',
                                 'En Proceso' => 'En Proceso',
+                                'Internado' => 'Internado',
+                                'En Espera' => 'En Espera',
                                 'Esperando Terceros' => 'Esperando Terceros',
                                 'Resuelto' => 'Resuelto',
                                 'Cerrado' => 'Cerrado',
@@ -143,7 +145,9 @@ class TicketForm
                             ->required()
                             ->disabled($disableTechnicalFields),
                         Select::make('affected_asset_id')
-                            ->label('Activo con Falla (Entrada / Desvincular)')
+                            ->label(fn ($get) => $get('status') === 'Internado'
+                                ? 'Activo a Internar al Taller'
+                                : 'Activo con Falla (Entrada / Desvincular)')
                             ->relationship('affectedAsset', 'computer_code', fn ($query, $get, $record) => 
                                 $query->where(function ($q1) use ($get, $record) {
                                     $q1->whereHas('assignments', fn ($q) => 
@@ -163,7 +167,9 @@ class TicketForm
                             ->preload()
                             ->disabled($disableTechnicalFields),
                         Select::make('replacement_asset_id')
-                            ->label('Activo de Repuesto (Salida / Asignar)')
+                            ->label(fn ($get) => $get('status') === 'Internado'
+                                ? 'Activo de Préstamo Temporal (mientras está internado)'
+                                : 'Activo de Repuesto (Salida / Asignar)')
                             ->relationship('replacementAsset', 'computer_code', fn ($query, $record) => 
                                 $query->where(function ($q) use ($record) {
                                     $q->where('status', 'Disponible');

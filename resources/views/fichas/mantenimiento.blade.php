@@ -95,7 +95,6 @@
         }
         .info-value-full {
             color: #0f172a;
-            white-space: pre-wrap;
         }
         .signatures {
             display: grid;
@@ -229,7 +228,49 @@
 
     <div class="info-item-full">
         <div class="info-label-full">Descripción del Problema o Tareas Programadas:</div>
-        <div class="info-value-full">{{ $maintenance->description }}</div>
+        <div class="info-value-full">
+            @php
+                // Estrategia 1: si hay ticket vinculado directamente por ticket_id,
+                // usamos su URL directamente (más fiable).
+                $ticketUrl = null;
+                if ($maintenance->ticket) {
+                    $ticketUrl = route('fichas.ticket', ['id' => $maintenance->ticket->id]);
+                }
+
+                // Estrategia 2: convertir menciones textuales del patrón "Ticket: INC-XXXX-XXXXX"
+                // en hipervínculos, buscando el ticket por su código.
+                $description = e($maintenance->description);
+                $description = preg_replace_callback(
+                    '/Ticket:\s*([A-Z]+-\d{4}-\d{4,})/i',
+                    function ($matches) {
+                        $code = $matches[1];
+                        $ticket = \App\Models\Ticket::where('ticket_code', $code)->first();
+                        if ($ticket) {
+                            $url = route('fichas.ticket', ['id' => $ticket->id]);
+                            return 'Ticket: <a href="' . $url . '" target="_blank" style="color:#008435;font-weight:600;text-decoration:underline;">' . $code . '</a>';
+                        }
+                        // Si no encuentra el ticket, deja el texto tal cual
+                        return 'Ticket: ' . $code;
+                    },
+                    $description
+                );
+            @endphp
+
+            {{-- Badge de enlace directo si hay ticket_id vinculado --}}
+            @if ($ticketUrl && $maintenance->ticket)
+                <div style="margin-bottom:2px;margin-top:0;">
+                    <a href="{{ $ticketUrl }}" target="_blank"
+                       style="display:inline-flex;align-items:center;gap:5px;background:#e6f4eb;color:#008435;border:1px solid #008435;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;text-decoration:none;line-height:1.4;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.102m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                        Ver Ticket: {{ $maintenance->ticket->ticket_code }}
+                    </a>
+                </div>
+            @endif
+
+            <span style="white-space:pre-wrap;">{!! $description !!}</span>
+        </div>
     </div>
 
     <div class="info-item-full">

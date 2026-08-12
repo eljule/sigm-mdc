@@ -125,4 +125,16 @@ class User extends Authenticatable
         return $this->morphToMany(Role::class, 'model', 'model_has_roles', 'model_id', 'role_id')
             ->withPivot('subsystem_id');
     }
+
+    /**
+     * Indica si el usuario pertenece al personal técnico / TI facultado para evaluaciones y bajas.
+     */
+    public function isTiStaff(): bool
+    {
+        $userRoles = $this->allRoles->pluck('name')->toArray();
+        $techRoles = ['Administrador Central', 'Administrador de TI', 'Técnico de Soporte'];
+
+        return count(array_intersect($userRoles, $techRoles)) > 0;
+    }
 }
+

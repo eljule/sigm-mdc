@@ -40,4 +40,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/fichas/componente/{id}', [\App\Http\Controllers\FichaController::class, 'componente'])->name('fichas.componente');
     Route::get('/fichas/ticket/{id}', [\App\Http\Controllers\FichaController::class, 'ticket'])->name('fichas.ticket');
     Route::get('/fichas/mantenimiento/{id}', [\App\Http\Controllers\FichaController::class, 'mantenimiento'])->name('fichas.mantenimiento');
+    Route::get('/fichas/baja/{id}', [\App\Http\Controllers\FichaController::class, 'baja'])->name('fichas.baja');
 });
