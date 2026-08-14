@@ -31,12 +31,42 @@ class RoleAndPermissionSeeder extends Seeder
         // 2. Definir Permisos por Subsistema
         $permissionsData = [
             'helpdesk' => [
-                'eliminar-tickets',
-                'modificar-tickets',
+                // Tickets
+                'consultar-tickets',
                 'insertar-tickets',
+                'modificar-tickets',
+                'eliminar-tickets',
+                // Categorías de Tickets
+                'consultar-categorias',
                 'insertar-categorias',
                 'modificar-categorias',
                 'eliminar-categorias',
+                // Base de Conocimientos
+                'consultar-kb',
+                'insertar-kb',
+                'modificar-kb',
+                'eliminar-kb',
+            ],
+            'itam' => [
+                // Activos
+                'consultar-activos',
+                'insertar-activos',
+                'modificar-activos',
+                'eliminar-activos',
+                'dictaminar-baja-activos',
+                // Asignaciones
+                'consultar-asignaciones',
+                'insertar-asignaciones',
+                'modificar-asignaciones',
+                'eliminar-asignaciones',
+                // Mantenimientos
+                'consultar-mantenimientos',
+                'insertar-mantenimientos',
+                'modificar-mantenimientos',
+                'eliminar-mantenimientos',
+                // Catálogos TI (Marcas, Modelos, Categorías, Software, Consumibles)
+                'consultar-catalogos-ti',
+                'gestionar-catalogos-ti',
             ],
         ];
 
@@ -71,20 +101,32 @@ class RoleAndPermissionSeeder extends Seeder
             $createdRoles[$rData['name']] = $role;
         }
 
-        // 4. Asignar Permisos a Roles
+        // 4. Asignar Permisos a Roles por Subsistema
         $rolePermissionsMap = [
             'Administrador de Helpdesk' => [
-                'eliminar-tickets',
-                'modificar-tickets',
-                'insertar-categorias',
-                'modificar-categorias',
-                'eliminar-categorias',
+                'consultar-tickets', 'insertar-tickets', 'modificar-tickets', 'eliminar-tickets',
+                'consultar-categorias', 'insertar-categorias', 'modificar-categorias', 'eliminar-categorias',
+                'consultar-kb', 'insertar-kb', 'modificar-kb', 'eliminar-kb',
             ],
             'Técnico de Soporte' => [
-                'modificar-tickets',
+                'consultar-tickets', 'insertar-tickets', 'modificar-tickets',
+                'consultar-categorias',
+                'consultar-kb', 'insertar-kb', 'modificar-kb',
             ],
             'Usuario Reportante' => [
-                'insertar-tickets',
+                'consultar-tickets', 'insertar-tickets',
+            ],
+            'Administrador de TI' => [
+                'consultar-activos', 'insertar-activos', 'modificar-activos', 'eliminar-activos', 'dictaminar-baja-activos',
+                'consultar-asignaciones', 'insertar-asignaciones', 'modificar-asignaciones', 'eliminar-asignaciones',
+                'consultar-mantenimientos', 'insertar-mantenimientos', 'modificar-mantenimientos', 'eliminar-mantenimientos',
+                'consultar-catalogos-ti', 'gestionar-catalogos-ti',
+            ],
+            'Soporte TI' => [
+                'consultar-activos', 'insertar-activos', 'modificar-activos', 'dictaminar-baja-activos',
+                'consultar-asignaciones', 'insertar-asignaciones', 'modificar-asignaciones',
+                'consultar-mantenimientos', 'insertar-mantenimientos', 'modificar-mantenimientos',
+                'consultar-catalogos-ti',
             ],
         ];
 
@@ -97,6 +139,7 @@ class RoleAndPermissionSeeder extends Seeder
                 $role->syncPermissions($permNames);
             }
         }
+
 
         // Restablecer el team context
         app(PermissionRegistrar::class)->setPermissionsTeamId(null);

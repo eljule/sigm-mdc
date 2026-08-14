@@ -23,20 +23,34 @@ class KnowledgeBaseResource extends Resource
 
     protected static ?string $pluralModelLabel = 'base de conocimiento';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-book-open';
+
+    protected static ?string $navigationLabel = 'Base de Conocimientos';
+
+    protected static ?int $navigationSort = 2;
 
     /**
      * Solo técnicos de soporte y administradores pueden acceder a este recurso.
      * Los usuarios con rol 'Usuario Reportante' deben usar el portal /soporte.
      */
-    public static function canAccess(): bool
+    public static function canViewAny(): bool
     {
-        $user = auth()->user();
-        if (! $user) {
-            return false;
-        }
+        return auth()->user()?->can('consultar-kb') ?? false;
+    }
 
-        return $user->hasRole('Técnico de Soporte') || $user->hasRole('Administrador Central');
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('insertar-kb') ?? false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('modificar-kb') ?? false;
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('eliminar-kb') ?? false;
     }
 
     public static function form(Schema $schema): Schema

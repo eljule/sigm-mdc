@@ -22,7 +22,11 @@ class LaborConditionResource extends Resource
 
     protected static ?string $pluralModelLabel = 'condiciones laborales';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-briefcase';
+
+    protected static ?string $navigationLabel = 'Condiciones Laborales';
+
+    protected static ?int $navigationSort = 6;
 
     public static function form(Schema $schema): Schema
     {

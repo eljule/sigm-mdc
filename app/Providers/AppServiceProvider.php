@@ -24,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Super-Admin Bypass: Administrador Central aprueba implícitamente todos los permisos
+        \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
+            return $user->hasRole('Administrador Central') ? true : null;
+        });
+
         Event::listen(ServingFilament::class, function () {
             $panel = Filament::getCurrentPanel();
             if ($panel) {
@@ -37,4 +42,5 @@ class AppServiceProvider extends ServiceProvider
             }
         });
     }
+
 }

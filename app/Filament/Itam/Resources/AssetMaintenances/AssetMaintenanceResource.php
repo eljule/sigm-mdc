@@ -18,11 +18,33 @@ class AssetMaintenanceResource extends Resource
 {
     protected static ?string $model = AssetMaintenance::class;
 
-    protected static ?string $modelLabel = 'mantenimiento';
-
     protected static ?string $pluralModelLabel = 'mantenimientos';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-wrench-screwdriver';
+
+    protected static ?string $navigationLabel = 'Mantenimientos';
+
+    protected static ?int $navigationSort = 3;
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('consultar-mantenimientos') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('insertar-mantenimientos') ?? false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('modificar-mantenimientos') ?? false;
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('eliminar-mantenimientos') ?? false;
+    }
 
     public static function form(Schema $schema): Schema
     {

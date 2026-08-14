@@ -21,11 +21,33 @@ class AssetResource extends Resource
 {
     protected static ?string $model = Asset::class;
 
-    protected static ?string $modelLabel = 'activo';
-
     protected static ?string $pluralModelLabel = 'activos';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-computer-desktop';
+
+    protected static ?string $navigationLabel = 'Activos Tecnológicos';
+
+    protected static ?int $navigationSort = 1;
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('consultar-activos') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('insertar-activos') ?? false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('modificar-activos') ?? false;
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('eliminar-activos') ?? false;
+    }
 
     public static function form(Schema $schema): Schema
     {

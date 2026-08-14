@@ -22,9 +22,33 @@ class AssetCategoryResource extends Resource
 
     protected static ?string $pluralModelLabel = 'categorías de activos';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFolderOpen;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-folder-open';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos';
+    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos TI';
+
+    protected static ?string $navigationLabel = 'Categorías de Activos';
+
+    protected static ?int $navigationSort = 14;
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('consultar-catalogos-ti') || auth()->user()?->can('gestionar-catalogos-ti');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('gestionar-catalogos-ti') ?? false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('gestionar-catalogos-ti') ?? false;
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('gestionar-catalogos-ti') ?? false;
+    }
 
     public static function form(Schema $schema): Schema
     {

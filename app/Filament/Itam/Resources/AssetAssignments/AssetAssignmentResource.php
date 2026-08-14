@@ -18,11 +18,33 @@ class AssetAssignmentResource extends Resource
 {
     protected static ?string $model = AssetAssignment::class;
 
-    protected static ?string $modelLabel = 'asignación';
-
     protected static ?string $pluralModelLabel = 'asignaciones';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
+
+    protected static ?string $navigationLabel = 'Asignaciones';
+
+    protected static ?int $navigationSort = 2;
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('consultar-asignaciones') ?? false;
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('insertar-asignaciones') ?? false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('modificar-asignaciones') ?? false;
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('eliminar-asignaciones') ?? false;
+    }
 
     public static function form(Schema $schema): Schema
     {

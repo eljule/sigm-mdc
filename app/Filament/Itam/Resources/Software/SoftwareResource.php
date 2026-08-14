@@ -18,11 +18,35 @@ class SoftwareResource extends Resource
 {
     protected static ?string $model = Software::class;
 
-    protected static ?string $modelLabel = 'software';
-
     protected static ?string $pluralModelLabel = 'software';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-command-line';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Catálogos TI';
+
+    protected static ?string $navigationLabel = 'Software Autorizado';
+
+    protected static ?int $navigationSort = 11;
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()?->can('consultar-catalogos-ti') || auth()->user()?->can('gestionar-catalogos-ti');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('gestionar-catalogos-ti') ?? false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('gestionar-catalogos-ti') ?? false;
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('gestionar-catalogos-ti') ?? false;
+    }
 
     public static function form(Schema $schema): Schema
     {

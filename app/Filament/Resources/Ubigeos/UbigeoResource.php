@@ -22,7 +22,11 @@ class UbigeoResource extends Resource
 
     protected static ?string $pluralModelLabel = 'ubigeos';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-map-pin';
+
+    protected static ?string $navigationLabel = 'Ubigeos';
+
+    protected static ?int $navigationSort = 8;
 
     public static function form(Schema $schema): Schema
     {

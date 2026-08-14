@@ -22,7 +22,11 @@ class DocumentTypeResource extends Resource
 
     protected static ?string $pluralModelLabel = 'tipos de documento';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-identification';
+
+    protected static ?string $navigationLabel = 'Tipos de Documento';
+
+    protected static ?int $navigationSort = 7;
 
     public static function form(Schema $schema): Schema
     {

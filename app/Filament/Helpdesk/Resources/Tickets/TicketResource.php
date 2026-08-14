@@ -20,11 +20,13 @@ class TicketResource extends Resource
 {
     protected static ?string $model = Ticket::class;
 
-    protected static ?string $modelLabel = 'ticket';
-
     protected static ?string $pluralModelLabel = 'tickets';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-ticket';
+
+    protected static ?string $navigationLabel = 'Tickets de Soporte';
+
+    protected static ?int $navigationSort = 1;
 
     /**
      * Solo técnicos de soporte y administradores acceden al panel de tickets.
@@ -34,17 +36,20 @@ class TicketResource extends Resource
     {
         $user = auth()->user();
         if (! $user) {
-            \Illuminate\Support\Facades\Log::info('canAccess: No user logged in');
             return false;
         }
 
-        $roles = $user->allRoles()->pluck('name')->toArray();
-        $teamId = app(\Spatie\Permission\PermissionRegistrar::class)->getPermissionsTeamId();
-        \Illuminate\Support\Facades\Log::info('canAccess checking. Method: ' . request()->method() . ' URL: ' . request()->fullUrl() . ' User: ' . $user->email . ' with roles: ' . implode(', ', $roles) . ' and Spatie Team ID: ' . var_export($teamId, true));
+        return $user->can('consultar-tickets') || $user->hasRole('Técnico de Soporte') || $user->hasRole('Administrador de Helpdesk') || $user->hasRole('Administrador Central');
+    }
 
-        $can = $user->hasRole('Técnico de Soporte') || $user->hasRole('Administrador Central');
-        \Illuminate\Support\Facades\Log::info('canAccess result: ' . ($can ? 'true' : 'false'));
-        return $can;
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('insertar-tickets') ?? false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('modificar-tickets') ?? false;
     }
 
     public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
@@ -59,12 +64,10 @@ class TicketResource extends Resource
             return parent::getEloquentQuery();
         }
 
-        // Si es Técnico de Soporte o Administrador Central, ve todo
-        if ($user->hasRole('Técnico de Soporte') || $user->hasRole('Administrador Central')) {
+        if ($user->hasRole('Técnico de Soporte') || $user->hasRole('Administrador de Helpdesk') || $user->hasRole('Administrador Central')) {
             return parent::getEloquentQuery();
         }
 
-        // De lo contrario, solo ve sus propios tickets
         return parent::getEloquentQuery()->where('requester_id', $user->id);
     }
 

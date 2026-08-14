@@ -22,7 +22,11 @@ class PermissionResource extends Resource
 
     protected static ?string $pluralModelLabel = 'permisos';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-key';
+
+    protected static ?string $navigationLabel = 'Permisos';
+
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

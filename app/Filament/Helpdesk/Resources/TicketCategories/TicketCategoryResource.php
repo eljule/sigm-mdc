@@ -22,19 +22,33 @@ class TicketCategoryResource extends Resource
 
     protected static ?string $pluralModelLabel = 'categorías';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-folder';
+
+    protected static ?string $navigationLabel = 'Categorías de Tickets';
+
+    protected static ?int $navigationSort = 3;
 
     /**
      * Solo técnicos de soporte y administradores pueden gestionar categorías.
      */
-    public static function canAccess(): bool
+    public static function canViewAny(): bool
     {
-        $user = auth()->user();
-        if (! $user) {
-            return false;
-        }
+        return auth()->user()?->can('consultar-categorias') ?? false;
+    }
 
-        return $user->hasRole('Técnico de Soporte') || $user->hasRole('Administrador Central');
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->can('insertar-categorias') ?? false;
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('modificar-categorias') ?? false;
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return auth()->user()?->can('eliminar-categorias') ?? false;
     }
 
     public static function form(Schema $schema): Schema
