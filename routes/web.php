@@ -41,4 +41,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/fichas/ticket/{id}', [\App\Http\Controllers\FichaController::class, 'ticket'])->name('fichas.ticket');
     Route::get('/fichas/mantenimiento/{id}', [\App\Http\Controllers\FichaController::class, 'mantenimiento'])->name('fichas.mantenimiento');
     Route::get('/fichas/baja/{id}', [\App\Http\Controllers\FichaController::class, 'baja'])->name('fichas.baja');
+    Route::get('/fichas/entrega-consumibles/{id}', [\App\Http\Controllers\FichaController::class, 'entregaConsumibles'])->name('fichas.entrega_consumibles');
+    Route::get('/fichas/prestamo-equipo/{id}', [\App\Http\Controllers\FichaController::class, 'prestamoEquipo'])->name('fichas.prestamo_equipo');
 });
+

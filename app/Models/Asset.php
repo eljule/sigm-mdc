@@ -105,4 +105,25 @@ class Asset extends Model
         return $this->belongsToMany(Software::class, 'asset_software')
             ->withPivot('installed_at');
     }
+
+    /**
+     * @return HasMany<AssetLoan, $this>
+     */
+    public function loans(): HasMany
+    {
+        return $this->hasMany(AssetLoan::class);
+    }
+
+    /**
+     * Scope para filtrar activos principales libres para préstamo temporal (sin asignación activa y no componentes de otra PC).
+     */
+    public function scopeAvailableForLoan($query)
+    {
+        return $query->whereNull('parent_id')
+            ->where(function ($q) {
+                $q->where('status', 'Disponible')
+                  ->orWhere('status', 'disponible');
+            })
+            ->whereDoesntHave('assignments', fn ($q) => $q->whereNull('returned_at'));
+    }
 }

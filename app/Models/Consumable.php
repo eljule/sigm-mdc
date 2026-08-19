@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\EloquentRelations\HasMany;
 
-class Consumable extends Model
+Class Consumable extends Model
 {
     protected $fillable = [
         'name',
@@ -27,5 +27,13 @@ class Consumable extends Model
     public function ticketConsumables(): HasMany
     {
         return $this->hasMany(TicketConsumable::class);
+    }
+
+    /**
+     * @return HasMany<ConsumableDeliveryItem, $this>
+     */
+    public function deliveryItems(): HasMany
+    {
+        return $this->hasMany(ConsumableDeliveryItem::class);
     }
 }

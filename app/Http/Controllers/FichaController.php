@@ -74,4 +74,27 @@ class FichaController extends Controller
 
         return view('fichas.baja', compact('decommission'));
     }
+
+    public function entregaConsumibles(int $id)
+    {
+        $delivery = \App\Models\ConsumableDelivery::with([
+            'office',
+            'items.consumable',
+        ])->findOrFail($id);
+
+        return view('fichas.entrega_consumibles', compact('delivery'));
+    }
+
+    public function prestamoEquipo(int $id)
+    {
+        $loan = \App\Models\AssetLoan::with([
+            'asset.model.brand',
+            'asset.category',
+            'office',
+            'creator',
+        ])->findOrFail($id);
+
+        return view('fichas.prestamo_equipo', compact('loan'));
+    }
 }
+
