@@ -85,4 +85,16 @@ class LoanCalendarPage extends Page
             ];
         });
     }
+
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->can('consultar-prestamos') || 
+               $user->can('consultar-activos') || 
+               $user->can('gestionar-inventario');
+    }
 }

@@ -34,13 +34,9 @@ class AssetLoanResource extends Resource
             return false;
         }
 
-        return $user->can('consultar-activos') || 
-               $user->can('consultar-asignaciones') || 
-               $user->can('consultar-inventario') || 
-               $user->can('gestionar-inventario') ||
-               $user->hasRole('Soporte TI') ||
-               $user->hasRole('Super Admin') ||
-               true;
+        return $user->can('consultar-prestamos') || 
+               $user->can('consultar-activos') || 
+               $user->can('gestionar-inventario');
     }
 
     public static function canCreate(): bool
@@ -50,12 +46,9 @@ class AssetLoanResource extends Resource
             return false;
         }
 
-        return $user->can('insertar-activos') || 
-               $user->can('insertar-asignaciones') || 
-               $user->can('gestionar-inventario') || 
-               $user->hasRole('Soporte TI') ||
-               $user->hasRole('Super Admin') ||
-               true;
+        return $user->can('insertar-prestamos') || 
+               $user->can('insertar-activos') || 
+               $user->can('gestionar-inventario');
     }
 
     public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
@@ -65,12 +58,9 @@ class AssetLoanResource extends Resource
             return false;
         }
 
-        return $user->can('modificar-activos') || 
-               $user->can('modificar-asignaciones') || 
-               $user->can('gestionar-inventario') || 
-               $user->hasRole('Soporte TI') ||
-               $user->hasRole('Super Admin') ||
-               true;
+        return $user->can('modificar-prestamos') || 
+               $user->can('modificar-activos') || 
+               $user->can('gestionar-inventario');
     }
 
     public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
@@ -80,12 +70,9 @@ class AssetLoanResource extends Resource
             return false;
         }
 
-        return $user->can('eliminar-activos') || 
-               $user->can('eliminar-asignaciones') || 
-               $user->can('gestionar-inventario') || 
-               $user->hasRole('Soporte TI') ||
-               $user->hasRole('Super Admin') ||
-               true;
+        return $user->can('eliminar-prestamos') || 
+               $user->can('eliminar-activos') || 
+               $user->can('gestionar-inventario');
     }
 
     public static function form(Schema $schema): Schema
