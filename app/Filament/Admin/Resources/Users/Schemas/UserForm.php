@@ -27,9 +27,9 @@ class UserForm
                     ->unique(ignoreRecord: true)
                     ->placeholder('Autogenerado si se deja vacío (ej. jperez)'),
                 TextInput::make('email')
-                    ->label('Correo Institucional')
+                    ->label('Correo Institucional (Opcional)')
                     ->email()
-                    ->required()
+                    ->nullable()
                     ->maxLength(100)
                     ->unique(ignoreRecord: true)
                     ->placeholder('Ej. jperez@municipio.gob.pe'),

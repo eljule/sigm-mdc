@@ -13,7 +13,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Illuminate\Contracts\Support\Htmlable;
 
 class KnowledgeBaseResource extends Resource
 {
@@ -29,28 +28,49 @@ class KnowledgeBaseResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    /**
-     * Solo técnicos de soporte y administradores pueden acceder a este recurso.
-     * Los usuarios con rol 'Usuario Reportante' deben usar el portal /soporte.
-     */
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('consultar-kb') ?? false;
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->can('consultar-base-conocimiento') ||
+               $user->can('gestionar-base-conocimiento') ||
+               $user->can('consultar-kb');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->can('insertar-kb') ?? false;
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->can('insertar-kb') ||
+               $user->can('gestionar-base-conocimiento');
     }
 
     public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        return auth()->user()?->can('modificar-kb') ?? false;
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->can('modificar-kb') ||
+               $user->can('gestionar-base-conocimiento');
     }
 
     public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        return auth()->user()?->can('eliminar-kb') ?? false;
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->can('eliminar-kb') ||
+               $user->can('gestionar-base-conocimiento');
     }
 
     public static function form(Schema $schema): Schema
@@ -63,19 +83,12 @@ class KnowledgeBaseResource extends Resource
         return KnowledgeBasesTable::configure($table);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => ListKnowledgeBases::route('/'),
+            'index'  => ListKnowledgeBases::route('/'),
             'create' => CreateKnowledgeBase::route('/create'),
-            'edit' => EditKnowledgeBase::route('/{record}/edit'),
+            'edit'   => EditKnowledgeBase::route('/{record}/edit'),
         ];
     }
 }

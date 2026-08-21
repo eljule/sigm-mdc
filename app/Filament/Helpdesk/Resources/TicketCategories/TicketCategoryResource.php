@@ -28,27 +28,49 @@ class TicketCategoryResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
-    /**
-     * Solo técnicos de soporte y administradores pueden gestionar categorías.
-     */
     public static function canViewAny(): bool
     {
-        return auth()->user()?->can('consultar-categorias') ?? false;
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->can('consultar-categorias-tickets') ||
+               $user->can('gestionar-categorias-tickets') ||
+               $user->can('consultar-categorias');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()?->can('insertar-categorias') ?? false;
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->can('insertar-categorias') ||
+               $user->can('gestionar-categorias-tickets');
     }
 
     public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        return auth()->user()?->can('modificar-categorias') ?? false;
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->can('modificar-categorias') ||
+               $user->can('gestionar-categorias-tickets');
     }
 
     public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
     {
-        return auth()->user()?->can('eliminar-categorias') ?? false;
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->can('eliminar-categorias') ||
+               $user->can('gestionar-categorias-tickets');
     }
 
     public static function form(Schema $schema): Schema
@@ -61,19 +83,12 @@ class TicketCategoryResource extends Resource
         return TicketCategoriesTable::configure($table);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => ListTicketCategories::route('/'),
+            'index'  => ListTicketCategories::route('/'),
             'create' => CreateTicketCategory::route('/create'),
-            'edit' => EditTicketCategory::route('/{record}/edit'),
+            'edit'   => EditTicketCategory::route('/{record}/edit'),
         ];
     }
 }

@@ -26,14 +26,27 @@ class TechnicianMonitoringPage extends Page
 
     public function getSubheading(): ?string
     {
-        return 'Control en tiempo real de técnicos ocupados en atención, asignaciones pendientes y personal disponible.';
+        return 'Control en tiempo real de técnicos ocupados en atención, asignaciones pendientes y personal disponible del área ODT.';
     }
 
     protected string $view = 'filament.helpdesk.pages.technician-monitoring-page';
 
     public function getTechniciansDataProperty(): array
     {
-        $users = User::all();
+        // Filtrar exclusivamente personal activo de ODT o que cuente con algún rol de soporte
+        $users = User::query()
+            ->where('is_active', true)
+            ->where(function ($query) {
+                $query->whereHas('office', function ($q) {
+                    $q->where('acronym', 'ODT')
+                      ->orWhere('code', '02.02.05')
+                      ->orWhere('name', 'ILIKE', '%Desarrollo Tecnológico%');
+                })
+                ->orWhereHas('roles', function ($q) {
+                    $q->where('name', 'ILIKE', '%soporte%');
+                });
+            })
+            ->get();
 
         $data = [];
 
@@ -94,10 +107,13 @@ class TechnicianMonitoringPage extends Page
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->can('consultar-tickets') || 
-               auth()->user()?->can('gestionar-tickets') || 
-               auth()->user()?->hasRole('Soporte TI') || 
-               auth()->user()?->hasRole('Super Admin') || 
-               true;
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->can('monitorear-tecnicos') ||
+               $user->can('consultar-tickets') ||
+               $user->can('gestionar-tickets');
     }
 }

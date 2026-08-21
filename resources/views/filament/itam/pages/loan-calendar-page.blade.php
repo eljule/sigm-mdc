@@ -19,7 +19,7 @@
         }
         .calendar-btn-primary {
             background-color: #2563eb;
-            color: #ffffff;
+            color: #ffffff !important;
             font-weight: 600;
             font-size: 13px;
             padding: 8px 16px;
@@ -32,11 +32,11 @@
         }
         .calendar-btn-primary:hover {
             background-color: #1d4ed8;
-            color: #ffffff;
+            color: #ffffff !important;
         }
         .calendar-btn-secondary {
             background-color: #f1f5f9;
-            color: #334155;
+            color: #334155 !important;
             font-weight: 600;
             font-size: 13px;
             padding: 8px 16px;
@@ -53,7 +53,7 @@
         }
         .dark .calendar-btn-secondary {
             background-color: #1e293b;
-            color: #f8fafc;
+            color: #f8fafc !important;
             border-color: #334155;
         }
         .legend-card {
@@ -75,6 +75,8 @@
             color: #cbd5e1;
             border-color: #1e293b;
         }
+
+        /* FULLCALENDAR BASE & LIGHT MODE */
         .fc { font-family: inherit; }
         .fc-header-toolbar { flex-wrap: wrap; gap: 10px; margin-bottom: 20px !important; }
         .fc-button {
@@ -91,19 +93,32 @@
         .fc-button-active { background-color: #2563eb !important; border-color: #2563eb !important; }
         .fc-prev-button, .fc-next-button { font-size: 14px !important; padding: 6px 12px !important; }
         .fc-event { cursor: pointer; padding: 3px 6px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+
         .fc-toolbar-title { font-size: 1.35rem !important; font-weight: 700; color: #0f172a; }
-        .dark .fc-toolbar-title { color: #f8fafc; }
+        .fc-col-header-cell-cushion { color: #0f172a !important; font-weight: 700; text-decoration: none !important; }
+        .fc-daygrid-day-number { color: #334155 !important; font-weight: 700; text-decoration: none !important; }
+        .fc-theme-standard td, .fc-theme-standard th { border-color: #e2e8f0 !important; }
+
+        /* FULLCALENDAR DARK MODE OVERRIDES */
+        .dark .fc-toolbar-title { color: #f8fafc !important; }
+        .dark .fc-col-header-cell-cushion { color: #f8fafc !important; text-decoration: none !important; }
+        .dark .fc-daygrid-day-number { color: #f8fafc !important; text-decoration: none !important; }
         .dark .fc-theme-standard td, .dark .fc-theme-standard th { border-color: #334155 !important; }
+        .dark .fc-day-other .fc-daygrid-day-number { color: #64748b !important; }
+        .dark .fc-daygrid-day { background-color: #0f172a !important; }
+        .dark .fc-scrollgrid { background-color: #0f172a !important; border-color: #334155 !important; }
+        .dark .fc-list { background-color: #0f172a !important; color: #f8fafc !important; }
+        .dark .fc-list-day-cushion { background-color: #1e293b !important; color: #f8fafc !important; }
     </style>
 
     <div class="space-y-4">
         <!-- Barra de Controles y Filtros -->
         <div class="calendar-control-card">
             <div style="flex: 1; max-width: 450px;">
-                <label for="asset-select" style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">
+                <label for="asset-select" class="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
                     Filtrar por Equipo / Activo:
                 </label>
-                <select id="asset-select" wire:model.live="selectedAssetId" style="width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; padding: 8px 12px; font-size: 13.5px; background-color: #ffffff; color: #0f172a; font-weight: 500;">
+                <select id="asset-select" wire:model.live="selectedAssetId" class="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm font-medium focus:ring-primary-500 focus:border-primary-500">
                     <option value="">-- Todos los Equipos --</option>
                     @foreach($this->assets as $asset)
                         <option value="{{ $asset->id }}">
@@ -128,7 +143,7 @@
 
         <!-- Leyenda de Colores de Estado -->
         <div class="legend-card">
-            <span style="font-weight: 700; color: #0f172a;">Leyenda de Estados:</span>
+            <span style="font-weight: 700;" class="text-slate-900 dark:text-slate-100">Leyenda de Estados:</span>
             <span style="display: inline-flex; align-items: center; gap: 4px;">🟡 Pendiente (Reserva)</span>
             <span style="display: inline-flex; align-items: center; gap: 4px;">🟢 En Préstamo Activo</span>
             <span style="display: inline-flex; align-items: center; gap: 4px;">⚪ Devuelto</span>
@@ -136,7 +151,7 @@
         </div>
 
         <!-- Contenedor del Calendario -->
-        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); min-height: 650px;">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm min-h-[650px]">
             <div id="calendar" wire:ignore></div>
         </div>
     </div>
