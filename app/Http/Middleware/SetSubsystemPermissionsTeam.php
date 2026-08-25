@@ -27,8 +27,24 @@ class SetSubsystemPermissionsTeam
             return $next($request);
         }
 
+        // Expulsar e invalidar sesión si la cuenta está inactiva o pendiente de aprobación por ODT
+        if (! (bool) $user->is_active) {
+            auth()->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect('/admin/login')->withErrors([
+                'data.username' => 'Tu cuenta ha sido desactivada o se encuentra PENDIENTE DE APROBACIÓN por la Oficina de Desarrollo Tecnológico (ODT).',
+            ]);
+        }
+
         $path = $request->path();
         $referer = $request->header('referer', '');
+
+        // Excluir rutas públicas de inicio de sesión y registro del control de subsistema
+        if (preg_match('#^(login|register|admin/login|admin/register|helpdesk/login|itam/login)(/|$)#i', $path)) {
+            return $next($request);
+        }
 
         // Determinar si la petición es para un panel administrativo de Filament
         $isPanelRequest = false;
@@ -80,7 +96,7 @@ class SetSubsystemPermissionsTeam
         if ($isPanelRequest) {
             $hasAccess = $user->allRoles()->where('model_has_roles.subsystem_id', $subsystemId)->exists();
             if (! $hasAccess) {
-                abort(403, 'No tienes permisos para acceder a este subsistema.');
+                return redirect('/')->with('error', 'No tienes permisos para acceder al subsistema seleccionado.');
             }
 
             // Verificar que no sea un rol de solo-portal (ej: Usuario Reportante en Helpdesk).

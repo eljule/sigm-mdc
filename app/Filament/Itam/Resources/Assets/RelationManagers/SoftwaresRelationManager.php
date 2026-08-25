@@ -58,7 +58,7 @@ class SoftwaresRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                AttachAction::make()
+                AttachAction::make()->label('Vincular Software')
                     ->label('Asociar/Instalar Software')
                     ->modalHeading('Asociar licencia de software a este activo')
                     ->form(fn (AttachAction $action): array => [

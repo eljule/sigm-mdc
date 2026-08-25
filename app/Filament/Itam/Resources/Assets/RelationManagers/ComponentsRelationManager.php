@@ -73,7 +73,7 @@ class ComponentsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                AssociateAction::make()
+                AssociateAction::make()->label('Asociar Componente')
                     ->label('Asociar Componente Existente')
                     ->modalHeading('Asociar componente a este activo principal'),
             ])

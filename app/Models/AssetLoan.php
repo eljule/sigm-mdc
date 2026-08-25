@@ -6,10 +6,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasUppercaseAttributes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AssetLoan extends Model
 {
+    use HasUppercaseAttributes;
+
     protected $fillable = [
         'asset_id',
         'office_id',

@@ -251,3 +251,60 @@ button[type="submit"] * {
     border: 1px solid rgba(16, 185, 129, 0.2) !important;
     display: inline-block !important;
 }
+
+
+/* ==========================================================================
+   ESTILIZADO Y AJUSTE FINO DE TEXTOS EN MAYÚSCULAS EN TABLAS Y FORMULARIOS
+   ========================================================================== */
+
+/* Transformación a Mayúsculas */
+input[type="text"]:not([name="email"]):not([name="password"]):not([name="username"]),
+input[type="search"],
+textarea,
+select:not([name="email"]),
+.fi-ta-text-item,
+.fi-in-text-item,
+.fi-fo-text-input:not([name="email"]):not([name="username"]),
+.fi-fo-textarea,
+.fi-section-header-heading,
+.fi-header-heading {
+    text-transform: uppercase !important;
+}
+
+/* Ajuste proporcional de tipografía en Tablas (evita saturación visual) */
+.fi-ta-text-item,
+.fi-ta-text-item span,
+.fi-ta-cell,
+.fi-ta-cell span {
+    font-size: 0.8125rem !important; /* ~13px */
+    letter-spacing: 0.025em !important; /* Espaciado limpio para mayúsculas */
+    line-height: 1.35 !important;
+}
+
+/* Encabezados de tabla */
+.fi-ta-header-cell-label {
+    font-size: 0.725rem !important;
+    letter-spacing: 0.05em !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+}
+
+/* Ajuste proporcional en Campos de Formulario (Inputs y Textareas) */
+input[type="text"]:not([name="email"]):not([name="password"]):not([name="username"]),
+textarea,
+.fi-fo-text-input input,
+.fi-fo-textarea textarea {
+    font-size: 0.875rem !important; /* 14px */
+    letter-spacing: 0.025em !important;
+    font-weight: 500 !important;
+}
+
+/* Eximir campos específicos de email/password/username */
+input[name="email"],
+input[name="password"],
+input[name="username"],
+input[type="email"],
+input[type="password"] {
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}

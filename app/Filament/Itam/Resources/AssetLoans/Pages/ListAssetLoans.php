@@ -20,8 +20,8 @@ class ListAssetLoans extends ListRecords
                 ->color('success')
                 ->url(fn () => \App\Filament\Itam\Pages\LoanCalendarPage::getUrl(panel: 'itam')),
 
-            CreateAction::make()
-                ->label('Nuevo Préstamo / Reserva'),
+            CreateAction::make()->label('Crear Préstamo')
+                ->label('Crear Préstamo / Reserva'),
         ];
     }
 }

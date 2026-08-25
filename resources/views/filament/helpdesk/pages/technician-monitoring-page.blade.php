@@ -202,10 +202,16 @@
                                             🏢 Oficina: <strong class="text-slate-700 dark:text-slate-200">{{ $t->office?->name ?? 'N/A' }}</strong><br>
                                             👤 Solicitante: <span class="text-slate-700 dark:text-slate-300">{{ $t->requester?->name ?? 'N/A' }}</span>
                                         </div>
-                                        <div style="margin-top: 8px; text-align: right;">
+                                        <div class="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                                            <span class="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1" title="Tiempo transcurrido desde que el técnico inició la atención">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                                                </svg>
+                                                Atención: <strong class="font-bold underline text-slate-900 dark:text-slate-100 ml-0.5">{{ $t->elapsed_attention_time }}</strong>
+                                            </span>
                                             <a href="{{ route('fichas.ticket', ['id' => $t->id]) }}" target="_blank" 
-                                               class="text-[11.5px] font-bold text-blue-600 dark:text-blue-400 underline">
-                                                Ver Ficha de Ticket ↗
+                                               class="text-[11px] font-bold text-blue-600 dark:text-blue-400 underline">
+                                                Ver Ficha ↗
                                             </a>
                                         </div>
                                     </div>

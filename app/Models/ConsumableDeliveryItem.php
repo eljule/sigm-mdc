@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasUppercaseAttributes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ConsumableDeliveryItem extends Model
 {
+    use HasUppercaseAttributes;
+
     protected $fillable = [
         'consumable_delivery_id',
         'consumable_id',

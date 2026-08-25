@@ -54,7 +54,7 @@ class ModelsRelationManager extends RelationManager
                     ->sortable(),
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()->label('Crear Modelo'),
             ])
             ->recordActions([
                 EditAction::make(),

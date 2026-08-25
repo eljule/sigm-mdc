@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Traits\HasUppercaseAttributes;
+
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
@@ -27,8 +31,10 @@ use Spatie\Permission\Traits\HasRoles;
     'is_active',
 ])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
+    use HasUppercaseAttributes;
+
     use HasFactory, HasRoles, Notifiable;
 
     protected static function booted(): void
@@ -58,39 +64,65 @@ class User extends Authenticatable
      * Genera un username único a partir del nombre completo.
      * Ejemplo: "Juan Perez Prado" -> "jperez"
      */
+    /**
+     * Genera un username único a partir del nombre completo.
+     * Regla: Primera letra del primer nombre + primer apellido.
+     * Si existe coincidencia con otro usuario, toma la primera letra del segundo apellido.
+     * Ejemplo 1: "Juan Pérez Prado" -> "jperez"
+     * Ejemplo 2 (Si "jperez" ya existe): "José Pérez Prado" -> "jperezp"
+     */
     public function generateUniqueUsername(): string
     {
         $cleanedName = preg_replace('/\s+/', ' ', trim($this->name));
-        $parts = explode(' ', $cleanedName);
+        $parts = array_values(array_filter(explode(' ', $cleanedName)));
 
-        if (count($parts) === 0 || empty($parts[0])) {
-            return 'user_'.Str::random(5);
+        if (count($parts) === 0) {
+            return 'user_' . Str::random(5);
         }
 
-        $firstName = mb_strtolower($parts[0]);
-        $lastName = count($parts) > 1 ? mb_strtolower($parts[1]) : '';
+        $firstName = Str::ascii(mb_strtolower($parts[0]));
+        $firstLetterName = mb_substr($firstName, 0, 1);
 
-        // Limpiar acentos y caracteres especiales
-        $firstNameClean = Str::ascii($firstName);
-        $lastNameClean = Str::ascii($lastName);
+        $firstSurname = '';
+        $secondSurname = '';
 
-        $firstLetter = mb_substr($firstNameClean, 0, 1);
-        $baseUsername = $firstLetter.$lastNameClean;
-
-        // Remover caracteres no alfanuméricos
-        $baseUsername = preg_replace('/[^a-z0-9]/', '', $baseUsername);
-
-        if (empty($baseUsername)) {
-            $baseUsername = 'user';
+        if (count($parts) >= 3) {
+            $firstSurname = Str::ascii(mb_strtolower($parts[count($parts) - 2]));
+            $secondSurname = Str::ascii(mb_strtolower($parts[count($parts) - 1]));
+        } elseif (count($parts) === 2) {
+            $firstSurname = Str::ascii(mb_strtolower($parts[1]));
+        } else {
+            $firstSurname = $firstName;
         }
 
-        $username = $baseUsername;
-        $count = 1;
-        while (self::where('username', $username)->exists()) {
-            $username = $baseUsername.(++$count);
+        $firstSurnameClean = preg_replace('/[^a-z0-9]/', '', $firstSurname);
+        $secondSurnameClean = preg_replace('/[^a-z0-9]/', '', $secondSurname);
+        $firstLetterNameClean = preg_replace('/[^a-z0-9]/', '', $firstLetterName);
+
+        // Candidato 1: Primera letra del primer nombre + primer apellido
+        $candidate1 = $firstLetterNameClean . $firstSurnameClean;
+
+        if (! self::where('username', $candidate1)->exists()) {
+            return $candidate1;
         }
 
-        return $username;
+        // Candidato 2: Si hay coincidencia con otro usuario, tomar la primera letra del segundo apellido
+        if (! empty($secondSurnameClean)) {
+            $firstLetterSecondSurname = mb_substr($secondSurnameClean, 0, 1);
+            $candidate2 = $candidate1 . $firstLetterSecondSurname;
+
+            if (! self::where('username', $candidate2)->exists()) {
+                return $candidate2;
+            }
+        }
+
+        // Fallback en caso extremo de colisión múltiple: agregador numérico
+        $counter = 2;
+        while (self::where('username', $candidate1 . $counter)->exists()) {
+            $counter++;
+        }
+
+        return $candidate1 . $counter;
     }
 
     /**
@@ -136,5 +168,12 @@ class User extends Authenticatable
 
         return count(array_intersect($userRoles, $techRoles)) > 0;
     }
-}
 
+    /**
+     * Permite autenticarse a nivel de sistema. La autorización de subsistemas se gestiona centralizadamente.
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return (bool) $this->is_active;
+    }
+}

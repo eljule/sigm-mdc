@@ -6,6 +6,7 @@ use App\Models\Ticket;
 use App\Models\User;
 use BackedEnum;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\DB;
 
 class TechnicianMonitoringPage extends Page
 {
@@ -33,9 +34,18 @@ class TechnicianMonitoringPage extends Page
 
     public function getTechniciansDataProperty(): array
     {
-        // Filtrar exclusivamente personal activo de ODT o que cuente con algún rol de soporte
+        // IDs de usuarios con rol de Jefatura/Administrador de Helpdesk o TI que se excluyen de la atención técnica directa
+        $excludedUserIds = DB::table('model_has_roles')
+            ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+            ->whereIn('roles.name', ['Administrador de Helpdesk', 'Administrador Central', 'Administrador de TI'])
+            ->pluck('model_has_roles.model_id')
+            ->unique()
+            ->toArray();
+
+        // Filtrar exclusivamente personal operativo técnico activo de ODT
         $users = User::query()
             ->where('is_active', true)
+            ->whereNotIn('id', $excludedUserIds)
             ->where(function ($query) {
                 $query->whereHas('office', function ($q) {
                     $q->where('acronym', 'ODT')
@@ -53,19 +63,19 @@ class TechnicianMonitoringPage extends Page
         foreach ($users as $user) {
             // Tickets en proceso activo de atención
             $activeTickets = Ticket::where('assigned_to', $user->id)
-                ->where('status', 'en_proceso')
+                ->whereIn('status', ['En Proceso', 'en_proceso', 'En proceso', 'Internado', 'En Espera', 'Esperando Terceros'])
                 ->with(['office', 'category', 'requester'])
                 ->get();
 
             // Tickets abiertos pendientes de iniciar atención
             $pendingTickets = Ticket::where('assigned_to', $user->id)
-                ->where('status', 'abierto')
+                ->whereIn('status', ['Abierto', 'abierto'])
                 ->with(['office', 'category'])
                 ->get();
 
             // Tickets resueltos hoy
             $resolvedTodayCount = Ticket::where('assigned_to', $user->id)
-                ->where('status', 'resuelto')
+                ->whereIn('status', ['Resuelto', 'resuelto', 'Cerrado', 'cerrado'])
                 ->whereDate('resolved_at', now()->toDateString())
                 ->count();
 

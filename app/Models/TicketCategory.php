@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasUppercaseAttributes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TicketCategory extends Model
 {
+    use HasUppercaseAttributes;
+
     protected $fillable = [
         'name',
         'description',

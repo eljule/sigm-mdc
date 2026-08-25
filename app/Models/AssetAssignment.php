@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasUppercaseAttributes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AssetAssignment extends Model
 {
+    use HasUppercaseAttributes;
+
     protected $fillable = [
         'asset_id',
         'user_id',

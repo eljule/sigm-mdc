@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasUppercaseAttributes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Ticket extends Model
 {
+    use HasUppercaseAttributes;
+
     protected $fillable = [
         'ticket_code',
         'category_id',
@@ -32,6 +35,7 @@ class Ticket extends Model
         'sla_expires_at',
         'resolved_at',
         'closed_at',
+        'started_at',
     ];
 
     protected $casts = [
@@ -40,6 +44,7 @@ class Ticket extends Model
         'sla_expires_at' => 'datetime',
         'resolved_at' => 'datetime',
         'closed_at' => 'datetime',
+        'started_at' => 'datetime',
     ];
 
     protected static function booted(): void
@@ -107,7 +112,11 @@ class Ticket extends Model
                 }
             }
 
+            if ($ticket->isDirty('status') && in_array($ticket->status, ['En Proceso', 'en_proceso', 'Internado', 'En Espera', 'Esperando Terceros']) && empty($ticket->started_at)) {
+                $ticket->started_at = now();
+            }
             if ($ticket->isDirty('status') && $ticket->status === 'Abierto') {
+                $ticket->started_at = null;
                 $ticket->assigned_to = null;
                 $ticket->solution_applied = null;
                 $ticket->diagnosis = null;
@@ -295,5 +304,29 @@ class Ticket extends Model
     public function maintenances(): HasMany
     {
         return $this->hasMany(AssetMaintenance::class);
+    }
+
+    /**
+     * Calcula el tiempo transcurrido de atención desde que el técnico le dio en atender.
+     */
+    public function getElapsedAttentionTimeAttribute(): string
+    {
+        $startTime = $this->started_at ?? $this->updated_at ?? $this->created_at;
+        if (! $startTime) {
+            return '0m';
+        }
+
+        $diff = $startTime->diff(now());
+
+        $parts = [];
+        if ($diff->d > 0) {
+            $parts[] = "{$diff->d}d";
+        }
+        if ($diff->h > 0) {
+            $parts[] = "{$diff->h}h";
+        }
+        $parts[] = "{$diff->i}m";
+
+        return implode(' ', $parts) ?: '0m';
     }
 }

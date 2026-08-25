@@ -39,7 +39,14 @@ class TicketResource extends Resource
             return false;
         }
 
-        return $user->can('consultar-tickets') || $user->hasRole('Técnico de Soporte') || $user->hasRole('Administrador de Helpdesk') || $user->hasRole('Administrador Central');
+        return $user->can('consultar-tickets') ||
+               $user->can('atender-tickets') ||
+               $user->hasAnyRole([
+                   'Tecnico de Soporte',
+                   'admin-soporte',
+                   'Administrador de Helpdesk',
+                   'Administrador de TI',
+               ]);
     }
 
     public static function canCreate(): bool
@@ -57,6 +64,11 @@ class TicketResource extends Resource
         return auth()->user()?->can('eliminar-tickets') ?? false;
     }
 
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()?->can('eliminar-tickets') ?? false;
+    }
+
     public static function getEloquentQuery(): Builder
     {
         $user = auth()->user();
@@ -64,10 +76,19 @@ class TicketResource extends Resource
             return parent::getEloquentQuery();
         }
 
-        if ($user->hasRole('Técnico de Soporte') || $user->hasRole('Administrador de Helpdesk') || $user->hasRole('Administrador Central')) {
+        // Si el usuario es técnico de soporte, administrador o posee permisos de consulta/atención de tickets, ve todos los tickets del sistema
+        if ($user->can('consultar-tickets') ||
+            $user->can('atender-tickets') ||
+            $user->hasAnyRole([
+                'Tecnico de Soporte',
+                'admin-soporte',
+                'Administrador de Helpdesk',
+                'Administrador de TI',
+            ])) {
             return parent::getEloquentQuery();
         }
 
+        // Si es un usuario cliente/reportante común, solo ve sus propios tickets solicitados
         return parent::getEloquentQuery()->where('requester_id', $user->id);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Admin\Pages\Auth\Login;
+use App\Filament\Admin\Pages\Auth\Register;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -10,6 +11,8 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\Navigation\NavigationItem;
+use Filament\Navigation\MenuItem;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -28,12 +31,26 @@ class HelpdeskPanelProvider extends PanelProvider
             ->id('helpdesk')
             ->path('helpdesk')
             ->login(Login::class)
+            ->registration(Register::class)
+                        ->navigationItems([
+                NavigationItem::make('Volver al Portal Principal')
+                    ->url(fn () => url('/'))
+                    ->icon('heroicon-o-home')
+                    ->sort(-1000),
+            ])
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label('Volver al Portal Principal')
+                    ->url(fn () => url('/'))
+                    ->icon('heroicon-o-home')
+                    ->sort(-1000),
+            ])
             ->colors([
                 'primary' => '#008435',
                 'gray' => Color::Zinc,
             ])
             ->brandLogo(fn () => request()->routeIs('*.auth.login') ? asset('logo-green.png') : asset('logo-banner.png'))
-            ->brandLogoHeight('3.5rem')
+            ->brandLogoHeight('4rem')
             ->discoverResources(in: app_path('Filament/Helpdesk/Resources'), for: 'App\Filament\Helpdesk\Resources')
             ->discoverPages(in: app_path('Filament/Helpdesk/Pages'), for: 'App\Filament\Helpdesk\Pages')
             ->pages([

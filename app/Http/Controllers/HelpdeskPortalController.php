@@ -15,6 +15,15 @@ class HelpdeskPortalController extends Controller
     public function index()
     {
         $user = Auth::user();
+        if (! $user || ! (bool) $user->is_active) {
+            Auth::logout();
+            session()->invalidate();
+            session()->regenerateToken();
+
+            return redirect('/admin/login')->withErrors([
+                'data.username' => 'Tu cuenta ha sido desactivada o se encuentra PENDIENTE DE APROBACIÓN por la Oficina de Desarrollo Tecnológico (ODT).',
+            ]);
+        }
         $office = $user->office;
         $categories = TicketCategory::where('is_active', true)->get();
         
