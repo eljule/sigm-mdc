@@ -14,15 +14,15 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('username', 50)->unique();
-            $table->string('name', 150);
-            $table->string('email', 100)->unique();
+            $table->string('name', 150)->nullable();
+            $table->string('email', 100)->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->foreignId('document_type_id')->constrained('document_types')->onDelete('restrict');
-            $table->string('document_number', 20);
-            $table->foreignId('labor_condition_id')->constrained('labor_conditions')->onDelete('restrict');
-            $table->foreignId('office_id')->constrained('offices')->onDelete('restrict');
-            $table->unsignedBigInteger('personal_id')->nullable(); // Futura relación con módulo de RRHH
+            $table->foreignId('personal_id')->nullable()->constrained('personals')->onDelete('set null');
+            $table->foreignId('document_type_id')->nullable()->constrained('document_types')->onDelete('set null');
+            $table->string('document_number', 20)->nullable();
+            $table->foreignId('labor_condition_id')->nullable()->constrained('labor_conditions')->onDelete('set null');
+            $table->foreignId('office_id')->nullable()->constrained('offices')->onDelete('set null');
             $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();

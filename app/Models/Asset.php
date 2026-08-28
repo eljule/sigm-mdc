@@ -73,8 +73,28 @@ class Asset extends Model
         'purchase_date' => 'date',
     ];
 
+    /**
+     * Genera el siguiente Código de TI automático (ej. COD-TI-0001, COD-TI-0002).
+     */
+    public static function generateNextComputerCode(): string
+    {
+        $maxId = static::max('id') ?? 0;
+        $nextNum = $maxId + 1;
+
+        while (static::where('computer_code', sprintf('COD-TI-%04d', $nextNum))->exists()) {
+            $nextNum++;
+        }
+
+        return sprintf('COD-TI-%04d', $nextNum);
+    }
+
     protected static function booted(): void
     {
+        static::creating(function (Asset $asset) {
+            if (empty($asset->computer_code)) {
+                $asset->computer_code = static::generateNextComputerCode();
+            }
+        });
         static::updated(function (Asset $asset) {
             if ($asset->isDirty('status')) {
                 foreach ($asset->components as $component) {

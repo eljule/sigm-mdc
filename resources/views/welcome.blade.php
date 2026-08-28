@@ -2,6 +2,9 @@
 <html lang="es" class="h-full">
 
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Portal SIGM - Municipalidad de Castilla</title>
@@ -82,6 +85,35 @@
             background-color: #334155 !important;
         }
 
+                /* Subsystem Specific Accent Glows & Top Borders */
+        .subsystem-card-central {
+            border-top: 4px solid #008435 !important;
+        }
+        .subsystem-card-central:hover {
+            box-shadow: 0 20px 30px -10px rgba(0, 132, 53, 0.25) !important;
+        }
+
+        .subsystem-card-rentas {
+            border-top: 4px solid #d97706 !important;
+        }
+        .subsystem-card-rentas:hover {
+            box-shadow: 0 20px 30px -10px rgba(217, 119, 6, 0.25) !important;
+        }
+
+        .subsystem-card-itam {
+            border-top: 4px solid #0284c7 !important;
+        }
+        .subsystem-card-itam:hover {
+            box-shadow: 0 20px 30px -10px rgba(2, 132, 199, 0.25) !important;
+        }
+
+        .subsystem-card-helpdesk {
+            border-top: 4px solid #6366f1 !important;
+        }
+        .subsystem-card-helpdesk:hover {
+            box-shadow: 0 20px 30px -10px rgba(99, 102, 241, 0.25) !important;
+        }
+
         .bg-castilla-600 {
             background-color: #008435 !important;
         }
@@ -107,57 +139,86 @@
 
 <body class="bg-slate-100 text-slate-800 h-full flex flex-col justify-between font-sans antialiased overflow-x-hidden">
 
-    <!-- Header Bar -->
-    <header class="bg-castilla-600 shadow-sm flex-shrink-0 border-b border-castilla-700 transition-colors duration-300">
+    <!-- Header Bar & Unified Hero Banner -->
+    <header style="background-color: #008435 !important; border-bottom: 2px solid #006e2c !important;" class="shadow-md flex-shrink-0 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+            <!-- Brand Logo -->
             <div class="flex items-center gap-3">
                 <img src="{{ asset('logo-banner.png') }}" alt="Escudo Castilla"
-                    class="h-11 sm:h-12 md:h-14 w-auto object-contain transition-all">
+                    class="h-11 sm:h-12 md:h-14 w-auto object-contain transition-all drop-shadow-sm">
             </div>
 
+            <!-- Header Actions & User Profile Bar -->
             <div class="flex items-center gap-2 sm:gap-3">
-                <!-- Dark / Light Mode Toggle Button -->
+                <!-- Dark / Light Mode Toggle Button (Styled Pill) -->
                 <button onclick="toggleDarkMode()" type="button"
                     title="Alternar Modo Oscuro / Claro"
-                    class="p-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-amber-300 transition-all shadow-sm flex items-center justify-center cursor-pointer">
+                    style="background-color: #006027 !important; border: 1px solid #004b1e !important; border-radius: 9999px !important; width: 34px !important; height: 34px !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; transition: all 0.2s ease !important; flex-shrink: 0 !important;"
+                    onmouseover="this.style.backgroundColor='rgba(0, 45, 18, 0.85)'"
+                    onmouseout="this.style.backgroundColor='rgba(0, 60, 24, 0.55)'"
+                    class="shadow-sm">
                     <!-- Sun Icon (visible in dark mode) -->
-                    <svg id="theme-sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg id="theme-sun-icon" xmlns="http://www.w3.org/2000/svg" class="hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 18px !important; height: 18px !important; stroke: #fde047 !important;">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                     <!-- Moon Icon (visible in light mode) -->
-                    <svg id="theme-moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg id="theme-moon-icon" xmlns="http://www.w3.org/2000/svg" class="block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width: 18px !important; height: 18px !important; stroke: #ffffff !important;">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                     </svg>
                 </button>
 
                 @auth
-                    <span class="text-white text-xs sm:text-sm font-medium hidden sm:inline">Bienvenido,
-                        {{ auth()->user()->name }}</span>
+                    @php
+                        $parts = array_values(array_filter(explode(' ', trim(auth()->user()->name))));
+                        $initials = '';
+                        if (count($parts) >= 2) {
+                            $initials = mb_substr($parts[0], 0, 1) . mb_substr(count($parts) >= 3 ? $parts[count($parts) - 2] : $parts[1], 0, 1);
+                        } elseif (count($parts) === 1) {
+                            $initials = mb_substr($parts[0], 0, 2);
+                        } else {
+                            $initials = 'US';
+                        }
+                        $initials = strtoupper($initials);
+                    @endphp
+                    <!-- User Profile Pill Badge (2 Initials Avatar) -->
+                    <div class="hidden sm:flex items-center gap-2 shadow-sm" style="background-color: #006027 !important; border: 1px solid #004b1e !important; border-radius: 9999px !important; padding: 4px 14px 4px 6px !important;">
+                        <span style="background-color: #ffffff !important; color: #008435 !important; font-weight: 800 !important; font-size: 10px !important; font-family: sans-serif !important; display: flex !important; align-items: center !important; justify-content: center !important; width: 25px !important; height: 25px !important; border-radius: 9999px !important; flex-shrink: 0 !important; line-height: 1 !important;">
+                            {{ $initials }}
+                        </span>
+                        <span style="color: #ffffff !important; font-weight: 700 !important; font-size: 12px !important; letter-spacing: 0.02em !important; text-transform: uppercase !important; white-space: nowrap !important; max-width: 220px; overflow: hidden; text-overflow: ellipsis;">
+                            {{ auth()->user()->name }}
+                        </span>
+                    </div>
+
                     <a href="{{ url('/admin') }}"
-                        class="bg-white hover:bg-slate-100 text-castilla-600 font-semibold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm shadow transition-all border border-transparent">
-                        Ir al Panel Central
+                        class="bg-white hover:bg-emerald-50 font-bold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition-all border border-transparent flex items-center gap-1.5"
+                        style="color: #008435 !important; text-transform: none !important;">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="stroke: #008435 !important;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        <span style="color: #008435 !important;">Panel Central</span>
                     </a>
+
                     <form method="POST" action="{{ route('helpdesk.portal.logout') }}" class="inline">
                         @csrf
                         <button type="submit"
-                            class="bg-red-600 hover:bg-red-700 text-white font-semibold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm shadow transition-all flex items-center gap-1.5 cursor-pointer">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M17 16l4-4m0 0l4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            class="bg-red-600 hover:bg-red-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition-all flex items-center gap-1.5 cursor-pointer border border-transparent"
+                            style="text-transform: none !important;">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="stroke: #ffffff !important;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                             </svg>
-                            <span class="hidden sm:inline">Cerrar Sesión</span>
+                            <span class="hidden sm:inline" style="color: #ffffff !important;">Cerrar Sesión</span>
                         </button>
                     </form>
                 @else
                     <a href="{{ url('/login') }}"
-                        class="bg-white hover:bg-slate-100 text-castilla-600 font-semibold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm shadow transition-all flex items-center gap-1.5 border border-transparent">
+                        class="bg-white hover:bg-slate-100 text-castilla-600 font-bold px-3.5 py-2 rounded-xl text-xs sm:text-sm shadow-sm transition-all flex items-center gap-1.5 border border-transparent">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                         </svg>
-                        Iniciar Sesión
+                        <span>Iniciar Sesión</span>
                     </a>
                 @endauth
             </div>
@@ -173,15 +234,14 @@
         </div>
     @endif
 
-    <!-- Hero Title & Subtitle Section -->
-    <section
-        class="bg-gradient-to-br from-castilla-800 to-castilla-900 py-4 sm:py-5 text-white text-center shadow-md flex-shrink-0 transition-colors duration-300">
-        <div class="max-w-4xl mx-auto px-4">
-            <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight mb-1.5">
+    <!-- Hero Title & Subtitle Section (Rich Green Gradient Banner) -->
+    <section style="background: linear-gradient(135deg, #004d1f 0%, #007a31 50%, #003615 100%) !important; color: #ffffff !important; text-align: center !important; padding: 1.25rem 1rem !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.15) !important;" class="flex-shrink-0 border-b border-emerald-950">
+        <div style="max-width: 56rem; margin: 0 auto; padding: 0 1rem;">
+            <h1 style="color: #ffffff !important; font-weight: 800 !important; font-size: 1.6rem !important; font-family: 'Outfit', sans-serif !important; letter-spacing: 0.02em !important; text-transform: uppercase !important; margin: 0 0 0.35rem 0 !important; line-height: 1.25 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
                 SISTEMA INTEGRADO DE GESTIÓN MUNICIPAL
             </h1>
-            <p class="text-xs sm:text-sm md:text-base text-emerald-100 font-light max-w-2xl mx-auto">
-                Selecciona el subsistema autorizado para iniciar sesión o solicitar asistencia técnica.
+            <p style="color: #d1fae5 !important; font-size: 0.875rem !important; font-weight: 300 !important; font-family: 'Outfit', sans-serif !important; margin: 0 !important; opacity: 0.95;">
+                Selecciona el subsistema autorizado para acceder o registrar una solicitud de asistencia técnica.
             </p>
         </div>
     </section>
@@ -229,7 +289,7 @@
                     }
                 @endphp
                 <div
-                    class="glass-card rounded-xl shadow-md hover:shadow-xl overflow-hidden transition-all duration-200 transform hover:-translate-y-1 flex flex-col justify-between group border border-slate-200">
+                    class="glass-card subsystem-card-{{ $subsystem->code }} rounded-xl shadow-md hover:shadow-2xl overflow-hidden transition-all duration-300 transform hover:-translate-y-2 flex flex-col justify-between group border border-slate-200/80">
                     <div>
                         <!-- Image Area (Full Uncropped Graphic) -->
                         <div

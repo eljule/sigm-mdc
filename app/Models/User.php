@@ -71,9 +71,43 @@ class User extends Authenticatable implements FilamentUser
      * Ejemplo 1: "Juan Pérez Prado" -> "jperez"
      * Ejemplo 2 (Si "jperez" ya existe): "José Pérez Prado" -> "jperezp"
      */
+
+    /**
+     * Nombre visible oficial del usuario (toma el nombre completo de RRHH si está vinculado).
+     */
+    public function getNameAttribute(?string $value): string
+    {
+        return $this->personal?->full_name ?? $value ?? $this->username ?? '';
+    }
+
+    /**
+     * ID de Oficina asignada (delegada desde RRHH si está vinculado).
+     */
+    public function getOfficeIdAttribute(?int $value): ?int
+    {
+        return $this->personal?->office_id ?? $value;
+    }
+
+    /**
+     * Número de Documento (delegado desde RRHH si está vinculado).
+     */
+    public function getDocumentNumberAttribute(?string $value): ?string
+    {
+        return $this->personal?->document_number ?? $value;
+    }
+
+    /**
+     * Condición Laboral (delegada desde RRHH si está vinculado).
+     */
+    public function getLaborConditionIdAttribute(?int $value): ?int
+    {
+        return $this->personal?->labor_condition_id ?? $value;
+    }
+
     public function generateUniqueUsername(): string
     {
-        $cleanedName = preg_replace('/\s+/', ' ', trim($this->name));
+        $targetName = $this->personal?->full_name ?? $this->name ?? '';
+        $cleanedName = preg_replace('/\s+/', ' ', trim($targetName));
         $parts = array_values(array_filter(explode(' ', $cleanedName)));
 
         if (count($parts) === 0) {
@@ -147,6 +181,14 @@ class User extends Authenticatable implements FilamentUser
     public function office(): BelongsTo
     {
         return $this->belongsTo(Office::class);
+    }
+
+    /**
+     * @return BelongsTo<Personal, $this>
+     */
+    public function personal(): BelongsTo
+    {
+        return $this->belongsTo(Personal::class, 'personal_id');
     }
 
     /**

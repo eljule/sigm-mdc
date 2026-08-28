@@ -35,14 +35,14 @@ class ItamPanelProvider extends PanelProvider
                         ->navigationItems([
                 NavigationItem::make('Volver al Portal Principal')
                     ->url(fn () => url('/'))
-                    ->icon('heroicon-o-home')
+                    ->icon('heroicon-o-arrow-left-on-rectangle')
                     ->sort(-1000),
             ])
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Volver al Portal Principal')
                     ->url(fn () => url('/'))
-                    ->icon('heroicon-o-home')
+                    ->icon('heroicon-o-arrow-left-on-rectangle')
                     ->sort(-1000),
             ])
             ->colors([
@@ -57,10 +57,7 @@ class ItamPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Itam/Widgets'), for: 'App\Filament\Itam\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
-            ])
+            ->widgets([])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

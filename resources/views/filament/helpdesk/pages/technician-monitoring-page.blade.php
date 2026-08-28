@@ -25,16 +25,24 @@
         .tech-card {
             background-color: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            border-top: 4px solid #008435;
+            border-radius: 14px;
             padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px -2px rgba(0, 132, 53, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            overflow: hidden;
+            transition: all 0.2s ease-in-out;
+        }
+        .tech-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -4px rgba(0, 132, 53, 0.15);
         }
         .dark .tech-card {
             background-color: #0f172a;
             border-color: #1e293b;
+            border-top-color: #10b981;
         }
 
         /* BADGES EN LIGHT MODE */

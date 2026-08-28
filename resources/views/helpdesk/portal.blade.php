@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Portal de Soporte y Helpdesk - Municipalidad de Castilla</title>
@@ -136,6 +139,28 @@
                     <form action="{{ route('helpdesk.portal.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                         @csrf
                         
+                        <!-- Visual Category Quick Selector -->
+                        <div class="mb-4">
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">Selección Rápida de Categoría</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2">
+                                <button type="button" onclick="selectQuickCategory('Equipos/Hardware', this)" class="quick-cat-btn bg-slate-50 hover:bg-emerald-50 hover:border-castilla-600 border border-slate-200 rounded-xl p-2.5 text-center transition-all cursor-pointer group">
+                                    <div class="text-xl mb-1 group-hover:scale-110 transition-transform">🖥️</div>
+                                    <div class="text-[11px] font-bold text-slate-700 group-hover:text-castilla-600">Hardware</div>
+                                </button>
+                                <button type="button" onclick="selectQuickCategory('Sistemas/Programas', this)" class="quick-cat-btn bg-slate-50 hover:bg-emerald-50 hover:border-castilla-600 border border-slate-200 rounded-xl p-2.5 text-center transition-all cursor-pointer group">
+                                    <div class="text-xl mb-1 group-hover:scale-110 transition-transform">💻</div>
+                                    <div class="text-[11px] font-bold text-slate-700 group-hover:text-castilla-600">Sistemas</div>
+                                </button>
+                                <button type="button" onclick="selectQuickCategory('Accesos/Contraseñas', this)" class="quick-cat-btn bg-slate-50 hover:bg-emerald-50 hover:border-castilla-600 border border-slate-200 rounded-xl p-2.5 text-center transition-all cursor-pointer group">
+                                    <div class="text-xl mb-1 group-hover:scale-110 transition-transform">🔑</div>
+                                    <div class="text-[11px] font-bold text-slate-700 group-hover:text-castilla-600">Accesos</div>
+                                </button>
+                                <button type="button" onclick="selectQuickCategory('Red/Internet', this)" class="quick-cat-btn bg-slate-50 hover:bg-emerald-50 hover:border-castilla-600 border border-slate-200 rounded-xl p-2.5 text-center transition-all cursor-pointer group">
+                                    <div class="text-xl mb-1 group-hover:scale-110 transition-transform">🌐</div>
+                                    <div class="text-[11px] font-bold text-slate-700 group-hover:text-castilla-600">Red/Wifi</div>
+                                </button>
+                            </div>
+                        </div>
                         <div>
                             <label for="user_category" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">¿Con qué tiene que ver tu problema? (Categoría)</label>
                             <select name="user_category" id="user_category" required class="w-full bg-slate-50 border border-slate-200 focus:border-castilla-600 focus:bg-white rounded-2xl px-4 py-3 text-sm transition-all outline-none">
@@ -298,5 +323,19 @@
         </div>
     </footer>
 
+    <script>
+        function selectQuickCategory(val, btn) {
+            const sel = document.getElementById('user_category');
+            if (sel) {
+                sel.value = val;
+            }
+            document.querySelectorAll('.quick-cat-btn').forEach(b => {
+                b.classList.remove('bg-emerald-100', 'border-castilla-600', 'shadow-sm');
+                b.classList.add('bg-slate-50');
+            });
+            btn.classList.remove('bg-slate-50');
+            btn.classList.add('bg-emerald-100', 'border-castilla-600', 'shadow-sm');
+        }
+    </script>
 </body>
 </html>

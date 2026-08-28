@@ -103,9 +103,9 @@ class RoleAndPermissionSeeder extends Seeder
             ['name' => 'Operador de Rentas', 'subsystem_id' => $rentasId],
             ['name' => 'Administrador de TI', 'subsystem_id' => $itamId],
             //['name' => 'Soporte TI', 'subsystem_id' => $itamId],
-            ['name' => 'Tecnico de Soporte', 'subsystem_id' => $itamId],
+            ['name' => 'Tecnico de Soporte', 'subsystem_id' => $helpdeskId],
+            ['name' => 'Técnico de Soporte', 'subsystem_id' => $helpdeskId],
             ['name' => 'Administrador de Helpdesk', 'subsystem_id' => $helpdeskId],
-            //['name' => 'Técnico de Soporte', 'subsystem_id' => $helpdeskId],
             ['name' => 'Usuario Reportante', 'subsystem_id' => $helpdeskId],
         ];
 

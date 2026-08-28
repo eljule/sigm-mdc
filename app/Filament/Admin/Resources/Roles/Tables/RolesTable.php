@@ -27,6 +27,8 @@ class RolesTable
                     ->sortable(),
                 TextColumn::make('guard_name')
                     ->label('Guard')
+                    ->badge()
+                    ->color('info')
                     ->searchable()
                     ->sortable(),
             ])

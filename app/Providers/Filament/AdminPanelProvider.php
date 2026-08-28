@@ -36,14 +36,14 @@ class AdminPanelProvider extends PanelProvider
                         ->navigationItems([
                 NavigationItem::make('Volver al Portal Principal')
                     ->url(fn () => url('/'))
-                    ->icon('heroicon-o-home')
+                    ->icon('heroicon-o-arrow-left-on-rectangle')
                     ->sort(-1000),
             ])
             ->userMenuItems([
                 MenuItem::make()
                     ->label('Volver al Portal Principal')
                     ->url(fn () => url('/'))
-                    ->icon('heroicon-o-home')
+                    ->icon('heroicon-o-arrow-left-on-rectangle')
                     ->sort(-1000),
             ])
             ->colors([
@@ -57,11 +57,8 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
-            ])
+            ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\Filament\Admin\Widgets')
+            ->widgets([])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

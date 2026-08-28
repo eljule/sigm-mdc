@@ -16,6 +16,7 @@ use App\Models\Ticket;
 use App\Models\TicketCategory;
 use App\Models\Ubigeo;
 use App\Models\User;
+use App\Models\Personal;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -86,7 +87,7 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        $secretariaOffice = Office::create([
+        $administracionOffice = Office::create([
             'parent_id' => $gerencia->id,
             'code' => '02.01.01',
             'name' => 'Secretaría General',
@@ -162,23 +163,84 @@ class DatabaseSeeder extends Seeder
         $operadorRentasRole   = Role::where('name', 'Operador de Rentas')->first();
         $adminItamRole        = Role::where('name', 'Administrador de TI')->first();
         $adminHelpdeskRole    = Role::where('name', 'Administrador de Helpdesk')->first();
-        $tecnicoHelpdeskRole  = Role::where('name', 'Técnico de Soporte')->first();
+        $tecnicoHelpdeskRole  = Role::whereIn('name', ['Técnico de Soporte', 'Tecnico de Soporte', 'Soporte TI'])->first();
         $usuarioHelpdeskRole  = Role::where('name', 'Usuario Reportante')->first();
 
-        // 7. Usuarios de Prueba
-        // Juan Perez (Técnico de TI / Admin central / Admin ITAM)
-        $userJuan = User::create([
-            'name' => 'Juan Perez',
-            'email' => 'jperez@sigm.gob.pe',
-            'password' => Hash::make('password'),
+        // 6.5. Fichas de Personal (RRHH)
+        $personalJaime = Personal::create([
             'document_type_id' => $dni->id,
-            'document_number' => '44556677',
+            'document_number' => '10783864',
+            'first_name' => 'JAIME HENRRY',
+            'paternal_surname' => 'SANDOVAL',
+            'maternal_surname' => 'NIEVES',
+            'full_name' => 'JAIME HENRRY SANDOVAL NIEVES',
+            'gender' => 'MASCULINO',
+            'email' => 'jsandoval@municastilla.gob.pe',
             'labor_condition_id' => $cas->id,
             'office_id' => $sistemasOffice->id,
+            'position' => 'ESPECIALISTA DE TECNOLOGÍAS DE LA INFORMACIÓN',
             'is_active' => true,
         ]);
 
-        // Asignar roles a Juan Perez
+        $personalFiorella = Personal::create([
+            'document_type_id' => $dni->id,
+            'document_number' => '47806904',
+            'first_name' => 'FIORELLA DENISSE',
+            'paternal_surname' => 'RUIZ',
+            'maternal_surname' => 'SENMACHE',
+            'full_name' => 'FIORELLA DENISSE RUIZ SENMACHE',
+            'gender' => 'FEMENINO',
+            'email' => 'fruiz@municastilla.gob.pe',
+            'labor_condition_id' => $cas->id,
+            'office_id' => $rentasOffice->id,
+            'position' => 'OPERADOR DE RECAUDACIÓN Y RENTAS',
+            'is_active' => true,
+        ]);
+
+        $personalJulio = Personal::create([
+            'document_type_id' => $dni->id,
+            'document_number' => '02833465',
+            'first_name' => 'JULIO ALBERTO',
+            'paternal_surname' => 'LIZANO',
+            'maternal_surname' => 'HUAMAN',
+            'full_name' => 'JULIO ALBERTO LIZANO HUAMAN',
+            'gender' => 'MASCULINO',
+            'email' => 'jlizano@municastilla.gob.pe',
+            'labor_condition_id' => $cas->id,
+            'office_id' => $administracionOffice->id,
+            'position' => 'ESPECIALISTA EN ADMINISTRACIÓN MUNICIPAL',
+            'is_active' => true,
+        ]);
+
+        $personalJosue = Personal::create([
+            'document_type_id' => $dni->id,
+            'document_number' => '44679877',
+            'first_name' => 'JOSUE',
+            'paternal_surname' => 'ESPINOZA',
+            'maternal_surname' => 'VARGAS',
+            'full_name' => 'JOSUE ESPINOZA VARGAS',
+            'gender' => 'MASCULINO',
+            'email' => 'jespinoza@municastilla.gob.pe',
+            'labor_condition_id' => $cas->id,
+            'office_id' => $sistemasOffice->id,
+            'position' => 'TÉCNICO DE SOPORTE MUNICIPAL',
+            'is_active' => true,
+        ]);
+
+        // 7. Usuarios del Sistema vinculados al Personal de RRHH
+        $userJuan = User::create([
+            'name' => 'JAIME HENRRY SANDOVAL NIEVES',
+            'email' => null,
+            'password' => Hash::make('password'),
+            'document_type_id' => $dni->id,
+            'document_number' => '10783864',
+            'labor_condition_id' => $cas->id,
+            'office_id' => $sistemasOffice->id,
+            'personal_id' => $personalJaime->id,
+            'is_active' => true,
+        ]);
+
+        // Asignar roles a JAIME SANDOVAL
         $userJuan->allRoles()->attach($adminCentralRole->id, ['subsystem_id' => $subsystemCentral->id]);
         $userJuan->allRoles()->attach($adminItamRole->id, ['subsystem_id' => $subsystemItam->id]);
         $userJuan->allRoles()->attach($tecnicoHelpdeskRole->id, ['subsystem_id' => $subsystemHelpdesk->id]);
@@ -186,29 +248,31 @@ class DatabaseSeeder extends Seeder
 
         // Maria Gomez (Usuario ordinario de Rentas)
         $userMaria = User::create([
-            'name' => 'Maria Gomez',
-            'email' => 'mgomez@sigm.gob.pe',
+            'name' => 'FIORELLA DENISSE RUIZ SENMACHE',
+            'email' => null,
             'password' => Hash::make('password'),
             'document_type_id' => $dni->id,
-            'document_number' => '44556688',
+            'document_number' => '47806904',
             'labor_condition_id' => $cas->id,
             'office_id' => $rentasOffice->id,
+            'personal_id' => $personalFiorella->id,
             'is_active' => true,
         ]);
 
-        // Asignar roles a Maria Gomez
+        // Asignar roles a FIORELLA RUIZ
         $userMaria->allRoles()->attach($usuarioHelpdeskRole->id, ['subsystem_id' => $subsystemHelpdesk->id]);
         $userMaria->allRoles()->attach($operadorRentasRole->id, ['subsystem_id' => $subsystemRentas->id]);
 
          // Carlos Mendoza (Usuario ordinario de Rentas)
         $userCarlos = User::create([
-            'name' => 'Carlos Mendoza',
-            'email' => 'cmendoza@sigm.gob.pe',
+            'name' => 'JULIO ALBERTO LIZANO HUAMAN ',
+            'email' => null,
             'password' => Hash::make('password'),
             'document_type_id' => $dni->id,
-            'document_number' => '44679876',
+            'document_number' => '02833465',
             'labor_condition_id' => $cas->id,
-            'office_id' => $secretariaOffice->id,
+            'office_id' => $administracionOffice->id,
+            'personal_id' => $personalJulio->id,
             'is_active' => true,
         ]);
 

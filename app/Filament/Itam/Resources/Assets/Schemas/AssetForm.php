@@ -30,8 +30,10 @@ class AssetForm
                         TextInput::make('computer_code')
                             ->label('Código de TI / Informático')
                             ->required()
+                            ->default(fn () => \App\Models\Asset::generateNextComputerCode())
                             ->unique(ignoreRecord: true)
-                            ->placeholder('Ej. COD-TI-0001'),
+                            ->placeholder('Ej. COD-TI-0001')
+                            ->helperText('Autogenerado secuencialmente (ej. COD-TI-0001).'),
                         TextInput::make('asset_code')
                             ->label('Código Patrimonial')
                             ->unique(ignoreRecord: true)

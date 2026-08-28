@@ -43,6 +43,8 @@ class PermissionsRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('guard_name')
                     ->label('Guard')
+                    ->badge()
+                    ->color('info')
                     ->searchable()
                     ->sortable(),
             ])

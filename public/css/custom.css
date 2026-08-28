@@ -1,12 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-:root {
-    --font-family: 'Outfit', sans-serif;
+/* ==========================================================================
+   TIPOGRAFÍA INTER DEDICADA DE ALTA NITIDEZ EN PANTALLA Y MAYÚSCULAS
+   ========================================================================== */
+html,
+body,
+:root,
+aside,
+main,
+button,
+input,
+select,
+textarea,
+.fi-body,
+.fi-sidebar,
+.fi-ta-ctn,
+.fi-ta,
+.fi-section,
+.fi-modal,
+.fi-dropdown,
+.fi-btn {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
 }
 
-html, body, .fi-body, .fi-body *, .font-sans, .font-sans * {
-    font-family: 'Outfit', sans-serif !important;
+/* Optimización de nitidez y espaciado para mayúsculas en tablas y etiquetas */
+.uppercase,
+[class*="uppercase"],
+.fi-ta-header-cell-label,
+.fi-sidebar-group-label,
+.fi-section-header-heading,
+th span,
+label span {
+    letter-spacing: 0.035em !important;
+    font-feature-settings: "cv05", "cv08", "cv11" !important;
 }
+
+
 
 /* Specific override for filled primary buttons to ensure they have the green color and white text */
 .fi-btn-color-primary.fi-btn-filled,
@@ -271,32 +302,52 @@ select:not([name="email"]),
     text-transform: uppercase !important;
 }
 
-/* Ajuste proporcional de tipografía en Tablas (evita saturación visual) */
+/* ==========================================================================
+   TIPOGRAFÍA ULTRA-COMPACTA ALTA DENSIDAD EN INTER (MAYÚSCULAS NÍTIDAS)
+   ========================================================================== */
+
+/* Ajuste de celda de Tablas (Data Cells: 11px) */
 .fi-ta-text-item,
 .fi-ta-text-item span,
 .fi-ta-cell,
-.fi-ta-cell span {
-    font-size: 0.8125rem !important; /* ~13px */
-    letter-spacing: 0.025em !important; /* Espaciado limpio para mayúsculas */
-    line-height: 1.35 !important;
+.fi-ta-cell span,
+.fi-ta-badge,
+.fi-ta-badge span {
+    font-size: 0.6875rem !important; /* 11px */
+    letter-spacing: 0.03em !important;
+    line-height: 1.25 !important;
+    font-weight: 500 !important;
 }
 
-/* Encabezados de tabla */
-.fi-ta-header-cell-label {
-    font-size: 0.725rem !important;
+/* Encabezados de columna de tablas (Headers: 10px Bold Uppercase) */
+.fi-ta-header-cell-label,
+th .fi-ta-header-cell-label {
+    font-size: 0.625rem !important; /* 10px */
     letter-spacing: 0.05em !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
 }
 
-/* Ajuste proporcional en Campos de Formulario (Inputs y Textareas) */
+/* Campos de Formulario (Inputs, Selects y Textareas: 12px) */
 input[type="text"]:not([name="email"]):not([name="password"]):not([name="username"]),
+input[type="search"],
 textarea,
+select,
 .fi-fo-text-input input,
-.fi-fo-textarea textarea {
-    font-size: 0.875rem !important; /* 14px */
-    letter-spacing: 0.025em !important;
+.fi-fo-textarea textarea,
+.fi-fo-select select {
+    font-size: 0.75rem !important; /* 12px */
+    letter-spacing: 0.03em !important;
     font-weight: 500 !important;
+}
+
+/* Etiquetas de Campos de Formulario (Labels: 11px Semi-Bold) */
+.fi-fo-field-wrp-label,
+.fi-fo-field-wrp-label span,
+label.fi-fo-field-wrp-label {
+    font-size: 0.6875rem !important; /* 11px */
+    letter-spacing: 0.03em !important;
+    font-weight: 600 !important;
 }
 
 /* Eximir campos específicos de email/password/username */
@@ -307,4 +358,552 @@ input[type="email"],
 input[type="password"] {
     text-transform: none !important;
     letter-spacing: normal !important;
+}
+
+
+/* Reducción proporcional del tamaño de títulos principales de páginas en todos los módulos */
+.fi-header-heading,
+h1.fi-header-heading,
+.fi-header h1,
+.fi-page-header-heading {
+    font-size: 1.25rem !important; /* ~20px en lugar de ~30px */
+    line-height: 1.3 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.03em !important;
+}
+
+/* Reducción proporcional de títulos de secciones y tarjetas de formulario */
+.fi-section-header-heading {
+    font-size: 1.05rem !important; /* ~17px */
+    font-weight: 700 !important;
+    letter-spacing: 0.025em !important;
+}
+
+
+/* ==========================================================================
+   COLOR DE FONDO SÓLIDO PARA LA ZONA DEL MENÚ DE NAVEGACIÓN LATERAL (SIDEBAR)
+   ========================================================================== */
+
+/* ==========================================================================
+   DISEÑO FIEL DE NAVEGACIÓN LATERAL VERDE (SIN TARJETA FLOTANTE INTERNA)
+   ========================================================================== */
+
+/* Fondo Verde Bosque Continuo de la Barra Lateral */
+aside.fi-sidebar,
+.fi-sidebar {
+    background-color: #004d1f !important;
+    border-right: 1px solid #003615 !important;
+}
+
+/* Espaciado simétrico equilibrado (Mismo margen izquierdo y derecho) */
+.fi-sidebar-nav {
+    padding-left: 0.85rem !important;
+    padding-right: 0.85rem !important;
+    background-color: transparent !important;
+    border: none !important;
+}
+
+/* Eliminar cajas/tarjetas flotantes o fondos acumulados en contenedores internos */
+.fi-sidebar-nav-groups,
+.fi-sidebar-group,
+.fi-sidebar-group-content,
+.fi-sidebar-group-items,
+.fi-sidebar-group-items ul {
+    background-color: transparent !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Títulos de Grupo / Secciones ("Catálogos TI", "Gestión TI", etc.) */
+.fi-sidebar-group-label,
+.fi-sidebar-group-label *,
+.fi-sidebar-group-button,
+.fi-sidebar-group-button * {
+    color: #8bb38d !important;
+    font-weight: 700 !important;
+    font-size: 0.725rem !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    background: transparent !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+}
+
+/* Opciones NO Seleccionadas con Margen Simétrico Equilibrado */
+.fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) a,
+.fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) .fi-sidebar-item-button {
+    background-color: transparent !important;
+    background: transparent !important;
+    border-radius: 0.625rem !important;
+    margin-left: 0.25rem !important;
+    margin-right: 0.25rem !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    transition: all 0.15s ease-in-out !important;
+}
+
+.fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) a *,
+.fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) .fi-sidebar-item-button *,
+.fi-sidebar-item-label {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+.fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) .fi-sidebar-item-icon,
+.fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) svg {
+    color: #8bb38d !important;
+    stroke: #8bb38d !important;
+}
+
+/* Hover en Opciones no seleccionadas */
+.fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) a:hover,
+.fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) .fi-sidebar-item-button:hover {
+    background-color: rgba(0, 30, 10, 0.45) !important;
+}
+
+.fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) a:hover *,
+.fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) .fi-sidebar-item-button:hover * {
+    color: #ffffff !important;
+}
+
+.fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) a:hover svg,
+.fi-sidebar-item:not(.fi-active):not(.fi-sidebar-item-active) .fi-sidebar-item-button:hover svg {
+    color: #4ade80 !important;
+    stroke: #4ade80 !important;
+}
+
+/* Opción SELECCIONADA (Activa): Cápsula Verde Oscuro Traslúcido */
+.fi-sidebar-item.fi-active a,
+.fi-sidebar-item.fi-active .fi-sidebar-item-button,
+.fi-sidebar-item-active a,
+.fi-sidebar-item-active .fi-sidebar-item-button {
+    background-color: #003615 !important;
+    border-radius: 0.625rem !important;
+    margin-left: 0.25rem !important;
+    margin-right: 0.25rem !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    box-shadow: none !important;
+}
+
+.fi-sidebar-item.fi-active *,
+.fi-sidebar-item-active * {
+    color: #4ade80 !important;
+    font-weight: 700 !important;
+}
+
+.fi-sidebar-item.fi-active svg,
+.fi-sidebar-item-active svg {
+    color: #4ade80 !important;
+    stroke: #4ade80 !important;
+}
+
+
+/* ==========================================================================
+   ESTILO DE TARJETA CON BORDE SUPERIOR ACCENTUADO VERDE (#008435) EN TABLAS Y FORMULARIOS
+   ========================================================================== */
+
+/* Tarjetas de Contenedores de Tablas, Secciones y Formularios de Filament */
+/* Cobertura total blindada de Tablas, Formularios y Secciones en Filament v3 */
+/* ==========================================================================
+   TARJETAS KPI DE ESTADÍSTICAS CON BORDE ACCENTUADO AL LADO IZQUIERDO
+   ========================================================================== */
+
+/* 1. Eliminar estrictamente cualquier borde superior de secciones contenedoras de widgets o de las tarjetas KPI */
+.fi-wi-widget-ctn,
+.fi-wi-widget,
+.fi-wi-stats-overview,
+.fi-wi-stats-overview-card-ctn,
+.fi-wi-stats-overview-stat,
+.fi-wi-stats-overview-card,
+div.fi-wi-stats-overview-stat,
+section.fi-section:has(.fi-wi-stats-overview-stat),
+.fi-section:has(.fi-wi-stats-overview-stat) {
+    border-top: none !important;
+}
+
+/* 2. Borde acentuado de 4px EXCLUSIVAMENTE al Lado Izquierdo en Tarjetas KPI */
+.fi-wi-stats-overview-stat,
+.fi-wi-stats-overview-card,
+div.fi-wi-stats-overview-stat {
+    border-top: 0px solid transparent !important;
+    border-left: 4px solid #008435 !important;
+    border-radius: 0.85rem !important;
+    box-shadow: 0 2px 10px -1px rgba(0, 0, 0, 0.05) !important;
+    overflow: hidden !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.fi-wi-stats-overview-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px -1px rgba(0, 132, 53, 0.12) !important;
+}
+
+/* Modo Oscuro */
+.dark .fi-wi-stats-overview-stat,
+.dark .fi-wi-stats-overview-card,
+.dark div.fi-wi-stats-overview-stat {
+    border-top: 0px solid transparent !important;
+    border-left: 4px solid #10b981 !important;
+    box-shadow: 0 2px 10px -1px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 3. Borde Superior Verde acentuado EXCLUSIVAMENTE en Tablas y Tarjetas de Técnicos */
+.fi-ta-ctn,
+.fi-ta-content,
+.tech-card,
+div.fi-ta-ctn {
+    border-top: 4px solid #008435 !important;
+    border-radius: 0.85rem !important;
+    box-shadow: 0 4px 20px -2px rgba(0, 132, 53, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04) !important;
+    overflow: hidden !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.dark .fi-ta-ctn,
+.dark .fi-ta-content,
+.dark .tech-card {
+    border-top: 4px solid #10b981 !important;
+    box-shadow: 0 4px 20px -2px rgba(16, 185, 129, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 4. ESTILO UNIFICADO Y ÚNICO DE TARJETA DE SECCIÓN (ELIMINANDO BORDES INTERNOS ANIDADOS) */
+.fi-section:not(.fi-ta-ctn):not(.tech-card):not(.fi-wi-stats-overview-stat),
+.fi-fo-wizard-step,
+.fi-fo-fieldset,
+div.fi-section:not(.fi-ta-ctn):not(.tech-card):not(.fi-wi-stats-overview-stat) {
+    border: 1px solid #e2e8f0 !important;
+    border-top: 1px solid #e2e8f0 !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    background-color: #ffffff !important;
+    overflow: visible !important;
+}
+
+/* ELIMINAR ESTRICTAMENTE CUALQUIER BORDE O MARCO EN CONTENEDORES INTERNOS ANIDADOS */
+.fi-section-content,
+.fi-fo-component-ctn,
+.fi-fo-field-wrp,
+.fi-form-component-container,
+div.fi-section-content,
+div.fi-fo-component-ctn,
+div.fi-fo-field-wrp {
+    border: none !important;
+    border-top: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    overflow: visible !important;
+}
+
+/* Garantizar que los menús desplegables se superpongan a cualquier borde o tarjeta */
+.choices,
+.choices__inner,
+.choices__list,
+.fi-fo-select,
+.fi-fo-field-wrp-control {
+    overflow: visible !important;
+}
+
+.choices__list--dropdown {
+    z-index: 9999 !important;
+    position: absolute !important;
+}
+
+/* ==========================================================================
+   RESTAURACIÓN DEL CUERPO DEL FORMULARIO CON LÍNEA DIVISORIA ÚNICA
+   ========================================================================== */
+
+/* Asegurar la grilla de columnas nativas de Filament en secciones de formulario */
+.fi-section-content {
+    border-top: none !important;
+    padding-top: 1rem !important;
+}
+
+/* Anular cualquier borde superior interno que genere duplicaciones */
+.fi-section hr,
+.fi-section-content *,
+.fi-section-header-heading-wrapper,
+.fi-section-header-description-wrapper,
+.fi-fo-component-ctn * {
+    border-top: none !important;
+}
+
+/* Única línea divisoria al pie del encabezado de la sección */
+.fi-section-header {
+    border: none !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding-bottom: 0.75rem !important;
+    margin-bottom: 0 !important;
+}
+
+.dark .fi-section-header {
+    border-bottom: 1px solid #1e293b !important;
+}
+
+/* En Modo Oscuro */
+.dark .fi-section:not(.fi-ta-ctn):not(.tech-card):not(.fi-wi-stats-overview-stat),
+.dark .fi-fo-component-ctn > .fi-section,
+.dark .fi-fo-wizard-step,
+.dark .fi-fo-fieldset,
+.dark div.fi-section:not(.fi-ta-ctn):not(.tech-card):not(.fi-wi-stats-overview-stat) {
+    border: 1px solid #1e293b !important;
+    border-top: 1px solid #1e293b !important;
+    background-color: #0f172a !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .fi-section-header {
+    border-bottom: 1px solid #1e293b !important;
+}
+
+/* Resaltado Verde (#008435) al Enfocar Inputs/Selects (Focus Ring) */
+input:focus,
+select:focus,
+textarea:focus,
+.choices.is-focused,
+.choices.is-open,
+.fi-fo-text-input input:focus,
+.fi-fo-select select:focus,
+.fi-fo-textarea textarea:focus {
+    border-color: #008435 !important;
+    box-shadow: 0 0 0 2px rgba(0, 132, 53, 0.2) !important;
+}
+
+
+/* ==========================================================================
+   CORRECCIÓN Y ESTILIZADO DE DESPLEGABLES (CHOICES.JS & FILAMENT SELECTS)
+   ========================================================================== */
+
+/* 1. Homologar tamaño de texto a 11px (0.6875rem) exactos en TextInput y Selects */
+.fi-input,
+.fi-fo-text-input input,
+.fi-fo-textarea textarea,
+.fi-fo-select select,
+input[type="text"],
+input[type="search"],
+textarea,
+select,
+.choices,
+.choices *,
+.choices__inner,
+.choices__input,
+.choices__list--dropdown,
+.choices__list--dropdown .choices__item,
+.choices__list--single,
+.choices__list--single .choices__item,
+.choices__item,
+.fi-fo-select option,
+select option,
+.fi-dropdown-list-item,
+.fi-dropdown-list-item *,
+[data-choice] {
+    font-size: 0.6875rem !important; /* 11px estandarizado e idéntico */
+    line-height: 1.25 !important;
+    letter-spacing: 0.03em !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+}
+
+/* Ajuste fino de la caja contenedora de Choices.js para igualar la altura de los campos text */
+.choices__inner {
+    min-height: 2.125rem !important;
+    padding: 0.2rem 0.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.choices__list--single {
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.choices__list--single .choices__item {
+    padding: 0 !important;
+    line-height: 1.2 !important;
+}
+
+/* 2. Campo de Búsqueda dentro del Desplegable (Teclee para buscar...) */
+.choices__input,
+.choices__input::placeholder,
+input.choices__input {
+    font-size: 0.75rem !important; /* 12px */
+    letter-spacing: 0.03em !important;
+    text-transform: uppercase !important;
+    padding: 0.4rem 0.6rem !important;
+}
+
+/* 3. Corrección de Ancho Desplegable para Mostrar Textos Completos */
+.choices__list--dropdown {
+    min-width: 100% !important;
+    width: max-content !important;
+    max-width: 24rem !important;
+    z-index: 100 !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.choices__list--dropdown .choices__item {
+    padding: 0.45rem 0.75rem !important;
+    line-height: 1.3 !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+}
+
+/* Evitar cortes o scrollbars forzadas */
+.choices__list--dropdown .choices__list {
+    max-height: 220px !important;
+    overflow-y: auto !important;
+}
+
+
+/* ==========================================================================
+   ANULACIÓN DE ALTA ESPECIFICIDAD DE CHOICES.JS PARA HOMOLOGACIÓN EXACTA DE TAMAÑO
+   ========================================================================== */
+
+/* 1. Campo de Texto Normal (.fi-input) */
+.fi-fo-text-input input,
+.fi-input,
+input[type="text"],
+input.fi-input,
+.fi-fo-text-input input.fi-input {
+    font-size: 0.75rem !important; /* 12px */
+    font-weight: 500 !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0.02em !important;
+}
+
+/* 2. Desplegable Choices.js (.choices[data-type*="select-one"]) */
+.choices,
+.choices *,
+.choices[data-type*="select-one"],
+.choices[data-type*="select-one"] *,
+.choices[data-type*="select-one"] .choices__inner,
+.choices[data-type*="select-one"] .choices__inner *,
+.choices[data-type*="select-one"] .choices__list--single,
+.choices[data-type*="select-one"] .choices__list--single *,
+.choices[data-type*="select-one"] .choices__item,
+.choices[data-type*="select-one"] .choices__item *,
+.choices__list--single .choices__item,
+.choices__list--dropdown .choices__item,
+.choices__inner,
+.choices__input,
+.choices__item,
+[data-choice] {
+    font-size: 0.75rem !important; /* 12px IDÉNTICO Y EXACTO AL INPUT */
+    font-weight: 500 !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0.02em !important;
+}
+
+
+/* ==========================================================================
+   HOMOLOGACIÓN ABSOLUTA E IDÉNTICA DE TAMAÑO Y PESO ENTRE INPUTS Y SELECTS
+   ========================================================================== */
+
+/* 1. Forzar 11px (0.6875rem) y peso 500 en TODOS los campos de texto e inputs */
+.fi-input,
+.fi-input-wrp input,
+.fi-fo-text-input input,
+.fi-fo-textarea textarea,
+.fi-fo-select select,
+input,
+input[type="text"],
+input[type="search"],
+textarea,
+select {
+    font-size: 0.6875rem !important; /* 11px */
+    font-weight: 500 !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0.02em !important;
+}
+
+/* 2. Forzar 11px (0.6875rem) y peso 500 en TODOS los componentes de Choices.js / Select */
+.choices,
+.choices *,
+.choices[data-type*="select-one"],
+.choices[data-type*="select-one"] *,
+.choices[data-type*="select-one"] .choices__inner,
+.choices[data-type*="select-one"] .choices__inner *,
+.choices[data-type*="select-one"] .choices__list--single,
+.choices[data-type*="select-one"] .choices__list--single *,
+.choices[data-type*="select-one"] .choices__item,
+.choices[data-type*="select-one"] .choices__item *,
+.choices__inner,
+.choices__inner *,
+.choices__input,
+.choices__input *,
+.choices__list--single,
+.choices__list--single *,
+.choices__list--dropdown,
+.choices__list--dropdown *,
+.choices__item,
+.choices__item *,
+.fi-fo-select option,
+select option,
+.fi-dropdown-list-item,
+.fi-dropdown-list-item *,
+[data-choice],
+[data-choice] * {
+    font-size: 0.6875rem !important; /* 11px IDÉNTICO */
+    font-weight: 500 !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0.02em !important;
+}
+
+/* 3. Ajuste de altura e interpolación visual para Choices.js */
+.choices__inner {
+    min-height: 2.125rem !important;
+    padding: 0.25rem 0.6rem !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.choices__list--single .choices__item {
+    padding: 0 !important;
+    margin: 0 !important;
+    line-height: 1.25 !important;
+}
+
+
+/* ==========================================================================
+   ANULACIÓN DIRECTA AL DIV DE CHOICES.JS DONDE SE RENDERIZA EL TEXTO SELECCIONADO
+   ========================================================================== */
+
+/* Target explícito a los elementos <div> de Choices.js */
+.choices__list--single .choices__item,
+.choices__list--single div,
+.choices__list--dropdown .choices__item,
+.choices__list--dropdown div,
+.choices__item,
+.choices__item--selectable,
+.choices__placeholder,
+.choices__inner div,
+.choices__inner span,
+.choices[data-type*="select-one"] .choices__inner div,
+.choices[data-type*="select-one"] .choices__list--single div,
+.choices[data-type*="select-one"] .choices__item,
+.fi-fo-select div,
+.fi-fo-select span,
+[data-choice] {
+    font-size: 0.6875rem !important; /* 11px EXACTO E IDÉNTICO A INPUT TEXT */
+    font-weight: 500 !important;
+    line-height: 1.25 !important;
+    letter-spacing: 0.03em !important;
+    text-transform: uppercase !important;
+}
+
+/* Reducir padding de la cápsula para que no fuerce altura extra */
+.choices__inner {
+    padding: 0.2rem 0.5rem !important;
+    min-height: 2.125rem !important;
+}
+
+.choices__list--single {
+    padding: 0 !important;
+    margin: 0 !important;
 }
