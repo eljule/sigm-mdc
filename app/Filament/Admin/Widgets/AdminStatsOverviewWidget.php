@@ -31,7 +31,7 @@ class AdminStatsOverviewWidget extends BaseWidget
                 ->color('info'),
 
             Stat::make('Subsistemas Habilitados', $totalSubsystems)
-                ->description('Central, ITAM, Helpdesk, Rentas')
+                ->description('Central, ITAM, Helpdesk, Licencias de Transportes')
                 ->descriptionIcon('heroicon-m-squares-2x2')
                 ->color('warning'),
         ];

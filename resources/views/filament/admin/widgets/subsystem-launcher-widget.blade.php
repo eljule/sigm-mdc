@@ -38,17 +38,17 @@
                 </p>
             </a>
 
-            <!-- Rentas -->
+            <!-- Licencias de Transportes -->
             <a href="{{ url('/') }}" class="block p-4 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/50 dark:bg-amber-950/20 hover:border-amber-500 transition-all duration-150 group decoration-none">
                 <div class="flex items-center justify-between">
-                    <span class="text-2xl">🏛️</span>
+                    <span class="text-2xl">🛵</span>
                     <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200">Portal</span>
                 </div>
                 <h3 class="text-sm font-bold text-amber-950 dark:text-amber-100 mt-3 mb-1 group-hover:text-amber-600 transition-colors">
-                    Portal Principal Municipal
+                    Licencias de Transportes
                 </h3>
                 <p class="text-xs text-slate-600 dark:text-slate-400 m-0">
-                    Lanzador principal y selección de servicios institucionales.
+                    Empadronamiento de vehículos, licencias de conducir y registro de mototaxis.
                 </p>
             </a>
         </div>

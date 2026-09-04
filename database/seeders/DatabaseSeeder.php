@@ -70,54 +70,15 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 4. Estructura de Oficinas
-        $alcaldia = Office::create([
-            'parent_id' => null,
-            'code' => '02',
-            'name' => 'Alcaldia',
-            'acronym' => 'GM',
-            'is_active' => true,
-        ]);
+        // 4. Estructura Completa de Oficinas (Organigrama Estructural Municipalidad de Castilla)
+        $this->call(OfficeSeeder::class);
 
-        $gerencia = Office::create([
-            'parent_id' => null,
-            'code' => '02.01',
-            'name' => 'Gerencia Municipal',
-            'acronym' => 'GM',
-            'is_active' => true,
-        ]);
-
-        $administracionOffice = Office::create([
-            'parent_id' => $gerencia->id,
-            'code' => '02.01.01',
-            'name' => 'Secretaría General',
-            'acronym' => 'SG',
-            'is_active' => true,
-        ]);
-        
-        $adminOffice = Office::create([
-            'parent_id' => $gerencia->id,
-            'code' => '02.01.02',
-            'name' => 'Oficina General de Administración y Finanzas',
-            'acronym' => 'OGAF',
-            'is_active' => true,
-        ]);
-        
-        $rentasOffice = Office::create([
-            'parent_id' => $gerencia->id,
-            'code' => '02.01.05',
-            'name' => 'Gerencia de Administración Tributaria',
-            'acronym' => 'GAT',
-            'is_active' => true,
-        ]);
-
-        $sistemasOffice = Office::create([
-            'parent_id' => $adminOffice->id,
-            'code' => '02.01.02.05',
-            'name' => 'Oficina de Desarrollo Tecnológico',
-            'acronym' => 'ODT',
-            'is_active' => true,
-        ]);
+        $alcaldia             = Office::where('acronym', 'ALC')->orWhere('code', '02')->first();
+        $gerencia             = Office::where('acronym', 'GM')->orWhere('code', '03')->first();
+        $administracionOffice = Office::where('acronym', 'SG')->orWhere('code', '03.01')->first();
+        $adminOffice          = Office::where('acronym', 'OGAF')->orWhere('code', '03.02')->first();
+        $rentasOffice         = Office::where('acronym', 'GAT')->orWhere('code', '04')->first();
+        $sistemasOffice       = Office::where('acronym', 'ODT')->orWhere('code', '03.02.05')->first();
 
         // 5. Subsistemas
         $subsystemCentral = Subsystem::create([
@@ -129,12 +90,12 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        $subsystemRentas = Subsystem::create([
-            'code' => 'rentas',
-            'name' => 'Rentas Municipales',
-            'description' => 'Gestión tributaria y cobranzas',
-            'icon' => 'heroicon-o-currency-dollar',
-            'url_path' => '/rentas',
+        $subsystemTransportes = Subsystem::create([
+            'code' => 'transportes',
+            'name' => 'Licencias de Transportes',
+            'description' => 'Empadronamiento de vehículos, licencias de conducir y registro de mototaxis.',
+            'icon' => 'heroicon-o-truck',
+            'url_path' => '/admin',
             'is_active' => true,
         ]);
 
@@ -160,7 +121,7 @@ class DatabaseSeeder extends Seeder
         $this->call(RoleAndPermissionSeeder::class);
 
         $adminCentralRole     = Role::where('name', 'Administrador Central')->first();
-        $operadorRentasRole   = Role::where('name', 'Operador de Rentas')->first();
+        $operadorTransportesRole   = Role::whereIn('name', ['Operador de Transportes', 'Operador de Rentas'])->first();
         $adminItamRole        = Role::where('name', 'Administrador de TI')->first();
         $adminHelpdeskRole    = Role::where('name', 'Administrador de Helpdesk')->first();
         $tecnicoHelpdeskRole  = Role::whereIn('name', ['Técnico de Soporte', 'Tecnico de Soporte', 'Soporte TI'])->first();
@@ -261,7 +222,7 @@ class DatabaseSeeder extends Seeder
 
         // Asignar roles a FIORELLA RUIZ
         $userMaria->allRoles()->attach($usuarioHelpdeskRole->id, ['subsystem_id' => $subsystemHelpdesk->id]);
-        $userMaria->allRoles()->attach($operadorRentasRole->id, ['subsystem_id' => $subsystemRentas->id]);
+        $userMaria->allRoles()->attach($operadorTransportesRole->id, ['subsystem_id' => $subsystemTransportes->id]);
 
          // Carlos Mendoza (Usuario ordinario de Rentas)
         $userCarlos = User::create([

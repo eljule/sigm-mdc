@@ -513,17 +513,22 @@ aside.fi-sidebar,
    TARJETAS KPI DE ESTADÍSTICAS CON BORDE ACCENTUADO AL LADO IZQUIERDO
    ========================================================================== */
 
-/* 1. Eliminar estrictamente cualquier borde superior de secciones contenedoras de widgets o de las tarjetas KPI */
+/* 1. ELIMINAR TOTALMENTE CUALQUIER BORDE Y MARCO EXTERIOR DE LA SECCIÓN CONTENEDORA DE TARJETAS KPI */
 .fi-wi-widget-ctn,
 .fi-wi-widget,
 .fi-wi-stats-overview,
 .fi-wi-stats-overview-card-ctn,
-.fi-wi-stats-overview-stat,
-.fi-wi-stats-overview-card,
-div.fi-wi-stats-overview-stat,
 section.fi-section:has(.fi-wi-stats-overview-stat),
-.fi-section:has(.fi-wi-stats-overview-stat) {
+.fi-section:has(.fi-wi-stats-overview-stat),
+div.fi-section:has(.fi-wi-stats-overview-stat),
+.fi-wi-widget-ctn:has(.fi-wi-stats-overview-stat),
+.fi-wi-widget:has(.fi-wi-stats-overview-stat) {
+    border: none !important;
     border-top: none !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+    background: transparent !important;
+    padding: 0 !important;
 }
 
 /* 2. Borde acentuado de 4px EXCLUSIVAMENTE al Lado Izquierdo en Tarjetas KPI */
@@ -572,10 +577,10 @@ div.fi-ta-ctn {
 }
 
 /* 4. ESTILO UNIFICADO Y ÚNICO DE TARJETA DE SECCIÓN (ELIMINANDO BORDES INTERNOS ANIDADOS) */
-.fi-section:not(.fi-ta-ctn):not(.tech-card):not(.fi-wi-stats-overview-stat),
+.fi-section:not(.fi-ta-ctn):not(.tech-card):not(.fi-wi-stats-overview-stat):not(:has(.fi-wi-stats-overview-stat)),
 .fi-fo-wizard-step,
 .fi-fo-fieldset,
-div.fi-section:not(.fi-ta-ctn):not(.tech-card):not(.fi-wi-stats-overview-stat) {
+div.fi-section:not(.fi-ta-ctn):not(.tech-card):not(.fi-wi-stats-overview-stat):not(:has(.fi-wi-stats-overview-stat)) {
     border: 1px solid #e2e8f0 !important;
     border-top: 1px solid #e2e8f0 !important;
     border-radius: 0.75rem !important;

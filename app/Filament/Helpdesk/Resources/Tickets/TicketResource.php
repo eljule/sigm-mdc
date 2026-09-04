@@ -78,13 +78,14 @@ class TicketResource extends Resource
 
         // Si el usuario es técnico de soporte, administrador o posee permisos de consulta/atención de tickets, ve todos los tickets del sistema
         if ($user->can('consultar-tickets') ||
-            $user->can('atender-tickets') ||
-            $user->hasAnyRole([
-                'Tecnico de Soporte',
-                'admin-soporte',
-                'Administrador de Helpdesk',
-                'Administrador de TI',
-            ])) {
+            $user->can('atender-tickets')
+           // || $user->hasAnyRole([
+            //    'Tecnico de Soporte',
+             //   'admin-soporte',
+              //  'Administrador de Helpdesk',
+              //  'Administrador de TI',
+            //])
+            ) {
             return parent::getEloquentQuery();
         }
 

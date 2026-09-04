@@ -24,7 +24,7 @@ class RoleAndPermissionSeeder extends Seeder
         $subsystems = Subsystem::all()->keyBy('code');
 
         $centralId  = $subsystems->get('central')?->id;
-        $rentasId   = $subsystems->get('rentas')?->id;
+        $transportesId   = $subsystems->get('transportes')?->id ?? $subsystems->get('rentas')?->id;
         $itamId     = $subsystems->get('itam')?->id;
         $helpdeskId = $subsystems->get('helpdesk')?->id;
 
@@ -74,13 +74,11 @@ class RoleAndPermissionSeeder extends Seeder
                 // Base de Conocimientos
                 'consultar-base-conocimiento', 'gestionar-base-conocimiento',
             ],
-            'rentas' => [
-                // Declaraciones Juradas
-                'consultar-declaraciones', 'insertar-declaraciones', 'modificar-declaraciones',
-                // Estado de Cuenta
-                'consultar-estado-cuenta', 'imprimir-estado-cuenta',
-                // Arbitrios
-                'consultar-arbitrios', 'gestionar-arbitrios',
+            'transportes' => [
+                // Licencias y Registro de Vehículos
+                'consultar-licencias', 'insertar-licencias', 'modificar-licencias',
+                'consultar-vehiculos', 'gestionar-vehiculos',
+                'consultar-mototaxis', 'gestionar-mototaxis',
             ],
         ];
 
@@ -100,11 +98,10 @@ class RoleAndPermissionSeeder extends Seeder
         // 3. Definir Roles por Subsistema
         $rolesData = [
             ['name' => 'Administrador Central', 'subsystem_id' => $centralId],
-            ['name' => 'Operador de Rentas', 'subsystem_id' => $rentasId],
+            ['name' => 'Operador de Transportes', 'subsystem_id' => $transportesId],
             ['name' => 'Administrador de TI', 'subsystem_id' => $itamId],
-            //['name' => 'Soporte TI', 'subsystem_id' => $itamId],
             ['name' => 'Tecnico de Soporte', 'subsystem_id' => $helpdeskId],
-            ['name' => 'Técnico de Soporte', 'subsystem_id' => $helpdeskId],
+            ['name' => 'Admin-Soporte', 'subsystem_id' => $helpdeskId],
             ['name' => 'Administrador de Helpdesk', 'subsystem_id' => $helpdeskId],
             ['name' => 'Usuario Reportante', 'subsystem_id' => $helpdeskId],
         ];
@@ -147,7 +144,7 @@ class RoleAndPermissionSeeder extends Seeder
             'Usuario Reportante_' . $helpdeskId => [
                 'consultar-tickets', 'insertar-tickets',
             ],
-            'Operador de Rentas_' . $rentasId => $permissionsData['rentas'],
+            'Operador de Transportes_' . $transportesId => $permissionsData['transportes'],
         ];
 
         foreach ($rolePermissionsMap as $roleKey => $permNames) {

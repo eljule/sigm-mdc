@@ -93,6 +93,7 @@
             box-shadow: 0 20px 30px -10px rgba(0, 132, 53, 0.25) !important;
         }
 
+        .subsystem-card-transportes,
         .subsystem-card-rentas {
             border-top: 4px solid #d97706 !important;
         }
@@ -263,7 +264,8 @@
                 @php
                     $imagePath = match ($subsystem->code) {
                         'central' => asset('images/subsystem_central.png'),
-                        'rentas' => asset('images/subsystem_rentas.png'),
+                        'transportes' => asset('images/subsystem_transportes.png'),
+                        'rentas' => asset('images/subsystem_transportes.png'),
                         'itam' => asset('images/subsystem_itam.png'),
                         'helpdesk' => asset('images/subsystem_helpdesk.png'),
                         default => asset('images/subsystem_central.png')
