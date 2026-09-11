@@ -21,7 +21,7 @@ class AssetAssignmentForm
                         'computer_code',
                         fn ($query, $get, $record) => $query->where(function ($q) use ($record) {
                             // Solo mostrar activos disponibles
-                            $q->where('status', 'Disponible');
+                            $q->whereIn('status', ['disponible', 'Disponible']);
                             // En edición: también incluir el activo actual del registro
                             if ($record && $record->asset_id) {
                                 $q->orWhere('id', $record->asset_id);

@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Traits\HasUppercaseAttributes;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\EloquentRelations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-Class Consumable extends Model
+class Consumable extends Model
 {
+    use HasUppercaseAttributes;
+
     protected $fillable = [
         'name',
         'stock',

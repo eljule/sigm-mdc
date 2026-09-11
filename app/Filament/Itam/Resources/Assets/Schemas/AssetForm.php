@@ -147,18 +147,24 @@ class AssetForm
                     default => TextInput::make('char_' . $char->id),
                 };
 
-                $field->label($char->name);
+                $field->label(\Illuminate\Support\Str::title(mb_strtolower($char->name, 'UTF-8')));
                 if ($char->is_required) {
                     $field->required();
                 }
+
+                $field->extraInputAttributes([
+                    'class' => 'asset-dynamic-field-input',
+                    'style' => 'text-transform: uppercase !important;',
+                ]);
 
                 $fields[] = $field;
             }
 
             if (count($fields) > 0) {
-                $components[] = Section::make($block->name)
+                $components[] = Section::make(\Illuminate\Support\Str::title(mb_strtolower($block->name, 'UTF-8')))
                     ->compact()
                     ->columns(3)
+                    ->extraAttributes(['class' => 'asset-dynamic-block-section'])
                     ->schema($fields);
             }
         }

@@ -157,18 +157,18 @@
 
                         @if ($charsWithValues->count() > 0)
                             <div class="space-y-3">
-                                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1 flex items-center gap-2">
+                                <h3 class="text-xs font-bold text-slate-800 tracking-wide mb-1 flex items-center gap-2 capitalize">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-castilla-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:1rem; height:1rem;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                                    {{ $block->name }}
+                                    {{ \Illuminate\Support\Str::title(mb_strtolower($block->name, 'UTF-8')) }}
                                 </h3>
                                 <div class="bg-white/60 p-4 rounded-2xl border border-slate-100 space-y-3 text-xs">
                                     @foreach ($charsWithValues as $char)
                                         <div class="flex justify-between py-1 border-b border-slate-100 last:border-0">
-                                            <span class="text-slate-400">{{ $char->name }}</span>
+                                            <span class="text-slate-500 capitalize">{{ \Illuminate\Support\Str::title(mb_strtolower($char->name, 'UTF-8')) }}</span>
                                             @if ($char->type === 'boolean')
                                                 <span class="font-semibold text-slate-800">{{ $char->value === '1' || strtolower($char->value) === 'true' || $char->value === 'si' || $char->value === 'sí' ? 'Sí' : 'No' }}</span>
                                             @else
-                                                <span class="font-semibold text-slate-800 text-right">{{ $char->value }}</span>
+                                                <span class="font-semibold text-slate-800 text-right capitalize">{{ \Illuminate\Support\Str::title(mb_strtolower($char->value, 'UTF-8')) }}</span>
                                             @endif
                                         </div>
                                     @endforeach

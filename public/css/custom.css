@@ -306,17 +306,44 @@ select:not([name="email"]),
    TIPOGRAFÍA ULTRA-COMPACTA ALTA DENSIDAD EN INTER (MAYÚSCULAS NÍTIDAS)
    ========================================================================== */
 
-/* Ajuste de celda de Tablas (Data Cells: 11px) */
+/* Ajuste de celda de Tablas (Data Cells: 11px) y Forzar Mayúsculas */
+/* Ajuste de celda de Tablas (Data Cells: 11px) y Forzar Mayúsculas en Datos */
 .fi-ta-text-item,
 .fi-ta-text-item span,
-.fi-ta-cell,
-.fi-ta-cell span,
+.fi-ta-cell:not(:has(.fi-ta-actions)):not(:has(.fi-btn)):not(:has(.fi-link)),
+.fi-ta-cell:not(:has(.fi-ta-actions)):not(:has(.fi-btn)):not(:has(.fi-link)) span:not(.fi-btn-label):not(.fi-link-label),
 .fi-ta-badge,
-.fi-ta-badge span {
+.fi-ta-badge span,
+.fi-badge,
+.fi-badge span,
+.fi-ta-record-title {
     font-size: 0.6875rem !important; /* 11px */
     letter-spacing: 0.03em !important;
     line-height: 1.25 !important;
     font-weight: 500 !important;
+    text-transform: uppercase !important;
+}
+
+/* ==========================================================================
+   EXCEPCIÓN EN ACTIVOS: CAPITALIZACIÓN NATURAL EN CAMPOS DE BLOQUE DINÁMICOS
+   ========================================================================== */
+.asset-dynamic-block-section .fi-section-header-heading,
+.asset-dynamic-block-section h3,
+.asset-dynamic-block-section h4,
+.asset-dynamic-block-section .fi-section-header-heading span,
+.asset-dynamic-block-section label,
+.asset-dynamic-block-section label span,
+.asset-dynamic-block-section .fi-fo-field-wrp-label,
+.asset-dynamic-block-section .fi-fo-field-wrp-label span {
+    text-transform: capitalize !important;
+}
+
+.asset-dynamic-field-input,
+.asset-dynamic-field-input input,
+.asset-dynamic-field-input textarea,
+.asset-dynamic-block-section input,
+.asset-dynamic-block-section textarea {
+    text-transform: uppercase !important;
 }
 
 /* Encabezados de columna de tablas (Headers: 10px Bold Uppercase) */
@@ -703,8 +730,6 @@ select,
 .choices__item,
 .fi-fo-select option,
 select option,
-.fi-dropdown-list-item,
-.fi-dropdown-list-item *,
 [data-choice] {
     font-size: 0.6875rem !important; /* 11px estandarizado e idéntico */
     line-height: 1.25 !important;
@@ -850,8 +875,6 @@ select {
 .choices__item *,
 .fi-fo-select option,
 select option,
-.fi-dropdown-list-item,
-.fi-dropdown-list-item *,
 [data-choice],
 [data-choice] * {
     font-size: 0.6875rem !important; /* 11px IDÉNTICO */
@@ -911,4 +934,72 @@ select option,
 .choices__list--single {
     padding: 0 !important;
     margin: 0 !important;
+}
+
+
+/* ==========================================================================
+   BOTONES Y ACCIONES: TEXTO CAPITALIZADO (ACCIONES DE TABLA, CABECERA, MODALES Y FORMULARIOS)
+   ========================================================================== */
+.fi-btn,
+.fi-btn *,
+.fi-btn-label,
+button.fi-btn,
+button.fi-btn *,
+a.fi-btn,
+a.fi-btn *,
+.fi-link,
+.fi-link *,
+.fi-link-label,
+button.fi-link,
+button.fi-link *,
+a.fi-link,
+a.fi-link *,
+.fi-ta-actions,
+.fi-ta-actions *,
+.fi-ta-action,
+.fi-ta-action *,
+.fi-ta-actions-cell,
+.fi-ta-actions-cell *,
+.fi-ta-cell .fi-ta-actions,
+.fi-ta-cell .fi-ta-actions *,
+.fi-ta-cell .fi-btn,
+.fi-ta-cell .fi-btn *,
+.fi-ta-cell .fi-link,
+.fi-ta-cell .fi-link *,
+.fi-ac-action,
+.fi-ac-action *,
+.fi-ac-btn-action,
+.fi-ac-btn-action *,
+.fi-header-actions button,
+.fi-header-actions button *,
+.fi-header-actions a,
+.fi-header-actions a *,
+.fi-modal-actions button,
+.fi-modal-actions button *,
+.fi-modal-actions a,
+.fi-modal-actions a *,
+.fi-modal-footer-actions button,
+.fi-modal-footer-actions button *,
+.fi-modal-footer-actions a,
+.fi-modal-footer-actions a *,
+.fi-form-actions button,
+.fi-form-actions button *,
+.fi-form-actions a,
+.fi-form-actions a *,
+.fi-ta-header-actions button,
+.fi-ta-header-actions button *,
+.fi-ta-header-actions a,
+.fi-ta-header-actions a *,
+.fi-ta-bulk-action,
+.fi-ta-bulk-action *,
+.fi-dropdown-list-item,
+.fi-dropdown-list-item *,
+.fi-dropdown-list-item-label,
+.fi-dropdown-list-item.fi-ta-action,
+.fi-dropdown-list-item.fi-ta-action *,
+.fi-dropdown-list-item.fi-ac-action,
+.fi-dropdown-list-item.fi-ac-action *,
+.fi-dropdown-list-item.fi-action,
+.fi-dropdown-list-item.fi-action * {
+    text-transform: capitalize !important;
 }

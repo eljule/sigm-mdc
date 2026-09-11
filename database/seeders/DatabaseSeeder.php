@@ -64,9 +64,9 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        $locador = LaborCondition::create([
-            'code' => 'LOC',
-            'name' => 'Locador',
+        $confianza = LaborCondition::create([
+            'code' => 'CASC',
+            'name' => 'Contrato Administrativo de Servicios de Confianza',
             'is_active' => true,
         ]);
 
@@ -121,10 +121,10 @@ class DatabaseSeeder extends Seeder
         $this->call(RoleAndPermissionSeeder::class);
 
         $adminCentralRole     = Role::where('name', 'Administrador Central')->first();
-        $operadorTransportesRole   = Role::whereIn('name', ['Operador de Transportes', 'Operador de Rentas'])->first();
+        $operadorTransportesRole   = Role::where('name', 'Operador de Transportes')->first();
         $adminItamRole        = Role::where('name', 'Administrador de TI')->first();
         $adminHelpdeskRole    = Role::where('name', 'Administrador de Helpdesk')->first();
-        $tecnicoHelpdeskRole  = Role::whereIn('name', ['Técnico de Soporte', 'Tecnico de Soporte', 'Soporte TI'])->first();
+        $tecnicoHelpdeskRole  = Role::where('name', 'Tecnico de Soporte')->first();
         $usuarioHelpdeskRole  = Role::where('name', 'Usuario Reportante')->first();
 
         // 6.5. Fichas de Personal (RRHH)

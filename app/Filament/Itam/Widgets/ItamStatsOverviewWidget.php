@@ -14,8 +14,8 @@ class ItamStatsOverviewWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $availableAssets = Asset::where('status', 'Disponible')->count();
-        $assignedAssets = Asset::where('status', 'Asignado')->count();
+        $availableAssets = Asset::whereIn('status', ['disponible', 'Disponible'])->count();
+        $assignedAssets = Asset::whereIn('status', ['asignado', 'Asignado'])->count();
         $lowStockConsumables = Consumable::whereColumn('stock', '<=', 'min_stock')->count();
         $activeLoans = AssetLoan::whereIn('status', ['active', 'pending', 'overdue'])->count();
 

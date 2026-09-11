@@ -48,20 +48,28 @@ class AssetsTable
                 TextColumn::make('status')
                     ->label('Estado')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'Disponible' => 'success',
-                        'Asignado' => 'info',
-                        'Mantenimiento' => 'warning',
-                        'En Evaluación' => 'warning',
-                        'Baja' => 'danger',
+                    ->formatStateUsing(fn (?string $state): string => match (strtolower((string) $state)) {
+                        'disponible' => 'DISPONIBLE',
+                        'asignado' => 'ASIGNADO',
+                        'mantenimiento' => 'MANTENIMIENTO',
+                        'en evaluación', 'en evaluacion' => 'EN EVALUACIÓN',
+                        'baja' => 'BAJA',
+                        default => strtoupper((string) $state),
+                    })
+                    ->color(fn (?string $state): string => match (strtolower((string) $state)) {
+                        'disponible' => 'success',
+                        'asignado' => 'info',
+                        'mantenimiento' => 'warning',
+                        'en evaluación', 'en evaluacion' => 'warning',
+                        'baja' => 'danger',
                         default => 'gray',
                     })
-                    ->icon(fn (string $state): string => match ($state) {
-                        'Disponible' => 'heroicon-o-check-circle',
-                        'Asignado' => 'heroicon-o-user',
-                        'Mantenimiento' => 'heroicon-o-wrench-screwdriver',
-                        'En Evaluación' => 'heroicon-o-magnifying-glass',
-                        'Baja' => 'heroicon-o-x-circle',
+                    ->icon(fn (?string $state): string => match (strtolower((string) $state)) {
+                        'disponible' => 'heroicon-o-check-circle',
+                        'asignado' => 'heroicon-o-user',
+                        'mantenimiento' => 'heroicon-o-wrench-screwdriver',
+                        'en evaluación', 'en evaluacion' => 'heroicon-o-magnifying-glass',
+                        'baja' => 'heroicon-o-x-circle',
                         default => 'heroicon-o-question-mark-circle',
                     })
                     ->sortable()
@@ -81,11 +89,11 @@ class AssetsTable
                 SelectFilter::make('status')
                     ->label('Estado')
                     ->options([
-                        'Disponible' => 'Disponible',
-                        'Asignado' => 'Asignado',
-                        'Mantenimiento' => 'Mantenimiento',
-                        'En Evaluación' => 'En Evaluación',
-                        'Baja' => 'Baja',
+                        'disponible' => 'DISPONIBLE',
+                        'asignado' => 'ASIGNADO',
+                        'mantenimiento' => 'MANTENIMIENTO',
+                        'en evaluación' => 'EN EVALUACIÓN',
+                        'baja' => 'BAJA',
                     ]),
                 SelectFilter::make('brand')
                     ->label('Marca')

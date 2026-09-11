@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Traits\HasUppercaseAttributes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AssetCharacteristic extends Model
 {
+    use HasUppercaseAttributes;
+
     protected $fillable = ['asset_block_id', 'name', 'type', 'options', 'is_required', 'sort_order'];
 
     protected $casts = [

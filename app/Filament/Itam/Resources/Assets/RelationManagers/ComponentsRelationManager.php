@@ -56,17 +56,29 @@ class ComponentsRelationManager extends RelationManager
                 TextColumn::make('status')
                     ->label('Estado')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'Disponible' => 'success',
-                        'Asignado' => 'info',
-                        'Mantenimiento' => 'warning',
-                        'En Evaluación' => 'warning',
-                        'Baja' => 'danger',
+                    ->formatStateUsing(fn (?string $state): string => match (strtolower((string) $state)) {
+                        'disponible' => 'DISPONIBLE',
+                        'asignado' => 'ASIGNADO',
+                        'mantenimiento' => 'MANTENIMIENTO',
+                        'en evaluación', 'en evaluacion' => 'EN EVALUACIÓN',
+                        'baja' => 'BAJA',
+                        default => strtoupper((string) $state),
+                    })
+                    ->color(fn (?string $state): string => match (strtolower((string) $state)) {
+                        'disponible' => 'success',
+                        'asignado' => 'info',
+                        'mantenimiento' => 'warning',
+                        'en evaluación', 'en evaluacion' => 'warning',
+                        'baja' => 'danger',
                         default => 'gray',
                     })
-                    ->icon(fn (string $state): string => match ($state) {
-                        'En Evaluación' => 'heroicon-o-magnifying-glass',
-                        default => '',
+                    ->icon(fn (?string $state): string => match (strtolower((string) $state)) {
+                        'disponible' => 'heroicon-o-check-circle',
+                        'asignado' => 'heroicon-o-user',
+                        'mantenimiento' => 'heroicon-o-wrench-screwdriver',
+                        'en evaluación', 'en evaluacion' => 'heroicon-o-magnifying-glass',
+                        'baja' => 'heroicon-o-x-circle',
+                        default => 'heroicon-o-question-mark-circle',
                     }),
             ])
             ->filters([

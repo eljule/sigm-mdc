@@ -45,14 +45,14 @@ class AssetAssignment extends Model
         });
 
         static::created(function (AssetAssignment $assignment) {
-            $assignment->asset->update(['status' => 'Asignado']);
+            $assignment->asset->update(['status' => 'asignado']);
         });
 
         static::updated(function (AssetAssignment $assignment) {
             if ($assignment->isDirty('returned_at') && $assignment->returned_at !== null) {
                 $asset = $assignment->asset;
-                if ($asset && ! in_array($asset->status, ['Baja', 'Mantenimiento', 'En Evaluación'])) {
-                    $asset->update(['status' => 'Disponible']);
+                if ($asset && ! in_array(strtolower($asset->status ?? ''), ['baja', 'mantenimiento', 'en evaluación', 'en evaluacion'])) {
+                    $asset->update(['status' => 'disponible']);
                 }
             }
         });

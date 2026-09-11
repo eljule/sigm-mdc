@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Admin\Resources\Personals\Tables;
 
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -33,7 +36,8 @@ class PersonalsTable
                     ->label('Condición Laboral')
                     ->badge()
                     ->color('info')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('position')
                     ->label('Cargo')
                     ->searchable()
@@ -57,6 +61,14 @@ class PersonalsTable
                 SelectFilter::make('labor_condition_id')
                     ->relationship('laborCondition', 'name')
                     ->label('Filtrar por Condición Laboral'),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
+            ])
+            ->recordActions([
+                EditAction::make(),
             ]);
     }
 }

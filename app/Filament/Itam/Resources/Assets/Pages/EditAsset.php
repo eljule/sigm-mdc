@@ -24,7 +24,7 @@ class EditAsset extends EditRecord
                 ->icon('heroicon-o-document-text')
                 ->color('gray')
                 ->visible(function () {
-                    if ($this->record->status !== 'Baja') return false;
+                    if (strtolower($this->record->status ?? '') !== 'baja') return false;
                     return AssetDecommission::where('asset_id', $this->record->id)->exists();
                 })
                 ->url(function () {
@@ -45,7 +45,7 @@ class EditAsset extends EditRecord
                 ->modalHeading('Registro de Baja Definitiva')
                 ->modalSubmitActionLabel('Confirmar Baja')
                 ->modalWidth('2xl')
-                ->visible(fn () => $this->record->status === 'En Evaluación' && (auth()->user()?->isTiStaff() ?? false))
+                ->visible(fn () => in_array(strtolower($this->record->status ?? ''), ['en evaluación', 'en evaluacion']) && (auth()->user()?->isTiStaff() ?? false))
                 ->form([
                     Select::make('decommissioned_by')
                         ->label('Técnico Responsable (TI)')
@@ -76,7 +76,7 @@ class EditAsset extends EditRecord
                     Select::make('ticket_id')
                         ->label('Ticket de Origen (opcional)')
                         ->options(function () {
-                            return \App\Models\Ticket::whereIn('status', ['Resuelto', 'Cerrado'])
+                            return \App\Models\Ticket::whereIn('status', ['resuelto', 'cerrado', 'Resuelto', 'Cerrado'])
                                 ->orderByDesc('id')
                                 ->limit(50)
                                 ->get()
@@ -117,7 +117,7 @@ class EditAsset extends EditRecord
 
                     // Actualizar el estado del activo
                     $asset->update([
-                        'status' => 'Baja',
+                        'status' => 'baja',
                         'notes'  => trim(($asset->notes ?? '') . "\nBaja definitiva registrada ({$decommission->ficha_number}) el " . now()->format('d/m/Y H:i') . ". Motivo: {$data['reason']}. Resolución: {$data['resolution_type']}."),
                     ]);
 
@@ -152,7 +152,7 @@ class EditAsset extends EditRecord
                     return 'El activo fue evaluado positivamente. No tenía asignación previa, por lo que pasará al estado Disponible.';
                 })
                 ->modalSubmitActionLabel('Sí, recuperar activo')
-                ->visible(fn () => $this->record->status === 'En Evaluación' && (auth()->user()?->isTiStaff() ?? false))
+                ->visible(fn () => in_array(strtolower($this->record->status ?? ''), ['en evaluación', 'en evaluacion']) && (auth()->user()?->isTiStaff() ?? false))
                 ->action(function () {
                     $asset = $this->record;
 
@@ -167,7 +167,7 @@ class EditAsset extends EditRecord
                             'notes'       => trim(($lastAssignment->notes ?? '') . "\nAsignación reactivada por recuperación del activo el " . now()->format('d/m/Y H:i') . '.'),
                         ]);
                         $asset->update([
-                            'status' => 'Asignado',
+                            'status' => 'asignado',
                             'notes'  => trim(($asset->notes ?? '') . "\nActivo recuperado por dictamen técnico el " . now()->format('d/m/Y H:i') . '. Asignación reactivada.'),
                         ]);
                         $userName = $lastAssignment->user?->name ?? "usuario #{$lastAssignment->user_id}";
@@ -178,7 +178,7 @@ class EditAsset extends EditRecord
                             ->send();
                     } else {
                         $asset->update([
-                            'status' => 'Disponible',
+                            'status' => 'disponible',
                             'notes'  => trim(($asset->notes ?? '') . "\nActivo recuperado y marcado como Disponible por dictamen técnico el " . now()->format('d/m/Y H:i') . '.'),
                         ]);
                         \Filament\Notifications\Notification::make()

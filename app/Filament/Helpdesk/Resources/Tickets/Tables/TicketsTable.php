@@ -70,22 +70,32 @@ class TicketsTable
                     Split::make([
                         TextColumn::make('status')
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                'Abierto'            => 'danger',
-                                'En Proceso'         => 'warning',
-                                'Internado'          => 'orange',
-                                'En Espera'          => 'info',
-                                'Esperando Terceros' => 'gray',
-                                'Resuelto'           => 'info',
-                                'Cerrado'            => 'success',
+                            ->formatStateUsing(fn (?string $state): string => match (strtolower((string) $state)) {
+                                'abierto' => 'ABIERTO',
+                                'en proceso' => 'EN PROCESO',
+                                'internado' => 'INTERNADO',
+                                'en espera' => 'EN ESPERA',
+                                'esperando terceros' => 'ESPERANDO TERCEROS',
+                                'resuelto' => 'RESUELTO',
+                                'cerrado' => 'CERRADO',
+                                default => strtoupper((string) $state),
+                            })
+                            ->color(fn (?string $state): string => match (strtolower((string) $state)) {
+                                'abierto'            => 'danger',
+                                'en proceso'         => 'warning',
+                                'internado'          => 'orange',
+                                'en espera'          => 'info',
+                                'esperando terceros' => 'gray',
+                                'resuelto'           => 'info',
+                                'cerrado'            => 'success',
                                 default              => 'gray',
                             })
-                            ->icon(fn (string $state): string => match ($state) {
-                                'Internado'  => 'heroicon-o-building-storefront',
-                                'En Espera'  => 'heroicon-o-clock',
-                                'Resuelto'   => 'heroicon-o-check-circle',
-                                'Cerrado'    => 'heroicon-o-lock-closed',
-                                'Abierto'    => 'heroicon-o-fire',
+                            ->icon(fn (?string $state): string => match (strtolower((string) $state)) {
+                                'internado'  => 'heroicon-o-building-storefront',
+                                'en espera'  => 'heroicon-o-clock',
+                                'resuelto'   => 'heroicon-o-check-circle',
+                                'cerrado'    => 'heroicon-o-lock-closed',
+                                'abierto'    => 'heroicon-o-fire',
                                 default      => '',
                             }),
                         TextColumn::make('assignee.name')
@@ -99,7 +109,7 @@ class TicketsTable
                         ->label('Límite SLA')
                         ->dateTime()
                         ->size('xs')
-                        ->color(fn ($record): ?string => ($record->sla_expires_at && $record->sla_expires_at->isPast() && ! in_array($record->status, ['Resuelto', 'Cerrado'])) ? 'danger' : 'gray')
+                        ->color(fn ($record): ?string => ($record->sla_expires_at && $record->sla_expires_at->isPast() && ! in_array(strtolower($record->status ?? ''), ['resuelto', 'cerrado'])) ? 'danger' : 'gray')
                         ->placeholder('SLA: N/A')
                         ->formatStateUsing(fn ($state) => $state ? 'Vence: ' . $state->format('d/m/Y H:i') : null),
                 ])->space(3),
@@ -114,13 +124,13 @@ class TicketsTable
                 SelectFilter::make('status')
                     ->label('Estado')
                     ->options([
-                        'Abierto'            => 'Abierto',
-                        'En Proceso'         => 'En Proceso',
-                        'Internado'          => 'Internado',
-                        'En Espera'          => 'En Espera',
-                        'Esperando Terceros' => 'Esperando Terceros',
-                        'Resuelto'           => 'Resuelto',
-                        'Cerrado'            => 'Cerrado',
+                        'abierto'            => 'ABIERTO',
+                        'en proceso'         => 'EN PROCESO',
+                        'internado'          => 'INTERNADO',
+                        'en espera'          => 'EN ESPERA',
+                        'esperando terceros' => 'ESPERANDO TERCEROS',
+                        'resuelto'           => 'RESUELTO',
+                        'cerrado'            => 'CERRADO',
                     ]),
             ])
             ->recordActions([
@@ -132,11 +142,11 @@ class TicketsTable
                     ->requiresConfirmation()
                     ->modalHeading('¿Atender este ticket?')
                     ->modalDescription('Te asignarás este ticket y su estado cambiará a "En Proceso". Ningún otro técnico podrá atenderlo.')
-                    ->visible(fn ($record): bool => $record->status === 'Abierto' && empty($record->assigned_to))
+                    ->visible(fn ($record): bool => in_array(strtolower($record->status ?? ''), ['abierto']) && empty($record->assigned_to))
                     ->action(function ($record) {
                         $record->update([
                             'assigned_to' => auth()->id(),
-                            'status' => 'En Proceso',
+                            'status' => 'en proceso',
                         ]);
 
                         Notification::make()
@@ -158,7 +168,7 @@ class TicketsTable
                     ->outlined()
                     ->url(fn ($record) => route('fichas.ticket', $record->id))
                     ->openUrlInNewTab()
-                    ->visible(fn ($record) => in_array($record->status, ['Resuelto', 'Cerrado'])),
+                    ->visible(fn ($record) => in_array(strtolower($record->status ?? ''), ['resuelto', 'cerrado'])),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

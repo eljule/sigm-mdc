@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Traits\HasUppercaseAttributes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AssetCharacteristicValue extends Model
 {
+    use HasUppercaseAttributes;
+
     protected $fillable = ['asset_id', 'asset_characteristic_id', 'value'];
 
     /**

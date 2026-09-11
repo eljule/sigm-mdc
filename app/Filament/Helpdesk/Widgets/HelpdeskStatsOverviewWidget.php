@@ -12,12 +12,12 @@ class HelpdeskStatsOverviewWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $openCount = Ticket::where('status', 'Abierto')->count();
-        $inProgressCount = Ticket::where('status', 'En Proceso')->count();
-        $resolvedToday = Ticket::whereIn('status', ['Resuelto', 'Cerrado'])
+        $openCount = Ticket::whereIn('status', ['abierto', 'Abierto'])->count();
+        $inProgressCount = Ticket::whereIn('status', ['en proceso', 'En Proceso'])->count();
+        $resolvedToday = Ticket::whereIn('status', ['resuelto', 'cerrado', 'Resuelto', 'Cerrado'])
             ->whereDate('updated_at', now()->toDateString())
             ->count();
-        $slaBreached = Ticket::whereNotIn('status', ['Resuelto', 'Cerrado'])
+        $slaBreached = Ticket::whereNotIn('status', ['resuelto', 'cerrado', 'Resuelto', 'Cerrado'])
             ->whereNotNull('sla_expires_at')
             ->where('sla_expires_at', '<', now())
             ->count();
