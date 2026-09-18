@@ -24,6 +24,17 @@
             margin-bottom: 30px;
         }
         .header-logo {
+            display: flex;
+            align-items: center;
+        }
+        .header-logo img {
+            height: 56px;
+            width: auto;
+            max-width: 260px;
+            object-fit: contain;
+            display: block;
+        }
+        .old-header-logo {
             font-weight: 700;
             font-size: 18px;
             color: #0f172a;
@@ -161,15 +172,51 @@
             .print-actions { display: none; }
             body { padding: 0; }
         }
+    
+        
+        /* RECOVERED DATA STYLING: ONLY DATA IN UPPERCASE & SMALL LEGIBLE SIZE */
+        .info-value {
+            color: #0f172a !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.025em !important;
+            line-height: 1.45 !important;
+        }
+        .info-value-full {
+            color: #0f172a !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.02em !important;
+            line-height: 1.5 !important;
+            background-color: #f8fafc !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 6px !important;
+            padding: 8px 12px !important;
+        }
+        .data-value {
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            color: #0f172a !important;
+            letter-spacing: 0.025em !important;
+        }
+        table td {
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.025em !important;
+            color: #0f172a !important;
+            padding: 8px 12px !important;
+        }
+
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="header-logo">
-            MUNICIPALIDAD DISTRITAL DE CASTILLA<br>
-            <span style="font-size: 12px; color: #475569;">GERENCIA DE TECNOLOGÍAS DE LA INFORMACIÓN</span>
-        </div>
+        <div class="header-logo"><img src="{{ asset('images/logo-castilla.png') }}" alt="Municipalidad de Castilla"></div>
         <div class="header-title">
             <strong>SIGM-MDC</strong><br>
             Sistema Integrado de Gestión Municipal

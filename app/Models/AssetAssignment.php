@@ -45,7 +45,26 @@ class AssetAssignment extends Model
         });
 
         static::created(function (AssetAssignment $assignment) {
-            $assignment->asset->update(['status' => 'asignado']);
+            $assignment->asset?->update(['status' => 'asignado']);
+
+            // Si el activo principal asignado posee componentes hijos, registrar también la asignación para cada uno de ellos
+            if ($assignment->asset && $assignment->asset->parent_id === null && $assignment->asset->components->isNotEmpty()) {
+                foreach ($assignment->asset->components as $component) {
+                    $activeExists = static::where('asset_id', $component->id)
+                        ->whereNull('returned_at')
+                        ->exists();
+
+                    if (! $activeExists) {
+                        static::create([
+                            'asset_id'    => $component->id,
+                            'user_id'     => $assignment->user_id,
+                            'office_id'   => $assignment->office_id,
+                            'assigned_at' => $assignment->assigned_at,
+                            'notes'       => $assignment->notes ?? "Componente vinculado a equipo principal {$assignment->asset->computer_code}",
+                        ]);
+                    }
+                }
+            }
         });
 
         static::updated(function (AssetAssignment $assignment) {
@@ -54,10 +73,38 @@ class AssetAssignment extends Model
                 if ($asset && ! in_array(strtolower($asset->status ?? ''), ['baja', 'mantenimiento', 'en evaluación', 'en evaluacion'])) {
                     $asset->update(['status' => 'disponible']);
                 }
+
+                // Si se devuelve el equipo principal, devolver también las asignaciones de sus activos hijos
+                if ($asset && $asset->parent_id === null && $asset->components->isNotEmpty()) {
+                    $componentIds = $asset->components->pluck('id');
+                    static::whereIn('asset_id', $componentIds)
+                        ->where('user_id', $assignment->user_id)
+                        ->whereNull('returned_at')
+                        ->update(['returned_at' => $assignment->returned_at]);
+
+                    foreach ($asset->components as $comp) {
+                        if (! in_array(strtolower($comp->status ?? ''), ['baja', 'mantenimiento', 'en evaluación', 'en evaluacion'])) {
+                            $comp->update(['status' => 'disponible']);
+                        }
+                    }
+                }
+            }
+        });
+
+        static::deleted(function (AssetAssignment $assignment) {
+            $asset = $assignment->asset;
+            if ($asset && $asset->parent_id === null && $asset->components->isNotEmpty()) {
+                $componentIds = $asset->components->pluck('id');
+                static::whereIn('asset_id', $componentIds)
+                    ->where('user_id', $assignment->user_id)
+                    ->delete();
+            }
+
+            if ($asset && ! in_array(strtolower($asset->status ?? ''), ['baja', 'mantenimiento', 'en evaluación', 'en evaluacion'])) {
+                $asset->update(['status' => 'disponible']);
             }
         });
     }
-
 
     /**
      * @return BelongsTo<Asset, $this>

@@ -17,9 +17,22 @@ class AssetMaintenanceForm
         return $schema
             ->components([
                 Select::make('asset_id')
-                    ->relationship('asset', 'computer_code')
+                    ->relationship(
+                        'asset',
+                        'computer_code',
+                        fn ($query) => $query->with(['model.brand', 'category'])
+                    )
                     ->label('Activo a Mantenimiento')
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "[{$record->computer_code}] " . ($record->model?->brand?->name ?? '') . " " . ($record->model?->name ?? '') . ($record->asset_code ? " (Patrimonial: {$record->asset_code})" : ''))
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->select_option_label)
+                    ->getSearchResultsUsing(function (string $search) {
+                        return \App\Models\Asset::query()
+                            ->searchTerms($search)
+                            ->with(['model.brand', 'category'])
+                            ->limit(50)
+                            ->get()
+                            ->mapWithKeys(fn ($asset) => [$asset->id => $asset->select_option_label])
+                            ->toArray();
+                    })
                     ->searchable()
                     ->preload()
                     ->required(),

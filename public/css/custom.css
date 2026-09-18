@@ -154,8 +154,8 @@ button[type="submit"] * {
 }
 
 .login-grid-pattern {
-    background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), 
-                      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) !important;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px) !important;
     background-size: 24px 24px !important;
 }
 
@@ -198,7 +198,8 @@ button[type="submit"] * {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    background-color: #ffffff !important; /* light mode */
+    background-color: #ffffff !important;
+    /* light mode */
     padding: 2rem !important;
     margin: 0 !important;
     width: 100% !important;
@@ -209,7 +210,8 @@ button[type="submit"] * {
 }
 
 .dark .fi-simple-layout:has(.login-cover-sidebar) .fi-simple-main-ctn {
-    background-color: #18181b !important; /* dark mode */
+    background-color: #18181b !important;
+    /* dark mode */
 }
 
 /* Flat the card on split screen */
@@ -225,7 +227,8 @@ button[type="submit"] * {
 
 /* Static CSS overrides for the login sidebar banner elements */
 .login-cover-logo {
-    height: 6rem !important; /* matches h-24 */
+    height: 6rem !important;
+    /* matches h-24 */
     width: auto !important;
     margin-bottom: 2rem !important;
     object-fit: contain !important;
@@ -234,20 +237,23 @@ button[type="submit"] * {
 .login-glass-card {
     margin-top: auto !important;
     margin-bottom: auto !important;
-    max-width: 36rem !important; /* matches max-w-xl */
+    max-width: 36rem !important;
+    /* matches max-w-xl */
     position: relative !important;
     z-index: 10 !important;
     background: rgba(255, 255, 255, 0.05) !important;
     backdrop-filter: blur(24px) !important;
     -webkit-backdrop-filter: blur(24px) !important;
     padding: 2.5rem !important;
-    border-radius: 1.5rem !important; /* matches rounded-3xl */
+    border-radius: 1.5rem !important;
+    /* matches rounded-3xl */
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
 }
 
 .login-cover-title {
-    font-size: 2.25rem !important; /* matches text-4xl */
+    font-size: 2.25rem !important;
+    /* matches text-4xl */
     line-height: 2.5rem !important;
     font-weight: 800 !important;
     letter-spacing: -0.025em !important;
@@ -257,26 +263,32 @@ button[type="submit"] * {
 
 @media (min-width: 1024px) {
     .login-cover-title {
-        font-size: 3rem !important; /* matches text-5xl */
+        font-size: 3rem !important;
+        /* matches text-5xl */
         line-height: 1 !important;
     }
 }
 
 .login-cover-desc {
-    font-size: 1rem !important; /* matches text-base */
+    font-size: 1rem !important;
+    /* matches text-base */
     font-weight: 300 !important;
     line-height: 1.625 !important;
-    color: #d1fae5 !important; /* matches text-emerald-100 */
+    color: #d1fae5 !important;
+    /* matches text-emerald-100 */
     margin-bottom: 1.5rem !important;
 }
 
 .login-cover-badge {
-    font-size: 0.75rem !important; /* matches text-xs */
+    font-size: 0.75rem !important;
+    /* matches text-xs */
     text-transform: uppercase !important;
     letter-spacing: 0.1em !important;
     font-weight: 600 !important;
-    color: #6ee7b7 !important; /* matches text-emerald-300 */
-    background-color: rgba(6, 78, 59, 0.4) !important; /* bg-emerald-950/40 */
+    color: #6ee7b7 !important;
+    /* matches text-emerald-300 */
+    background-color: rgba(6, 78, 59, 0.4) !important;
+    /* bg-emerald-950/40 */
     padding: 0.25rem 0.75rem !important;
     border-radius: 9999px !important;
     border: 1px solid rgba(16, 185, 129, 0.2) !important;
@@ -297,9 +309,18 @@ select:not([name="email"]),
 .fi-in-text-item,
 .fi-fo-text-input:not([name="email"]):not([name="username"]),
 .fi-fo-textarea,
-.fi-section-header-heading,
 .fi-header-heading {
     text-transform: uppercase !important;
+}
+
+/* ==========================================================================
+   TÍTULOS DE SECCIONES EN FORMULARIOS: FORMATO CAPITALIZADO (IGUAL A BLOQUES TÉCNICOS)
+   ========================================================================== */
+.fi-section-header-heading,
+.fi-section-header-heading span,
+.fi-section-header-heading *,
+h3.fi-section-header-heading {
+    text-transform: none !important;
 }
 
 /* ==========================================================================
@@ -310,6 +331,8 @@ select:not([name="email"]),
 /* Ajuste de celda de Tablas (Data Cells: 11px) y Forzar Mayúsculas en Datos */
 .fi-ta-text-item,
 .fi-ta-text-item span,
+.fi-ta-text-item-description,
+p.fi-ta-text-item-description,
 .fi-ta-cell:not(:has(.fi-ta-actions)):not(:has(.fi-btn)):not(:has(.fi-link)),
 .fi-ta-cell:not(:has(.fi-ta-actions)):not(:has(.fi-btn)):not(:has(.fi-link)) span:not(.fi-btn-label):not(.fi-link-label),
 .fi-ta-badge,
@@ -317,7 +340,19 @@ select:not([name="email"]),
 .fi-badge,
 .fi-badge span,
 .fi-ta-record-title {
-    font-size: 0.6875rem !important; /* 11px */
+    font-size: 0.6875rem !important;
+    /* 11px */
+    letter-spacing: 0.03em !important;
+    line-height: 1.25 !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+}
+
+
+/* Descripción secundaria con el mismo tamaño tipográfico homogéneo (11px / 0.6875rem) */
+.fi-ta-text-item-description,
+p.fi-ta-text-item-description {
+    font-size: 0.6875rem !important;
     letter-spacing: 0.03em !important;
     line-height: 1.25 !important;
     font-weight: 500 !important;
@@ -349,7 +384,8 @@ select:not([name="email"]),
 /* Encabezados de columna de tablas (Headers: 10px Bold Uppercase) */
 .fi-ta-header-cell-label,
 th .fi-ta-header-cell-label {
-    font-size: 0.625rem !important; /* 10px */
+    font-size: 0.625rem !important;
+    /* 10px */
     letter-spacing: 0.05em !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
@@ -363,7 +399,8 @@ select,
 .fi-fo-text-input input,
 .fi-fo-textarea textarea,
 .fi-fo-select select {
-    font-size: 0.75rem !important; /* 12px */
+    font-size: 0.75rem !important;
+    /* 12px */
     letter-spacing: 0.03em !important;
     font-weight: 500 !important;
 }
@@ -372,7 +409,8 @@ select,
 .fi-fo-field-wrp-label,
 .fi-fo-field-wrp-label span,
 label.fi-fo-field-wrp-label {
-    font-size: 0.6875rem !important; /* 11px */
+    font-size: 0.6875rem !important;
+    /* 11px */
     letter-spacing: 0.03em !important;
     font-weight: 600 !important;
 }
@@ -393,7 +431,8 @@ input[type="password"] {
 h1.fi-header-heading,
 .fi-header h1,
 .fi-page-header-heading {
-    font-size: 1.25rem !important; /* ~20px en lugar de ~30px */
+    font-size: 1.25rem !important;
+    /* ~20px en lugar de ~30px */
     line-height: 1.3 !important;
     font-weight: 700 !important;
     letter-spacing: 0.03em !important;
@@ -401,7 +440,8 @@ h1.fi-header-heading,
 
 /* Reducción proporcional de títulos de secciones y tarjetas de formulario */
 .fi-section-header-heading {
-    font-size: 1.05rem !important; /* ~17px */
+    font-size: 1.05rem !important;
+    /* ~17px */
     font-weight: 700 !important;
     letter-spacing: 0.025em !important;
 }
@@ -586,7 +626,6 @@ div.fi-wi-stats-overview-stat {
 
 /* 3. Borde Superior Verde acentuado EXCLUSIVAMENTE en Tablas y Tarjetas de Técnicos */
 .fi-ta-ctn,
-.fi-ta-content,
 .tech-card,
 div.fi-ta-ctn {
     border-top: 4px solid #008435 !important;
@@ -597,10 +636,15 @@ div.fi-ta-ctn {
 }
 
 .dark .fi-ta-ctn,
-.dark .fi-ta-content,
 .dark .tech-card {
     border-top: 4px solid #10b981 !important;
     box-shadow: 0 4px 20px -2px rgba(16, 185, 129, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Limpieza del contenedor interno de contenido de tablas para evitar bordes verdes duplicados */
+.fi-ta-content {
+    border-radius: 0 !important;
+    box-shadow: none !important;
 }
 
 /* 4. ESTILO UNIFICADO Y ÚNICO DE TARJETA DE SECCIÓN (ELIMINANDO BORDES INTERNOS ANIDADOS) */
@@ -678,7 +722,7 @@ div.fi-fo-field-wrp {
 
 /* En Modo Oscuro */
 .dark .fi-section:not(.fi-ta-ctn):not(.tech-card):not(.fi-wi-stats-overview-stat),
-.dark .fi-fo-component-ctn > .fi-section,
+.dark .fi-fo-component-ctn>.fi-section,
 .dark .fi-fo-wizard-step,
 .dark .fi-fo-fieldset,
 .dark div.fi-section:not(.fi-ta-ctn):not(.tech-card):not(.fi-wi-stats-overview-stat) {
@@ -731,7 +775,8 @@ select,
 .fi-fo-select option,
 select option,
 [data-choice] {
-    font-size: 0.6875rem !important; /* 11px estandarizado e idéntico */
+    font-size: 0.6875rem !important;
+    /* 11px estandarizado e idéntico */
     line-height: 1.25 !important;
     letter-spacing: 0.03em !important;
     font-weight: 500 !important;
@@ -761,7 +806,8 @@ select option,
 .choices__input,
 .choices__input::placeholder,
 input.choices__input {
-    font-size: 0.75rem !important; /* 12px */
+    font-size: 0.75rem !important;
+    /* 12px */
     letter-spacing: 0.03em !important;
     text-transform: uppercase !important;
     padding: 0.4rem 0.6rem !important;
@@ -801,7 +847,8 @@ input.choices__input {
 input[type="text"],
 input.fi-input,
 .fi-fo-text-input input.fi-input {
-    font-size: 0.75rem !important; /* 12px */
+    font-size: 0.75rem !important;
+    /* 12px */
     font-weight: 500 !important;
     line-height: 1.25 !important;
     letter-spacing: 0.02em !important;
@@ -824,7 +871,8 @@ input.fi-input,
 .choices__input,
 .choices__item,
 [data-choice] {
-    font-size: 0.75rem !important; /* 12px IDÉNTICO Y EXACTO AL INPUT */
+    font-size: 0.75rem !important;
+    /* 12px IDÉNTICO Y EXACTO AL INPUT */
     font-weight: 500 !important;
     line-height: 1.25 !important;
     letter-spacing: 0.02em !important;
@@ -846,7 +894,8 @@ input[type="text"],
 input[type="search"],
 textarea,
 select {
-    font-size: 0.6875rem !important; /* 11px */
+    font-size: 0.6875rem !important;
+    /* 11px */
     font-weight: 500 !important;
     line-height: 1.25 !important;
     letter-spacing: 0.02em !important;
@@ -877,7 +926,8 @@ select {
 select option,
 [data-choice],
 [data-choice] * {
-    font-size: 0.6875rem !important; /* 11px IDÉNTICO */
+    font-size: 0.6875rem !important;
+    /* 11px IDÉNTICO */
     font-weight: 500 !important;
     line-height: 1.25 !important;
     letter-spacing: 0.02em !important;
@@ -918,7 +968,8 @@ select option,
 .fi-fo-select div,
 .fi-fo-select span,
 [data-choice] {
-    font-size: 0.6875rem !important; /* 11px EXACTO E IDÉNTICO A INPUT TEXT */
+    font-size: 0.6875rem !important;
+    /* 11px EXACTO E IDÉNTICO A INPUT TEXT */
     font-weight: 500 !important;
     line-height: 1.25 !important;
     letter-spacing: 0.03em !important;
@@ -1002,4 +1053,40 @@ a.fi-link *,
 .fi-dropdown-list-item.fi-action,
 .fi-dropdown-list-item.fi-action * {
     text-transform: capitalize !important;
+}
+
+/* Subtítulos de cabecera de página más equilibrados y legibles */
+.fi-header-subheading {
+    font-size: 13px !important;
+    line-height: 1.45 !important;
+    color: #64748b !important;
+    font-weight: 500 !important;
+    margin-top: 4px !important;
+    letter-spacing: normal !important;
+}
+.dark .fi-header-subheading {
+    color: #94a3b8 !important;
+}
+
+
+/* ==========================================================================
+   DESCRIPCIÓN DE TEXTO EN TABLAS FILAMENT (SUBTÍTULOS / DETALLES DE CELDAS)
+   ========================================================================== */
+.fi-ta-text-description,
+p.fi-ta-text-description,
+.fi-ta-cell .fi-ta-text-description,
+.fi-ta-text-item .fi-ta-text-description {
+    font-size: 0.625rem !important; /* 10px exacto y legible */
+    line-height: 1.25 !important;
+    letter-spacing: 0.03em !important;
+    font-weight: 500 !important;
+    color: #64748b !important;
+    margin-top: 2px !important;
+}
+
+.dark .fi-ta-text-description,
+.dark p.fi-ta-text-description,
+.dark .fi-ta-cell .fi-ta-text-description,
+.dark .fi-ta-text-item .fi-ta-text-description {
+    color: #94a3b8 !important;
 }

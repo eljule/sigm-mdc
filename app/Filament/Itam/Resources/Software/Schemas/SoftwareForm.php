@@ -28,12 +28,15 @@ class SoftwareForm
                 Select::make('license_type')
                     ->label('Tipo de Licencia')
                     ->options([
-                        'OEM' => 'OEM (De fábrica)',
-                        'Volumen' => 'Volumen (KMS/MAK)',
-                        'Suscripción' => 'Suscripción (Anual/Mensual)',
-                        'Libre' => 'Libre / Código Abierto',
-                        'Propietaria' => 'Propietaria Perpetua',
+                        'oem' => 'OEM (De fábrica)',
+                        'volumen' => 'Volumen (KMS/MAK)',
+                        'suscripción' => 'Suscripción (Anual/Mensual)',
+                        'libre' => 'Libre / Código Abierto',
+                        'propietaria' => 'Propietaria Perpetua',
                     ])
+                    ->formatStateUsing(fn ($state) => $state ? mb_strtolower((string) $state, 'UTF-8') : null)
+                    ->native(false)
+                    ->live()
                     ->required(),
                 TextInput::make('max_activations')
                     ->label('Máx. Activaciones')
@@ -41,7 +44,15 @@ class SoftwareForm
                     ->default(1)
                     ->required(),
                 DatePicker::make('expiration_date')
-                    ->label('Fecha de Vencimiento'),
+                    ->label('Fecha de Vencimiento')
+                    ->native(false)
+                    ->displayFormat('d/m/Y')
+                    ->placeholder('N/A (Sin vencimiento)')
+                    ->helperText(fn ($get) => in_array(mb_strtolower((string) $get('license_type'), 'UTF-8'), ['oem', 'libre', 'propietaria'])
+                        ? 'No aplica (N/A): Esta modalidad de licencia es perpetua.'
+                        : (in_array(mb_strtolower((string) $get('license_type'), 'UTF-8'), ['suscripción', 'volumen'])
+                            ? 'Fecha límite de vigencia de la suscripción o contrato.'
+                            : null)),
                 Textarea::make('license_key')
                     ->label('Clave de Licencia / Serial')
                     ->maxLength(500)

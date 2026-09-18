@@ -56,14 +56,37 @@ class RolesRelationManager extends RelationManager
             ])
             ->headerActions([
                 AttachAction::make()
+                    ->preloadRecordSelect()
                     ->form(fn (AttachAction $action): array => [
-                        $action->getRecordSelect(),
+                        $action->getRecordSelect()
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if ($state) {
+                                    $role = \App\Models\Role::find($state);
+                                    if ($role && $role->subsystem_id) {
+                                        $set('subsystem_id', $role->subsystem_id);
+                                    }
+                                }
+                            }),
                         Select::make('subsystem_id')
                             ->label('Subsistema')
                             ->options(Subsystem::all()->pluck('name', 'id'))
                             ->required()
-                            ->preload(),
+                            ->default(fn (callable $get) => \App\Models\Role::find($get('recordId'))?->subsystem_id)
+                            ->disabled()
+                            ->dehydrated()
+                            ->helperText('Asignado automáticamente según el subsistema del rol.'),
                     ])
+                    ->mutateFormDataUsing(function (array $data): array {
+                        if (! empty($data['recordId'])) {
+                            $role = \App\Models\Role::find($data['recordId']);
+                            if ($role && $role->subsystem_id) {
+                                $data['subsystem_id'] = $role->subsystem_id;
+                            }
+                        }
+
+                        return $data;
+                    })
                     ->after(fn () => app(PermissionRegistrar::class)->forgetCachedPermissions()),
             ])
             ->recordActions([

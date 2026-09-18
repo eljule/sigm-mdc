@@ -23,10 +23,10 @@ class RoleAndPermissionSeeder extends Seeder
         // 1. Obtener los subsistemas
         $subsystems = Subsystem::all()->keyBy('code');
 
-        $centralId  = $subsystems->get('central')?->id;
-        $transportesId   = $subsystems->get('transportes')?->id ?? $subsystems->get('rentas')?->id;
-        $itamId     = $subsystems->get('itam')?->id;
-        $helpdeskId = $subsystems->get('helpdesk')?->id;
+        $centralId     = $subsystems->get('central')?->id;
+        $transportesId = $subsystems->get('transportes')?->id;
+        $itamId        = $subsystems->get('itam')?->id;
+        $helpdeskId    = $subsystems->get('helpdesk')?->id;
 
         // 2. Definir Permisos por Subsistema
         $permissionsData = [
@@ -100,6 +100,8 @@ class RoleAndPermissionSeeder extends Seeder
             ['name' => 'Administrador Central', 'subsystem_id' => $centralId],
             ['name' => 'Operador de Transportes', 'subsystem_id' => $transportesId],
             ['name' => 'Administrador de TI', 'subsystem_id' => $itamId],
+            ['name' => 'admin-soporte', 'subsystem_id' => $itamId],
+            ['name' => 'Tecnico de soporte', 'subsystem_id' => $itamId],
             ['name' => 'Tecnico de Soporte', 'subsystem_id' => $helpdeskId],
             ['name' => 'Admin-Soporte', 'subsystem_id' => $helpdeskId],
             ['name' => 'Administrador de Helpdesk', 'subsystem_id' => $helpdeskId],
@@ -122,24 +124,21 @@ class RoleAndPermissionSeeder extends Seeder
         $rolePermissionsMap = [
             'Administrador Central_' . $centralId => $permissionsData['central'],
             'Administrador de TI_' . $itamId => $permissionsData['itam'],
-            'Soporte TI_' . $itamId => [
-                'consultar-activos', 'insertar-activos', 'modificar-activos', 'dictaminar-baja-activos',
-                'consultar-asignaciones', 'insertar-asignaciones', 'modificar-asignaciones',
-                'consultar-mantenimientos', 'insertar-mantenimientos', 'modificar-mantenimientos',
-                'consultar-prestamos', 'insertar-prestamos', 'modificar-prestamos',
-                'consultar-consumibles', 'despachar-consumibles',
-                'consultar-actas-entrega', 'reimprimir-actas-entrega',
-                'consultar-catalogos-ti',
+            'admin-soporte_' . $itamId => [
+                'consultar-activos', 'insertar-activos', 'modificar-activos', 'gestionar-catalogos-ti',
             ],
-            'Tecnico de Soporte_' . $itamId => [
-                'consultar-mantenimientos', 'insertar-mantenimientos', 'modificar-mantenimientos',
+            'Tecnico de soporte_' . $itamId => [
+                'consultar-actas-entrega', 'consultar-activos', 'consultar-asignaciones',
+                'consultar-catalogos-ti', 'consultar-consumibles', 'consultar-mantenimientos',
+                'consultar-prestamos', 'consultar-software',
             ],
             'Administrador de Helpdesk_' . $helpdeskId => $permissionsData['helpdesk'],
-            'Técnico de Soporte_' . $helpdeskId => [
-                'consultar-tickets', 'insertar-tickets', 'modificar-tickets', 'atender-tickets',
-                'monitorear-tecnicos',
-                'consultar-categorias-tickets',
-                'consultar-base-conocimiento',
+            'Admin-Soporte_' . $helpdeskId => $permissionsData['helpdesk'],
+            'Tecnico de Soporte_' . $helpdeskId => [
+                'consultar-tickets', 'insertar-tickets', 'modificar-tickets',
+                'atender-tickets', 'cerrar-tickets', 'monitorear-tecnicos',
+                'consultar-categorias-tickets', 'consultar-base-conocimiento',
+                'gestionar-base-conocimiento',
             ],
             'Usuario Reportante_' . $helpdeskId => [
                 'consultar-tickets', 'insertar-tickets',

@@ -90,13 +90,42 @@ class AssetForm
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->placeholder('Ej. SGH1234567'),
+                        TextInput::make('color')
+                            ->label('Color')
+                            ->placeholder('Ej. Negro / Blanco / Gris'),
+                        Select::make('estado')
+                            ->label('Estado')
+                            ->options([
+                                'muy bueno' => 'MUY BUENO',
+                                'bueno' => 'BUENO',
+                                'regular' => 'REGULAR',
+                                'malo' => 'MALO',
+                            ])
+                            ->default('bueno')
+                            ->required(),
                         Select::make('parent_id')
                             ->label('Activo Principal (Padre)')
-                            ->relationship('parent', 'computer_code')
+                            ->relationship(
+                                'parent',
+                                'computer_code',
+                                fn ($query, $record) => $query
+                                    ->with(['model.brand', 'category'])
+                                    ->when($record, fn ($q) => $q->where('id', '!=', $record->id))
+                            )
                             ->placeholder('Seleccione el equipo principal (ej. CPU)')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->select_option_label)
+                            ->getSearchResultsUsing(function (string $search, $record) {
+                                return \App\Models\Asset::query()
+                                    ->when($record, fn ($q) => $q->where('id', '!=', $record->id))
+                                    ->searchTerms($search)
+                                    ->with(['model.brand', 'category'])
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(fn ($asset) => [$asset->id => $asset->select_option_label])
+                                    ->toArray();
+                            })
                             ->searchable()
                             ->preload()
-                            ->getOptionLabelFromRecordUsing(fn ($record) => "[{$record->computer_code}] " . ($record->model?->brand?->name ?? '') . " " . ($record->model?->name ?? '') . " (" . ($record->category->name ?? '') . ")")
                             ->columnSpanFull(),
                     ]),
 

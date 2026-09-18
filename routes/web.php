@@ -64,9 +64,11 @@ Route::get('/register', function () {
     return redirect('/admin/register');
 })->name('register');
 
+// Portal de Mesa de Ayuda y Helpdesk (Público para registro de tickets sin inicio de sesión obligatorio)
+Route::get('/soporte', [HelpdeskPortalController::class, 'index'])->name('helpdesk.portal');
+Route::post('/soporte', [HelpdeskPortalController::class, 'store'])->name('helpdesk.portal.store');
+
 Route::middleware('auth')->group(function () {
-    Route::get('/soporte', [HelpdeskPortalController::class, 'index'])->name('helpdesk.portal');
-    Route::post('/soporte', [HelpdeskPortalController::class, 'store'])->name('helpdesk.portal.store');
     Route::post('/soporte/logout', function () {
         auth()->logout();
         request()->session()->invalidate();

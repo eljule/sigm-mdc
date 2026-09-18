@@ -22,14 +22,14 @@ class TicketForm
         $user = auth()->user();
         $isEditMode = $schema->getRecord() !== null;
 
-        $isTechnician = $user?->hasRole('Técnico de Soporte') || false;
-        $isAdmin = $user?->hasRole('Administrador Central') || false;
+        $isTechnician = $user?->allRoles()->whereIn('roles.name', ['Tecnico de Soporte', 'Técnico de Soporte', 'Tecnico de soporte', 'Admin-Soporte', 'admin-soporte', 'Administrador de Helpdesk'])->exists() ?? false;
+        $isAdmin = $user?->allRoles()->whereIn('roles.name', ['Administrador Central', 'Administrador de Helpdesk', 'Administrador de TI'])->exists() ?? false;
 
         // Campos reportados por el usuario (solo lectura al editar para el técnico)
         $disableUserFields = $isEditMode && $isTechnician && ! $isAdmin;
 
         // Campos técnicos y de resolución (solo lectura si el ticket está cerrado)
-        $isClosed = $isEditMode && $schema->getRecord()?->status === 'Cerrado';
+        $isClosed = $isEditMode && in_array(strtolower((string) $schema->getRecord()?->status), ['cerrado']);
         $disableTechnicalFields = $isClosed && ! $isAdmin;
 
         return $schema
@@ -45,23 +45,52 @@ class TicketForm
                         Select::make('user_category')
                             ->label('Tipo de Incidencia / Área')
                             ->options([
-                                'Equipos/Hardware' => 'Equipos / Hardware (Computadora, Impresora, etc.)',
-                                'Sistemas/Programas' => 'Sistemas / Programas (SIGM, Navegador, Office)',
-                                'Accesos/Contraseñas' => 'Accesos / Contraseñas (Restablecer contraseña, cuentas)',
-                                'Red/Internet' => 'Red / Internet (Sin red, desconexión)',
-                                'Otros' => 'Otros problemas',
+                                'equipos/hardware' => 'Equipos / Hardware (Computadora, Impresora, etc.)',
+                                'sistemas/programas' => 'Sistemas / Programas (SIGM, Navegador, Office)',
+                                'accesos/contraseñas' => 'Accesos / Contraseñas (Restablecer contraseña, cuentas)',
+                                'red/internet' => 'Red / Internet (Sin red, desconexión)',
+                                'otros' => 'Otros problemas',
                             ])
+                            ->formatStateUsing(fn ($state) => strtolower((string) $state))
                             ->required()
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $catMap = [
+                                    'equipos/hardware' => 'hardware y computadores',
+                                    'sistemas/programas' => 'sistemas municipales',
+                                    'accesos/contraseñas' => 'sistemas municipales',
+                                    'accesos/contrasenas' => 'sistemas municipales',
+                                    'red/internet' => 'red y conectividad',
+                                    'otros' => 'sistemas municipales',
+                                ];
+                                $target = $catMap[strtolower((string) $state)] ?? null;
+                                if ($target) {
+                                    $cat = \App\Models\TicketCategory::whereRaw('LOWER(name) = ?', [$target])->first();
+                                    if ($cat) {
+                                        $set('category_id', $cat->id);
+                                    }
+                                }
+                            })
                             ->disabled($disableUserFields),
                         Select::make('requester_id')
                             ->relationship('requester', 'name')
-                            ->label('Solicitante')
+                            ->label('Usuario Solicitante (SIGM)')
                             ->default(auth()->id())
                             ->disabled($disableUserFields)
                             ->dehydrated()
-                            ->required()
+                            ->searchable()
                             ->reactive()
                             ->afterStateUpdated(fn ($state, callable $set) => $set('office_id', User::find($state)?->office_id)),
+                        TextInput::make('requester_name')
+                            ->label('Nombre del Solicitante / Responsable')
+                            ->maxLength(150)
+                            ->disabled($disableUserFields)
+                            ->placeholder('Nombre completo del solicitante o responsable'),
+                        TextInput::make('contact_phone')
+                            ->label('Teléfono / Anexo de Contacto')
+                            ->maxLength(50)
+                            ->disabled($disableUserFields)
+                            ->placeholder('Ej: Anexo 104 / 987654321'),
                         Select::make('office_id')
                             ->relationship('office', 'name')
                             ->label('Oficina / Dependencia')
@@ -86,10 +115,12 @@ class TicketForm
                         Select::make('impact')
                             ->label('Nivel de Afectación (Impacto)')
                             ->options([
-                                'Individual' => 'Solo me pasa a mí (Trabajo parcial detenido)',
-                                'Grupal' => 'Afecta a mi área / oficina (Varios usuarios afectados)',
-                                'Critico' => 'Todo el departamento / oficina está parado (Operación crítica detenida)',
+                                'individual' => 'Solo me pasa a mí (Trabajo parcial detenido)',
+                                'grupal' => 'Afecta a mi área / oficina (Varios usuarios afectados)',
+                                'critico' => 'Todo el departamento / oficina está parado (Operación crítica detenida)',
                             ])
+                            ->formatStateUsing(fn ($state) => strtolower((string) $state))
+                            ->default('individual')
                             ->required()
                             ->disabled($disableUserFields),
                         FileUpload::make('attachments')
@@ -109,12 +140,14 @@ class TicketForm
                     ->schema([
                         Select::make('category_id')
                             ->relationship('category', 'name')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => mb_strtoupper((string) $record->name, 'UTF-8'))
                             ->label('Categorización Real / Tipo de Falla Técnica')
                             ->required()
                             ->preload()
                             ->disabled($disableTechnicalFields),
                         Select::make('assigned_to')
-                            ->relationship('assignee', 'name')
+                            ->relationship('assignee', 'username')
+                            ->getOptionLabelFromRecordUsing(fn ($record) => mb_strtoupper((string) $record->username, 'UTF-8') . ($record->name ? " - " . mb_strtoupper((string) $record->name, 'UTF-8') : ''))
                             ->label('Técnico Asignado')
                             ->placeholder('Sin asignar')
                             ->searchable()
@@ -123,63 +156,130 @@ class TicketForm
                         Select::make('priority')
                             ->label('Prioridad Interna')
                             ->options([
-                                'Baja' => 'Baja',
-                                'Media' => 'Media',
-                                'Alta' => 'Alta',
+                                'baja' => 'Baja',
+                                'media' => 'Media',
+                                'alta' => 'Alta',
                             ])
-                            ->default('Baja')
+                            ->formatStateUsing(fn ($state) => strtolower((string) $state))
+                            ->default('baja')
                             ->required()
                             ->disabled($disableTechnicalFields),
                         Select::make('status')
                             ->label('Estado del Ticket')
                             ->options([
-                                'Abierto' => 'Abierto',
-                                'En Proceso' => 'En Proceso',
-                                'Internado' => 'Internado',
-                                'En Espera' => 'En Espera',
-                                'Esperando Terceros' => 'Esperando Terceros',
-                                'Resuelto' => 'Resuelto',
-                                'Cerrado' => 'Cerrado',
+                                'abierto' => 'Abierto',
+                                'en proceso' => 'En Proceso',
+                                'internado' => 'Internado',
+                                'en espera' => 'En Espera',
+                                'esperando terceros' => 'Esperando Terceros',
+                                'resuelto' => 'Resuelto',
+                                'cerrado' => 'Cerrado',
                             ])
-                            ->default('Abierto')
+                            ->formatStateUsing(fn ($state) => strtolower((string) $state))
+                            ->default('abierto')
                             ->required()
+                            ->live()
                             ->disabled($disableTechnicalFields),
                         Select::make('affected_asset_id')
-                            ->label(fn ($get) => $get('status') === 'Internado'
+                            ->label(fn ($get) => in_array(strtolower((string) $get('status')), ['internado'])
                                 ? 'Activo a Internar al Taller'
                                 : 'Activo con Falla (Entrada / Desvincular)')
                             ->relationship('affectedAsset', 'computer_code', fn ($query, $get, $record) => 
-                                $query->where(function ($q1) use ($get, $record) {
-                                    $q1->whereHas('assignments', fn ($q) => 
-                                        $q->where('user_id', $get('requester_id'))->whereNull('returned_at')
-                                    )->orWhereHas('parent.assignments', fn ($q) => 
-                                        $q->where('user_id', $get('requester_id'))->whereNull('returned_at')
-                                    );
+                                $query->with(['model.brand', 'category'])
+                                    ->where(function ($q1) use ($get, $record) {
+                                        $requesterId = $get('requester_id');
+                                        $officeId = $get('office_id');
 
-                                    if ($record && $record->affected_asset_id) {
-                                        $q1->orWhere('id', $record->affected_asset_id);
-                                    }
-                                })
+                                        $q1->where(function ($sub) use ($requesterId, $officeId) {
+                                            if ($requesterId) {
+                                                $sub->whereHas('assignments', fn ($q) => 
+                                                    $q->where('user_id', $requesterId)->whereNull('returned_at')
+                                                )->orWhereHas('parent.assignments', fn ($q) => 
+                                                    $q->where('user_id', $requesterId)->whereNull('returned_at')
+                                                );
+                                            } elseif ($officeId) {
+                                                $sub->whereHas('assignments', fn ($q) => 
+                                                    $q->where('office_id', $officeId)->whereNull('returned_at')
+                                                )->orWhereHas('parent.assignments', fn ($q) => 
+                                                    $q->where('office_id', $officeId)->whereNull('returned_at')
+                                                );
+                                            }
+                                        });
+
+                                        if ($record && $record->affected_asset_id) {
+                                            $q1->orWhere('id', $record->affected_asset_id);
+                                        }
+                                    })
                             )
-                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->computer_code} - {$record->category->name} (S/N: {$record->serial_number})")
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->select_option_label)
+                            ->getSearchResultsUsing(function (string $search, $get, $record) {
+                                return \App\Models\Asset::query()
+                                    ->where(function ($q1) use ($get, $record) {
+                                        $requesterId = $get('requester_id');
+                                        $officeId = $get('office_id');
+
+                                        $q1->where(function ($sub) use ($requesterId, $officeId) {
+                                            if ($requesterId) {
+                                                $sub->whereHas('assignments', fn ($q) => 
+                                                    $q->where('user_id', $requesterId)->whereNull('returned_at')
+                                                )->orWhereHas('parent.assignments', fn ($q) => 
+                                                    $q->where('user_id', $requesterId)->whereNull('returned_at')
+                                                );
+                                            } elseif ($officeId) {
+                                                $sub->whereHas('assignments', fn ($q) => 
+                                                    $q->where('office_id', $officeId)->whereNull('returned_at')
+                                                )->orWhereHas('parent.assignments', fn ($q) => 
+                                                    $q->where('office_id', $officeId)->whereNull('returned_at')
+                                                );
+                                            }
+                                        });
+
+                                        if ($record && $record->affected_asset_id) {
+                                            $q1->orWhere('id', $record->affected_asset_id);
+                                        }
+                                    })
+                                    ->searchTerms($search)
+                                    ->with(['model.brand', 'category'])
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(fn ($asset) => [$asset->id => $asset->select_option_label])
+                                    ->toArray();
+                            })
                             ->placeholder('Ningún activo asociado')
                             ->searchable()
                             ->preload()
                             ->disabled($disableTechnicalFields),
                         Select::make('replacement_asset_id')
-                            ->label(fn ($get) => $get('status') === 'Internado'
+                            ->label(fn ($get) => in_array(strtolower((string) $get('status')), ['internado'])
                                 ? 'Activo de Préstamo Temporal (mientras está internado)'
                                 : 'Activo de Repuesto (Salida / Asignar)')
                             ->relationship('replacementAsset', 'computer_code', fn ($query, $record) => 
-                                $query->where(function ($q) use ($record) {
-                                    $q->where('status', 'Disponible');
+                                $query->with(['model.brand', 'category'])
+                                    ->where(function ($q) use ($record) {
+                                        $q->where('status', 'Disponible');
 
-                                    if ($record && $record->replacement_asset_id) {
-                                        $q->orWhere('id', $record->replacement_asset_id);
-                                    }
-                                })
+                                        if ($record && $record->replacement_asset_id) {
+                                            $q->orWhere('id', $record->replacement_asset_id);
+                                        }
+                                    })
                             )
-                            ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->computer_code} - {$record->category->name} (S/N: {$record->serial_number})")
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->select_option_label)
+                            ->getSearchResultsUsing(function (string $search, $record) {
+                                return \App\Models\Asset::query()
+                                    ->where(function ($q) use ($record) {
+                                        $q->where('status', 'Disponible');
+
+                                        if ($record && $record->replacement_asset_id) {
+                                            $q->orWhere('id', $record->replacement_asset_id);
+                                        }
+                                    })
+                                    ->searchTerms($search)
+                                    ->with(['model.brand', 'category'])
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(fn ($asset) => [$asset->id => $asset->select_option_label])
+                                    ->toArray();
+                            })
                             ->placeholder('Sin reemplazo / No aplica')
                             ->searchable()
                             ->preload()
@@ -187,13 +287,14 @@ class TicketForm
                         Select::make('root_cause')
                             ->label('Causa Raíz / Código de Cierre')
                             ->options([
-                                'Usuario (Capacitacion)' => 'Falla de usuario (Capacitación / Uso incorrecto)',
-                                'Desgaste / Hardware' => 'Desgaste de equipo (Falla física / Hardware)',
-                                'Bug / Software' => 'Bug de software (Error de programación)',
-                                'Proveedor / Externo' => 'Falla de proveedor (Internet, fluido eléctrico, etc.)',
-                                'Otro' => 'Otro (Especificar en diagnóstico)',
+                                'usuario (capacitacion)' => 'Falla de usuario (Capacitación / Uso incorrecto)',
+                                'desgaste / hardware' => 'Desgaste de equipo (Falla física / Hardware)',
+                                'bug / software' => 'Bug de software (Error de programación)',
+                                'proveedor / externo' => 'Falla de proveedor (Internet, fluido eléctrico, etc.)',
+                                'otro' => 'Otro (Especificar en diagnóstico)',
                             ])
-                            ->required(fn (callable $get) => in_array($get('status'), ['Resuelto', 'Cerrado']))
+                            ->formatStateUsing(fn ($state) => strtolower((string) $state))
+                            ->required(fn (callable $get) => in_array(strtolower((string) $get('status')), ['resuelto', 'cerrado']))
                             ->disabled($disableTechnicalFields),
                         Toggle::make('save_to_knowledge_base')
                             ->label('¿Guardar como artículo en la Base de Conocimiento?')
@@ -226,13 +327,13 @@ class TicketForm
                             ->columnSpanFull()
                             ->placeholder('Describa qué causó realmente el problema técnico...')
                             ->disabled($disableTechnicalFields)
-                            ->required(fn (callable $get) => in_array($get('status'), ['Resuelto', 'Cerrado'])),
+                            ->required(fn (callable $get) => in_array(strtolower((string) $get('status')), ['resuelto', 'cerrado'])),
                         Textarea::make('solution_applied')
                             ->label('Solución Aplicada')
                             ->maxLength(1000)
                             ->columnSpanFull()
                             ->disabled($disableTechnicalFields)
-                            ->required(fn (callable $get) => in_array($get('status'), ['Resuelto', 'Cerrado']))
+                            ->required(fn (callable $get) => in_array(strtolower((string) $get('status')), ['resuelto', 'cerrado']))
                             ->placeholder('Describa detalladamente los pasos realizados para resolver la falla...'),
                     ]),
 

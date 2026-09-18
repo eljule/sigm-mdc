@@ -27,9 +27,33 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Super-Admin Bypass: Administrador Central aprueba implícitamente todos los permisos
+        // Super-Admin Bypass: Administrador Central aprueba implícitamente todos los permisos transversales
         \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
-            return $user->hasRole('Administrador Central') ? true : null;
+            // 1. Si el usuario es Administrador Central (superadmin transversal del municipio)
+            if ($user->allRoles()->where('roles.name', 'Administrador Central')->exists()) {
+                return true;
+            }
+
+            // 2. Si el usuario tiene rol de Administrador en el subsistema activo
+            $currentSubsystemId = app(\Spatie\Permission\PermissionRegistrar::class)->getPermissionsTeamId();
+            if ($currentSubsystemId) {
+                $hasAdminRole = $user->allRoles()
+                    ->where('model_has_roles.subsystem_id', $currentSubsystemId)
+                    ->whereIn('roles.name', [
+                        'Administrador Central',
+                        'Administrador de Helpdesk',
+                        'Administrador de TI',
+                        'Admin-Soporte',
+                        'admin-soporte',
+                    ])
+                    ->exists();
+
+                if ($hasAdminRole) {
+                    return true;
+                }
+            }
+
+            return null;
         });
 
         Event::listen(ServingFilament::class, function () {

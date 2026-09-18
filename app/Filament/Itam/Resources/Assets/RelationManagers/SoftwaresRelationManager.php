@@ -36,7 +36,21 @@ class SoftwaresRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitle(fn ($record) => "{$record->name} (v{$record->version})")
+            ->recordTitle(function ($record): string {
+                $licenseType = match (mb_strtolower((string) $record->license_type, 'UTF-8')) {
+                    'oem' => 'OEM',
+                    'volumen' => 'Volumen',
+                    'suscripción' => 'Suscripción',
+                    'libre' => 'Libre',
+                    'propietaria' => 'Propietaria',
+                    default => $record->license_type ? ucfirst($record->license_type) : '',
+                };
+
+                $version = filled($record->version) ? " (v{$record->version})" : '';
+                $license = filled($licenseType) ? " - [{$licenseType}]" : '';
+
+                return "{$record->name}{$version}{$license}";
+            })
             ->columns([
                 TextColumn::make('name')
                     ->label('Software')
@@ -48,6 +62,14 @@ class SoftwaresRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('license_type')
                     ->label('Tipo de Licencia')
+                    ->formatStateUsing(fn (?string $state): string => match (mb_strtolower((string) $state, 'UTF-8')) {
+                        'oem' => 'OEM',
+                        'volumen' => 'Volumen',
+                        'suscripción' => 'Suscripción',
+                        'libre' => 'Libre',
+                        'propietaria' => 'Propietaria',
+                        default => (string) $state,
+                    })
                     ->sortable(),
                 TextColumn::make('pivot.installed_at')
                     ->label('Fecha de Instalación')
@@ -58,14 +80,17 @@ class SoftwaresRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                AttachAction::make()->label('Vincular Software')
+                AttachAction::make()
                     ->label('Asociar/Instalar Software')
                     ->modalHeading('Asociar licencia de software a este activo')
+                    ->recordSelectSearchColumns(['name', 'version', 'license_type'])
+                    ->preloadRecordSelect()
                     ->form(fn (AttachAction $action): array => [
                         $action->getRecordSelect(),
                         DatePicker::make('installed_at')
                             ->label('Fecha de Instalación')
                             ->default(now())
+                            ->native(false)
                             ->required(),
                     ]),
             ])

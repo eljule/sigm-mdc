@@ -24,10 +24,15 @@
             margin-bottom: 30px;
         }
         .header-logo {
-            font-weight: 700;
-            font-size: 18px;
-            color: #0f172a;
-            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+        }
+        .header-logo img {
+            height: 56px;
+            width: auto;
+            max-width: 260px;
+            object-fit: contain;
+            display: block;
         }
         .header-title {
             text-align: right;
@@ -61,29 +66,35 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        .grid-info {
+                .grid-info {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 12px 24px;
             margin-bottom: 20px;
         }
         .info-item {
             display: flex;
+            align-items: baseline;
             border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
         }
         .info-label {
             font-weight: 600;
-            width: 150px;
+            width: 160px;
+            min-width: 160px;
             color: #475569;
+            font-size: 13.5px;
         }
         .info-value {
             flex-grow: 1;
             color: #0f172a;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            line-height: 1.45;
         }
         .info-item-full {
-            display: flex;
-            flex-direction: column;
             border-bottom: 1px solid #f1f5f9;
             padding-bottom: 12px;
             margin-bottom: 12px;
@@ -91,11 +102,21 @@
         .info-label-full {
             font-weight: 600;
             color: #475569;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            font-size: 13.5px;
         }
         .info-value-full {
             color: #0f172a;
             white-space: pre-wrap;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            line-height: 1.5;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 12px;
         }
         table {
             width: 100%;
@@ -113,9 +134,13 @@
             text-transform: uppercase;
         }
         table td {
-            padding: 10px 12px;
+            padding: 8px 12px;
             border-bottom: 1px solid #e2e8f0;
-            font-size: 13px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            color: #0f172a;
         }
         .signatures {
             display: grid;
@@ -187,7 +212,7 @@
 <body>
 
     <div class="header">
-        <div class="header-logo">Municipalidad de Castilla</div>
+        <div class="header-logo"><img src="{{ asset('images/logo-castilla.png') }}" alt="Municipalidad de Castilla"></div>
         <div class="header-title">
             Mesa de Ayuda (Helpdesk) & ITAM<br>
             Sistema Integrado de Gestión Municipal - SIGM-MDC
@@ -203,15 +228,15 @@
     <div class="grid-info">
         <div class="info-item">
             <div class="info-label">Solicitante:</div>
-            <div class="info-value">{{ $ticket->requester->name }}</div>
+            <div class="info-value">{{ mb_strtoupper($ticket->requester?->name ?? $ticket->user?->name ?? 'N/D', 'UTF-8') }}</div>
         </div>
         <div class="info-item">
             <div class="info-label">Oficina / Dependencia:</div>
-            <div class="info-value">{{ $ticket->office->name }}</div>
+            <div class="info-value">{{ mb_strtoupper($ticket->office?->name ?? 'N/D', 'UTF-8') }}</div>
         </div>
         <div class="info-item">
             <div class="info-label">Título / Asunto:</div>
-            <div class="info-value">{{ $ticket->title }}</div>
+            <div class="info-value">{{ mb_strtoupper($ticket->title ?? '', 'UTF-8') }}</div>
         </div>
         <div class="info-item">
             <div class="info-label">Fecha de Cierre:</div>
@@ -221,26 +246,26 @@
 
     <div class="info-item-full">
         <div class="info-label-full">Descripción del Síntoma:</div>
-        <div class="info-value-full">{{ $ticket->description }}</div>
+        <div class="info-value-full">{{ mb_strtoupper($ticket->description ?? '', 'UTF-8') }}</div>
     </div>
 
     <div class="section-title">2. Diagnóstico y Solución Técnica (Soporte TI)</div>
     <div class="grid-info">
         <div class="info-item">
             <div class="info-label">Categorización Real:</div>
-            <div class="info-value">{{ $ticket->category->name ?? 'N/D' }}</div>
+            <div class="info-value">{{ mb_strtoupper($ticket->category?->name ?? 'N/D', 'UTF-8') }}</div>
         </div>
         <div class="info-item">
             <div class="info-label">Técnico Asignado:</div>
-            <div class="info-value">{{ $ticket->assignee->name ?? 'N/D' }}</div>
+            <div class="info-value">{{ mb_strtoupper($ticket->assignee?->name ?? 'N/D', 'UTF-8') }}</div>
         </div>
         <div class="info-item">
             <div class="info-label">Causa Raíz / Cierre:</div>
-            <div class="info-value">{{ $ticket->root_cause ?? 'N/D' }}</div>
+            <div class="info-value">{{ mb_strtoupper($ticket->root_cause ?? 'N/D', 'UTF-8') }}</div>
         </div>
         <div class="info-item">
             <div class="info-label">Estado del Ticket:</div>
-            <div class="info-value" style="font-weight: bold; color: #16a34a;">{{ $ticket->status }}</div>
+            <div class="info-value" style="font-weight: bold; color: #16a34a;">{{ mb_strtoupper($ticket->status ?? '', 'UTF-8') }}</div>
         </div>
     </div>
 
@@ -251,9 +276,9 @@
                 <div class="info-label">Activo Retirado:</div>
                 <div class="info-value">
                     @if($ticket->affectedAsset)
-                        [{{ $ticket->affectedAsset->computer_code }}] {{ $ticket->affectedAsset->category->name }} (S/N: {{ $ticket->affectedAsset->serial_number }})
+                        [{{ $ticket->affectedAsset->computer_code }}] {{ mb_strtoupper($ticket->affectedAsset->category?->name ?? '', 'UTF-8') }} (S/N: {{ mb_strtoupper($ticket->affectedAsset->serial_number ?? '', 'UTF-8') }})
                     @else
-                        Ninguno / No aplica
+                        NINGUNO / NO APLICA
                     @endif
                 </div>
             </div>
@@ -261,9 +286,9 @@
                 <div class="info-label">Activo de Repuesto:</div>
                 <div class="info-value">
                     @if($ticket->replacementAsset)
-                        [{{ $ticket->replacementAsset->computer_code }}] {{ $ticket->replacementAsset->category->name }} (S/N: {{ $ticket->replacementAsset->serial_number }})
+                        [{{ $ticket->replacementAsset->computer_code }}] {{ mb_strtoupper($ticket->replacementAsset->category?->name ?? '', 'UTF-8') }} (S/N: {{ mb_strtoupper($ticket->replacementAsset->serial_number ?? '', 'UTF-8') }})
                     @else
-                        Ninguno / No aplica
+                        NINGUNO / NO APLICA
                     @endif
                 </div>
             </div>
@@ -272,12 +297,12 @@
 
     <div class="info-item-full">
         <div class="info-label-full">Diagnóstico Técnico Detallado:</div>
-        <div class="info-value-full">{{ $ticket->diagnosis ?? 'Sin diagnóstico registrado.' }}</div>
+        <div class="info-value-full">{{ mb_strtoupper($ticket->diagnosis ?? 'Sin diagnóstico registrado.', 'UTF-8') }}</div>
     </div>
 
     <div class="info-item-full">
         <div class="info-label-full">Solución Técnica Aplicada:</div>
-        <div class="info-value-full">{{ $ticket->solution_applied ?? 'Sin solución registrada.' }}</div>
+        <div class="info-value-full">{{ mb_strtoupper($ticket->solution_applied ?? 'Sin solución registrada.', 'UTF-8') }}</div>
     </div>
 
     @if($ticket->ticketConsumables->count() > 0)
@@ -293,9 +318,9 @@
             <tbody>
                 @foreach($ticket->ticketConsumables as $tc)
                     <tr>
-                        <td><strong>{{ $tc->consumable->name }}</strong></td>
+                        <td><strong>{{ mb_strtoupper($tc->consumable->name, 'UTF-8') }}</strong></td>
                         <td>{{ $tc->quantity }}</td>
-                        <td>{{ $tc->consumable->unit }}</td>
+                        <td>{{ mb_strtoupper($tc->consumable->unit, 'UTF-8') }}</td>
                     </tr>
                 @endforeach
             </tbody>

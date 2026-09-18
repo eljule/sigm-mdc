@@ -37,10 +37,11 @@ class TicketsTable
                             ->sortable(),
                         TextColumn::make('priority')
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                'Alta' => 'danger',
-                                'Media' => 'warning',
-                                'Baja' => 'success',
+                            ->formatStateUsing(fn (?string $state): string => strtoupper((string) $state))
+                            ->color(fn (?string $state): string => match (strtolower((string) $state)) {
+                                'alta' => 'danger',
+                                'media' => 'warning',
+                                'baja' => 'success',
                                 default => 'gray',
                             })
                             ->alignEnd(),
@@ -63,6 +64,8 @@ class TicketsTable
                         TextColumn::make('requester.name')
                             ->label('Solicitante')
                             ->icon('heroicon-o-user')
+                            ->getStateUsing(fn ($record) => $record->requester?->name ?? $record->requester_name ?? 'Responsable de Oficina')
+                            ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8'))
                             ->color('gray')
                             ->size('sm')
                             ->alignEnd(),
@@ -99,11 +102,24 @@ class TicketsTable
                                 default      => '',
                             }),
                         TextColumn::make('assignee.name')
+                            ->label('Técnico Asignado')
                             ->placeholder('Sin asignar')
                             ->icon('heroicon-o-wrench-screwdriver')
+                            ->formatStateUsing(function ($state, $record): string {
+                                if (! $record->assignee) {
+                                    return 'SIN ASIGNAR';
+                                }
+
+                                $username = mb_strtoupper((string) $record->assignee->username, 'UTF-8');
+                                $name = mb_strtoupper((string) $state, 'UTF-8');
+
+                                return "{$username} - {$name}";
+                            })
+                            ->tooltip(fn ($record) => $record->assignee ? "Usuario: " . mb_strtoupper((string) $record->assignee->username, 'UTF-8') . " | Personal: " . mb_strtoupper((string) $record->assignee->name, 'UTF-8') : null)
                             ->color('gray')
                             ->size('sm')
-                            ->alignEnd(),
+                            ->alignEnd()
+                            ->searchable(['name', 'username']),
                     ]),
                     TextColumn::make('sla_expires_at')
                         ->label('Límite SLA')
@@ -147,12 +163,50 @@ class TicketsTable
                         $record->update([
                             'assigned_to' => auth()->id(),
                             'status' => 'en proceso',
+                            'started_at' => now(),
                         ]);
 
                         Notification::make()
                             ->title('Ticket atendido con éxito')
                             ->body('Te has asignado el ticket ' . $record->ticket_code . '.')
                             ->success()
+                            ->send();
+                    }),
+                Action::make('liberar')
+                    ->label('Liberar Atención')
+                    ->button()
+                    ->outlined()
+                    ->color('danger')
+                    ->icon('heroicon-m-arrow-uturn-left')
+                    ->requiresConfirmation()
+                    ->modalHeading('¿Liberar la atención de este ticket?')
+                    ->modalDescription('El ticket volverá al estado "Abierto" y quedará sin técnico asignado para que otro personal de soporte pueda atenderlo.')
+                    ->visible(function ($record): bool {
+                        $statusLower = strtolower($record->status ?? '');
+                        if (in_array($statusLower, ['resuelto', 'cerrado'])) {
+                            return false;
+                        }
+                        // Visible si está en proceso o tiene técnico asignado
+                        $isAssignedOrInProgress = ! empty($record->assigned_to) || in_array($statusLower, ['en proceso', 'en espera', 'esperando terceros', 'internado']);
+                        if (! $isAssignedOrInProgress) {
+                            return false;
+                        }
+                        $user = auth()->user();
+                        if (! $user) return false;
+                        $isAdmin = $user->allRoles()->whereIn('roles.name', ['Administrador Central', 'Administrador de Helpdesk', 'Administrador de TI', 'Admin-Soporte', 'admin-soporte'])->exists();
+                        return $isAdmin || ((int) $user->id === (int) $record->assigned_to);
+                    })
+                    ->action(function ($record) {
+                        $record->update([
+                            'assigned_to' => null,
+                            'status' => 'abierto',
+                            'started_at' => null,
+                        ]);
+
+                        Notification::make()
+                            ->title('Atención liberada')
+                            ->body('El ticket ' . $record->ticket_code . ' ha vuelto a estar disponible para atención.')
+                            ->warning()
                             ->send();
                     }),
                 EditAction::make()

@@ -48,4 +48,12 @@ class Office extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    /**
+     * @return HasMany<Personal, $this>
+     */
+    public function personals(): HasMany
+    {
+        return $this->hasMany(Personal::class);
+    }
 }

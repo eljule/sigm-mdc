@@ -273,10 +273,12 @@
 
                     $user = auth()->user();
                     $canAccessHelpdeskPanel = false;
+                    $canGenerateTickets = true;
 
                     if ($user) {
-                        if ($user->hasRole('Administrador Central')) {
+                        if ($user->allRoles()->where('roles.name', 'Administrador Central')->exists()) {
                             $canAccessHelpdeskPanel = true;
+                            $canGenerateTickets = true;
                         } else {
                             $userRolesInSubsystem = \Illuminate\Support\Facades\DB::table('model_has_roles')
                                 ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
@@ -287,6 +289,16 @@
 
                             $operativeRoles = array_diff($userRolesInSubsystem, ['Usuario Reportante']);
                             $canAccessHelpdeskPanel = !empty($operativeRoles);
+
+                            if ($subsystem->code === 'helpdesk') {
+                                $canGenerateTickets = \Illuminate\Support\Facades\DB::table('model_has_roles')
+                                    ->join('role_has_permissions', 'role_has_permissions.role_id', '=', 'model_has_roles.role_id')
+                                    ->join('permissions', 'permissions.id', '=', 'role_has_permissions.permission_id')
+                                    ->where('model_has_roles.model_id', $user->id)
+                                    ->where('model_has_roles.subsystem_id', $subsystem->id)
+                                    ->where('permissions.name', 'insertar-tickets')
+                                    ->exists();
+                            }
                         }
                     }
                 @endphp
@@ -326,15 +338,17 @@
                                 </a>
                             @endif
 
-                            <a href="{{ url('/soporte') }}"
-                                class="w-full bg-secondary-btn {{ (!$user || $canAccessHelpdeskPanel) ? 'bg-white hover:bg-emerald-50 border border-castilla-600 text-castilla-600' : 'bg-castilla-600 hover:bg-castilla-700 text-white' }} font-semibold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg text-center text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-2">
-                                <span>Generar Ticket de Soporte</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor" stroke-width="2.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </a>
+                            @if(!$user || $canGenerateTickets)
+                                <a href="{{ url('/soporte') }}"
+                                    class="w-full bg-secondary-btn {{ (!$user || $canAccessHelpdeskPanel) ? 'bg-white hover:bg-emerald-50 border border-castilla-600 text-castilla-600' : 'bg-castilla-600 hover:bg-castilla-700 text-white' }} font-semibold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg text-center text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-2">
+                                    <span>Generar Ticket de Soporte</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </a>
+                            @endif
                         @else
                             <a href="{{ url($subsystem->url_path) }}"
                                 class="w-full bg-castilla-600 hover:bg-castilla-700 text-white font-semibold py-2 sm:py-2.5 px-3 sm:px-4 rounded-lg text-center text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-2">

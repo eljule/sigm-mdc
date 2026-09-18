@@ -28,6 +28,11 @@ class Software extends Model
         'max_activations' => 'integer',
     ];
 
+    public function getLicenseTypeAttribute(?string $value): ?string
+    {
+        return $value ? mb_strtolower($value, "UTF-8") : null;
+    }
+
     /**
      * @return BelongsToMany<Asset, $this>
      */

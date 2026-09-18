@@ -28,7 +28,21 @@ class MaintenancesRelationManager extends RelationManager
             ->components([
                 Select::make('asset_id')
                     ->label('Activo Intervenido')
-                    ->relationship('asset', 'computer_code')
+                    ->relationship(
+                        'asset',
+                        'computer_code',
+                        fn ($query) => $query->with(['model.brand', 'category'])
+                    )
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->select_option_label)
+                    ->getSearchResultsUsing(function (string $search) {
+                        return \App\Models\Asset::query()
+                            ->searchTerms($search)
+                            ->with(['model.brand', 'category'])
+                            ->limit(50)
+                            ->get()
+                            ->mapWithKeys(fn ($asset) => [$asset->id => $asset->select_option_label])
+                            ->toArray();
+                    })
                     ->default(fn ($livewire) => $livewire->ownerRecord->affected_asset_id)
                     ->required()
                     ->searchable()

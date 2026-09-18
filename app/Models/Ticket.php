@@ -18,6 +18,8 @@ class Ticket extends Model
         'category_id',
         'user_category',
         'requester_id',
+        'requester_name',
+        'contact_phone',
         'office_id',
         'affected_asset_id',
         'replacement_asset_id',
@@ -52,15 +54,18 @@ class Ticket extends Model
         static::creating(function (Ticket $ticket) {
             // Mapear user_category simplificada a category_id técnica si no se proveyó una
             if (empty($ticket->category_id) && ! empty($ticket->user_category)) {
+                $userCat = mb_strtolower(trim((string) $ticket->user_category), 'UTF-8');
                 $mapping = [
-                    'Equipos/Hardware' => 'Hardware y Computadores',
-                    'Sistemas/Programas' => 'Sistemas Municipales',
-                    'Accesos/Contraseñas' => 'Sistemas Municipales',
-                    'Red/Internet' => 'Red y Conectividad',
+                    'equipos/hardware' => 'hardware y computadores',
+                    'sistemas/programas' => 'sistemas municipales',
+                    'accesos/contraseñas' => 'sistemas municipales',
+                    'accesos/contrasenas' => 'sistemas municipales',
+                    'red/internet' => 'red y conectividad',
+                    'otros' => 'sistemas municipales',
                 ];
 
-                $targetName = $mapping[$ticket->user_category] ?? 'Sistemas Municipales';
-                $category = TicketCategory::where('name', $targetName)->first();
+                $targetName = $mapping[$userCat] ?? 'sistemas municipales';
+                $category = TicketCategory::whereRaw('LOWER(name) = ?', [$targetName])->first();
                 if ($category) {
                     $ticket->category_id = $category->id;
                 } else {
@@ -94,9 +99,12 @@ class Ticket extends Model
         });
 
         static::updating(function (Ticket $ticket) {
+            $statusLower = strtolower((string) $ticket->status);
+            $origStatusLower = strtolower((string) $ticket->getOriginal('status'));
+
             // Revertir consumibles si el ticket estaba Resuelto/Cerrado y cambia a cualquier otro estado abierto
-            if ($ticket->isDirty('status') && ! in_array($ticket->status, ['Resuelto', 'Cerrado'])) {
-                if (in_array($ticket->getOriginal('status'), ['Resuelto', 'Cerrado'])) {
+            if ($ticket->isDirty('status') && ! in_array($statusLower, ['resuelto', 'cerrado'])) {
+                if (in_array($origStatusLower, ['resuelto', 'cerrado'])) {
                     foreach ($ticket->ticketConsumables as $tc) {
                         $tc->consumable->increment('stock', $tc->quantity);
                     }
@@ -104,18 +112,18 @@ class Ticket extends Model
             }
 
             // Descontar consumibles si el ticket cambia a Resuelto/Cerrado
-            if ($ticket->isDirty('status') && in_array($ticket->status, ['Resuelto', 'Cerrado'])) {
-                if (! in_array($ticket->getOriginal('status'), ['Resuelto', 'Cerrado'])) {
+            if ($ticket->isDirty('status') && in_array($statusLower, ['resuelto', 'cerrado'])) {
+                if (! in_array($origStatusLower, ['resuelto', 'cerrado'])) {
                     foreach ($ticket->ticketConsumables as $tc) {
                         $tc->consumable->decrement('stock', $tc->quantity);
                     }
                 }
             }
 
-            if ($ticket->isDirty('status') && in_array($ticket->status, ['En Proceso', 'en_proceso', 'Internado', 'En Espera', 'Esperando Terceros']) && empty($ticket->started_at)) {
+            if ($ticket->isDirty('status') && in_array($statusLower, ['en proceso', 'internado', 'en espera', 'esperando terceros']) && empty($ticket->started_at)) {
                 $ticket->started_at = now();
             }
-            if ($ticket->isDirty('status') && $ticket->status === 'Abierto') {
+            if ($ticket->isDirty('status') && $statusLower === 'abierto') {
                 $ticket->started_at = null;
                 $ticket->assigned_to = null;
                 $ticket->solution_applied = null;
@@ -127,94 +135,100 @@ class Ticket extends Model
                 $ticket->affected_asset_id = null;
                 $ticket->replacement_asset_id = null;
             }
-            if ($ticket->isDirty('status') && $ticket->status === 'Resuelto') {
+            if ($ticket->isDirty('status') && $statusLower === 'resuelto' && empty($ticket->resolved_at)) {
                 $ticket->resolved_at = now();
             }
-            if ($ticket->isDirty('status') && $ticket->status === 'Cerrado') {
+            if ($ticket->isDirty('status') && $statusLower === 'cerrado' && empty($ticket->closed_at)) {
                 $ticket->closed_at = now();
             }
 
             // ─────────────────────────────────────────────────────────────────
-            // LÓGICA DE ACTIVOS EN INVENTARIO
+            // LÓGICA DE ACTIVOS EN INVENTARIO (EVALUACIÓN, REEMPLAZO Y BAJA)
             // ─────────────────────────────────────────────────────────────────
-            // "Internado" → El equipo entra al taller para evaluación profunda.
-            //               El activo pasa a "En Evaluación" y se cierra su asignación.
-            //               Si hay un activo de préstamo, se asigna temporalmente al solicitante.
-            //
-            // "Resuelto"  → Solo actúa si el activo NO está ya en "En Evaluación"
-            //               (evita doble procesamiento cuando el ticket pasó por "Internado").
-            //               Para tickets resueltos directamente (sin internar), funciona igual.
-            //
-            // "Cerrado"   → Solo cierre administrativo. No modifica el inventario.
+            // Estados procesables: "internado", "resuelto", "cerrado"
+            // Se dispara si cambia el estado o si se vincula/actualiza el activo con falla o el de reemplazo.
             // ─────────────────────────────────────────────────────────────────
+            $estadosProcesables = ['internado', 'resuelto', 'cerrado'];
+            $isTerminalOrInternado = in_array($statusLower, $estadosProcesables);
 
-            $debeProcessarActivos =
-                $ticket->isDirty('status') && (
-                    // Caso 1: Internado → siempre procesa
-                    $ticket->status === 'Internado'
-                    ||
-                    // Caso 2: Resuelto → solo si el activo afectado NO está ya en Evaluación
-                    (
-                        $ticket->status === 'Resuelto'
-                        && (function () use ($ticket): bool {
-                            if (! $ticket->affected_asset_id) return true; // sin activo: procesar normalmente
-                            $affected = \App\Models\Asset::find($ticket->affected_asset_id);
-                            // Si ya está En Evaluación, significa que "Internado" ya lo procesó → omitir
-                            return $affected && $affected->status !== 'En Evaluación';
-                        })()
-                    )
-                );
+            $debeProcessarActivos = $isTerminalOrInternado && (
+                $ticket->isDirty('status') ||
+                $ticket->isDirty('affected_asset_id') ||
+                $ticket->isDirty('replacement_asset_id')
+            );
 
-            if ($debeProcessarActivos && $ticket->affected_asset_id) {
-                $affected = $ticket->affectedAsset;
-                if ($affected) {
-                    $parentId = $affected->parent_id;
+            if ($debeProcessarActivos) {
+                $originalParentId = null;
 
-                    // Determinar contexto para la nota
-                    $contexto = $ticket->status === 'Internado'
-                        ? "Internado al taller en Ticket {$ticket->ticket_code}. Pendiente evaluación técnica."
-                        : "Puesto En Evaluación por reemplazo en Ticket {$ticket->ticket_code}. Pendiente dictamen técnico para determinar baja definitiva.";
+                // 1. GESTIÓN DEL ACTIVO AFECTADO (Pase a "En Evaluación" para taller / dictamen)
+                if ($ticket->affected_asset_id) {
+                    $affected = \App\Models\Asset::find($ticket->affected_asset_id);
+                    if ($affected) {
+                        $originalParentId = $affected->parent_id;
+                        $affectedStatus = strtolower((string) $affected->status);
 
-                    // Cambiar estado a En Evaluación
-                    $affected->update([
-                        'status'    => 'En Evaluación',
-                        'parent_id' => null,
-                        'notes'     => trim(($affected->notes ?? '') . "\n" . $contexto),
-                    ]);
+                        // Si no está ya En Evaluación ni dado de baja, pasar a En Evaluación
+                        if (! in_array($affectedStatus, ['en evaluación', 'en evaluacion', 'baja'])) {
+                            $contexto = $statusLower === 'internado'
+                                ? "Internado al taller en Ticket {$ticket->ticket_code}. Pendiente evaluación técnica."
+                                : "Puesto En Evaluación por reemplazo en Ticket {$ticket->ticket_code}. Pendiente dictamen técnico para determinar baja definitiva.";
 
-                    // Finalizar asignación activa del afectado
-                    \App\Models\AssetAssignment::where('asset_id', $affected->id)
-                        ->whereNull('returned_at')
-                        ->update([
-                            'returned_at' => now(),
-                            'notes'       => $ticket->status === 'Internado'
-                                ? "Asignación suspendida por internado del equipo en Ticket {$ticket->ticket_code}"
-                                : "Asignación finalizada por reemplazo en Ticket {$ticket->ticket_code}",
-                        ]);
+                            $affected->update([
+                                'status'    => 'En Evaluación',
+                                'parent_id' => null,
+                                'notes'     => trim(($affected->notes ?? '') . "\n" . $contexto),
+                            ]);
 
-                    // Si hay activo de préstamo/repuesto, asignarlo al solicitante
-                    if ($ticket->replacement_asset_id) {
-                        $replacement = $ticket->replacementAsset;
-                        if ($replacement) {
-                            $esInterno     = $ticket->status === 'Internado';
-                            $notaRepuesto  = $esInterno
-                                ? "Prestado temporalmente mientras {$affected->computer_code} está internado — Ticket {$ticket->ticket_code}"
-                                : "Asignado como reemplazo de {$affected->computer_code} en Ticket {$ticket->ticket_code}";
+                            \App\Models\AssetAssignment::where('asset_id', $affected->id)
+                                ->whereNull('returned_at')
+                                ->update([
+                                    'returned_at' => now(),
+                                    'notes'       => $statusLower === 'internado'
+                                        ? "Asignación suspendida por internado del equipo en Ticket {$ticket->ticket_code}"
+                                        : "Asignación finalizada por reemplazo en Ticket {$ticket->ticket_code}",
+                                ]);
+                        }
+                    }
+                }
+
+                // 2. GESTIÓN DEL ACTIVO DE REEMPLAZO O PRÉSTAMO
+                if ($ticket->replacement_asset_id) {
+                    $replacement = \App\Models\Asset::find($ticket->replacement_asset_id);
+                    if ($replacement) {
+                        $hasActiveAssignment = \App\Models\AssetAssignment::where('asset_id', $replacement->id)
+                            ->whereNull('returned_at')
+                            ->exists();
+
+                        if (! $hasActiveAssignment) {
+                            $esInterno = $statusLower === 'internado';
+                            $notaRepuesto = $esInterno
+                                ? "Prestado temporalmente mientras el equipo afectado está internado — Ticket {$ticket->ticket_code}"
+                                : "Asignado como reemplazo en Ticket {$ticket->ticket_code}";
+
+                            $targetParentId = $originalParentId ?? $ticket->affectedAsset?->parent_id;
 
                             $replacement->update([
-                                'status'   => 'Asignado',
-                                'parent_id' => $parentId,
-                                'notes'    => trim(($replacement->notes ?? '') . "\n" . $notaRepuesto),
+                                'status'    => 'Asignado',
+                                'parent_id' => $targetParentId,
+                                'notes'     => trim(($replacement->notes ?? '') . "\n" . $notaRepuesto),
                             ]);
 
-                            // Crear asignación para el solicitante
-                            \App\Models\AssetAssignment::create([
-                                'asset_id'    => $replacement->id,
-                                'user_id'     => $ticket->requester_id,
-                                'office_id'   => $ticket->office_id,
-                                'assigned_at' => now(),
-                                'notes'       => $notaRepuesto,
-                            ]);
+                            $targetUserId = $ticket->requester_id
+                                ?? \App\Models\AssetAssignment::where('asset_id', $ticket->affected_asset_id)->latest('id')->value('user_id')
+                                ?? auth()->id();
+
+                            $targetOfficeId = $ticket->office_id
+                                ?? \App\Models\AssetAssignment::where('asset_id', $ticket->affected_asset_id)->latest('id')->value('office_id');
+
+                            if ($targetUserId) {
+                                \App\Models\AssetAssignment::create([
+                                    'asset_id'    => $replacement->id,
+                                    'user_id'     => $targetUserId,
+                                    'office_id'   => $targetOfficeId,
+                                    'assigned_at' => now(),
+                                    'notes'       => $notaRepuesto,
+                                ]);
+                            }
                         }
                     }
                 }
@@ -222,7 +236,7 @@ class Ticket extends Model
         });
 
         static::saved(function (Ticket $ticket) {
-            if ($ticket->save_to_knowledge_base && in_array($ticket->status, ['Resuelto', 'Cerrado'])) {
+            if ($ticket->save_to_knowledge_base && in_array(strtolower((string) $ticket->status), ['resuelto', 'cerrado'])) {
                 // Evitar duplicados por título y categoría
                 $exists = KnowledgeBase::where('title', $ticket->title)
                     ->where('category_id', $ticket->category_id)
@@ -255,7 +269,15 @@ class Ticket extends Model
      */
     public function requester(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'requester_id');
+        return $this->belongsTo(User::class, 'requester_id')
+            ->withDefault(function ($user, $ticket) {
+                $user->name = $ticket->requester_name ?? 'Usuario Municipal';
+            });
+    }
+
+    public function getRequesterDisplayNameAttribute(): string
+    {
+        return $this->requester?->name ?? $this->requester_name ?? 'Usuario Municipal';
     }
 
     /**

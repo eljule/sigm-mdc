@@ -112,6 +112,20 @@
                     </div>
                 </div>
 
+                <!-- Estado Físico y Color -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white/60 p-3 rounded-2xl border border-slate-100">
+                        <span class="text-[10px] text-slate-400 uppercase font-semibold block">Estado Físico</span>
+                        <span class="text-xs font-bold uppercase tracking-tight px-2 py-0.5 rounded-full inline-block mt-0.5 {{ match(strtolower($asset->estado ?? 'bueno')) { 'bueno' => 'bg-emerald-100 text-emerald-800', 'regular' => 'bg-amber-100 text-amber-800', 'malo' => 'bg-rose-100 text-rose-800', default => 'bg-slate-100 text-slate-700' } }}">
+                            {{ strtoupper($asset->estado ?? 'BUENO') }}
+                        </span>
+                    </div>
+                    <div class="bg-white/60 p-3 rounded-2xl border border-slate-100">
+                        <span class="text-[10px] text-slate-400 uppercase font-semibold block">Color</span>
+                        <span class="text-sm font-bold text-slate-800 tracking-tight uppercase">{{ $asset->color ?? 'NO ESPECIFICADO' }}</span>
+                    </div>
+                </div>
+
                 <!-- Active Assignment -->
                 @php
                     $activeAssignment = $asset->assignments->whereNull('returned_at')->first();

@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class AssetAssignmentResource extends Resource
 {
@@ -44,6 +45,18 @@ class AssetAssignmentResource extends Resource
     public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
     {
         return auth()->user()?->can('eliminar-asignaciones') ?? false;
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with([
+                'asset.model.brand',
+                'asset.category',
+                'asset.parent',
+                'user',
+                'office',
+            ]);
     }
 
     public static function form(Schema $schema): Schema

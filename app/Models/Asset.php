@@ -22,6 +22,8 @@ class Asset extends Model
         'asset_code',
         'computer_code',
         'serial_number',
+        'color',
+        'estado',
         'status',
         'warranty_expiration',
         'purchase_date',
@@ -58,6 +60,16 @@ class Asset extends Model
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Asset::class, 'parent_id');
+    }
+
+    /**
+     * Alias de relación inversa para Filament AssociateAction
+     *
+     * @return BelongsTo<Asset, $this>
+     */
+    public function asset(): BelongsTo
+    {
+        return $this->parent();
     }
 
     /**
@@ -148,5 +160,67 @@ class Asset extends Model
                   ->orWhere('status', 'disponible');
             })
             ->whereDoesntHave('assignments', fn ($q) => $q->whereNull('returned_at'));
+    }
+
+    /**
+     * Retorna una etiqueta descriptiva para combos y selects.
+     */
+    public function getSelectOptionLabelAttribute(): string
+    {
+        $parts = [];
+        $parts[] = "[{$this->computer_code}]";
+
+        $brand = $this->model?->brand?->name ?? '';
+        $model = $this->model?->name ?? '';
+        $brandModel = trim("{$brand} {$model}");
+        if ($brandModel !== '') {
+            $parts[] = mb_strtoupper($brandModel);
+        }
+
+        if ($this->status) {
+            $parts[] = "(" . mb_strtoupper((string) $this->status) . ")";
+        }
+
+        if ($this->asset_code) {
+            $parts[] = "(PATRIMONIAL: {$this->asset_code})";
+        }
+
+        return implode(' ', $parts);
+    }
+
+    /**
+     * Scope para búsqueda multi-campo y multi-palabra sobre activos
+     * (código TI, código patrimonial, serie, color, estado físico, situación, modelo, marca, categoría).
+     */
+    public function scopeSearchTerms($query, ?string $search)
+    {
+        $search = trim((string) $search);
+        if ($search === '') {
+            return $query;
+        }
+
+        $terms = array_filter(explode(' ', $search));
+
+        return $query->where(function ($q) use ($terms) {
+            foreach ($terms as $term) {
+                $q->where(function ($sub) use ($term) {
+                    $sub->where('computer_code', 'ilike', "%{$term}%")
+                        ->orWhere('asset_code', 'ilike', "%{$term}%")
+                        ->orWhere('serial_number', 'ilike', "%{$term}%")
+                        ->orWhere('color', 'ilike', "%{$term}%")
+                        ->orWhere('estado', 'ilike', "%{$term}%")
+                        ->orWhere('status', 'ilike', "%{$term}%")
+                        ->orWhereHas('model', function ($mq) use ($term) {
+                            $mq->where('name', 'ilike', "%{$term}%")
+                               ->orWhereHas('brand', function ($bq) use ($term) {
+                                   $bq->where('name', 'ilike', "%{$term}%");
+                               });
+                        })
+                        ->orWhereHas('category', function ($cq) use ($term) {
+                            $cq->where('name', 'ilike', "%{$term}%");
+                        });
+                });
+            }
+        });
     }
 }

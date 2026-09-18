@@ -18,6 +18,8 @@ class ComponentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'components';
 
+    protected static ?string $inverseRelationship = 'parent';
+
     protected static ?string $title = 'Componentes / Periféricos Asociados';
 
     public function form(Schema $schema): Schema
@@ -39,6 +41,7 @@ class ComponentsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->inverseRelationship('parent')
             ->recordTitle(fn ($record) => "[{$record->computer_code}] " . ($record->model?->brand?->name ?? '') . " " . ($record->model?->name ?? '') . " (" . ($record->category->name ?? '') . ")")
             ->columns([
                 TextColumn::make('category.name')
@@ -85,14 +88,42 @@ class ComponentsRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                AssociateAction::make()->label('Asociar Componente')
+                AssociateAction::make()
                     ->label('Asociar Componente Existente')
-                    ->modalHeading('Asociar componente a este activo principal'),
+                    ->modalHeading('Asociar componente a este activo principal')
+                    ->after(function ($record, $livewire) {
+                        $parent = $livewire->getOwnerRecord();
+                        if ($parent && in_array(strtolower($parent->status ?? ''), ['asignado', 'Asignado'])) {
+                            $record->update(['status' => 'asignado']);
+                            $parentAssignment = \App\Models\AssetAssignment::where('asset_id', $parent->id)
+                                ->whereNull('returned_at')
+                                ->first();
+                            if ($parentAssignment) {
+                                \App\Models\AssetAssignment::firstOrCreate(
+                                    ['asset_id' => $record->id, 'returned_at' => null],
+                                    [
+                                        'user_id'     => $parentAssignment->user_id,
+                                        'office_id'   => $parentAssignment->office_id,
+                                        'assigned_at' => $parentAssignment->assigned_at,
+                                        'notes'       => "Componente vinculado a equipo principal {$parent->computer_code}",
+                                    ]
+                                );
+                            }
+                        }
+                    }),
             ])
             ->actions([
                 DissociateAction::make()
                     ->label('Desasociar')
-                    ->modalHeading('Desasociar de este activo principal'),
+                    ->modalHeading('Desasociar de este activo principal')
+                    ->after(function ($record) {
+                        \App\Models\AssetAssignment::where('asset_id', $record->id)
+                            ->whereNull('returned_at')
+                            ->update(['returned_at' => now()]);
+                        if (! in_array(strtolower($record->status ?? ''), ['baja', 'mantenimiento', 'en evaluación', 'en evaluacion'])) {
+                            $record->update(['status' => 'disponible']);
+                        }
+                    }),
                 Action::make('print_ficha')
                     ->label('Ficha')
                     ->icon('heroicon-o-printer')

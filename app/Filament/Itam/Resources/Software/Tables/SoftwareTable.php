@@ -25,6 +25,14 @@ class SoftwareTable
                     ->searchable(),
                 TextColumn::make('license_type')
                     ->label('Licencia')
+                    ->formatStateUsing(fn (?string $state): string => match (mb_strtolower((string) $state, 'UTF-8')) {
+                        'oem' => 'OEM',
+                        'volumen' => 'Volumen',
+                        'suscripción' => 'Suscripción',
+                        'libre' => 'Libre',
+                        'propietaria' => 'Propietaria',
+                        default => (string) $state,
+                    })
                     ->sortable(),
                 TextColumn::make('max_activations')
                     ->label('Máx. Activaciones')
@@ -32,7 +40,7 @@ class SoftwareTable
                     ->sortable(),
                 TextColumn::make('expiration_date')
                     ->label('Vencimiento')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable()
                     ->placeholder('N/A'),
             ])

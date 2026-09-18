@@ -205,8 +205,14 @@ class User extends Authenticatable implements FilamentUser
      */
     public function isTiStaff(): bool
     {
-        $userRoles = $this->allRoles->pluck('name')->toArray();
-        $techRoles = ['Administrador Central', 'Administrador de TI', 'Técnico de Soporte'];
+        $userRoles = $this->allRoles->map(fn ($r) => \Illuminate\Support\Str::ascii(mb_strtolower((string) $r->name)))->toArray();
+        $techRoles = [
+            'administrador central',
+            'administrador de ti',
+            'tecnico de soporte',
+            'admin-soporte',
+            'administrador de helpdesk',
+        ];
 
         return count(array_intersect($userRoles, $techRoles)) > 0;
     }

@@ -50,8 +50,8 @@ class EditAsset extends EditRecord
                     Select::make('decommissioned_by')
                         ->label('Técnico Responsable (TI)')
                         ->options(function () {
-                            $techRoles = ['Administrador Central', 'Administrador de TI', 'Técnico de Soporte'];
-                            return \App\Models\User::whereHas('allRoles', fn ($q) => $q->whereIn('name', $techRoles))
+                            return \App\Models\User::all()
+                                ->filter(fn ($u) => $u->isTiStaff())
                                 ->pluck('name', 'id')
                                 ->toArray();
                         })
