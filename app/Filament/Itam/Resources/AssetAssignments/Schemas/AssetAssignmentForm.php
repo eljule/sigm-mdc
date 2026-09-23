@@ -15,6 +15,19 @@ class AssetAssignmentForm
     {
         return $schema
             ->components([
+                \Filament\Forms\Components\Placeholder::make('assignment_status_banner')
+                    ->label('')
+                    ->hidden(fn ($record) => ! $record || ! $record->returned_at)
+                    ->columnSpanFull()
+                    ->content(fn ($record) => new \Illuminate\Support\HtmlString("
+                        <div style='padding: 12px 16px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px; display: flex; align-items: center; gap: 10px;'>
+                            <span style='font-size: 1.25rem;'>📦</span>
+                            <div>
+                                <strong style='color: #b45309;'>ASIGNACIÓN FINALIZADA / DEVUELTA:</strong>
+                                <span style='color: inherit;'> Este registro es histórico. El equipo fue devuelto el <strong>" . ($record->returned_at ? $record->returned_at->format('d/m/Y H:i') : '') . "</strong> y actualmente se encuentra <strong>DISPONIBLE</strong> en el inventario.</span>
+                            </div>
+                        </div>
+                    ")),
                 Select::make('asset_id')
                     ->relationship(
                         'asset',

@@ -233,7 +233,7 @@
     <div class="header">
         <div class="header-logo"><img src="{{ asset('images/logo-castilla.png') }}" alt="Municipalidad de Castilla"></div>
         <div class="header-title">
-            Subgerencia de Informática y Tecnología<br>
+            Oficina de Desarrollo Tecnológico<br>
             Sistema Integrado de Gestión Municipal - SIGM-MDC
         </div>
     </div>
@@ -324,7 +324,7 @@
 
     <div class="terms">
         <strong>TÉRMINOS Y CONDICIONES DE LA ASIGNACIÓN:</strong><br>
-        El servidor municipal firmante declara recibir a su entera conformidad los bienes descritos en la presente acta. Se compromete a custodiar, dar el uso adecuado y exclusivo para funciones laborales al equipo asignado. Cualquier desperfecto técnico o físico debe ser reportado de inmediato a la Subgerencia de Informática y Tecnología. En caso de retiro o reubicación, los bienes deberán ser devueltos en las mismas condiciones operativas en las que fueron entregados.
+        El servidor municipal firmante declara recibir a su entera conformidad los bienes descritos en la presente acta. Se compromete a custodiar, dar el uso adecuado y exclusivo para funciones laborales al equipo asignado. Cualquier desperfecto técnico o físico debe ser reportado de inmediato a la Oficina de Desarrollo Tecnológico. En caso de retiro o reubicación, los bienes deberán ser devueltos en las mismas condiciones operativas en las que fueron entregados.
     </div>
 
     <div class="signatures">

@@ -9,6 +9,11 @@ use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Placeholder;
+use Illuminate\Support\HtmlString;
+use App\Models\AssetAssignment;
+use App\Models\Ticket;
 use Filament\Resources\Pages\EditRecord;
 
 class EditAsset extends EditRecord
@@ -135,60 +140,193 @@ class EditAsset extends EditRecord
                 ->label('Recuperar Activo')
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
-                ->requiresConfirmation()
                 ->modalHeading('Recuperar Activo')
-                ->modalDescription(function () {
-                    $lastAssignment = \App\Models\AssetAssignment::where('asset_id', $this->record->id)
-                        ->whereNotNull('returned_at')
-                        ->orderByDesc('returned_at')
+                ->modalWidth('xl')
+                ->modalSubmitActionLabel('Confirmar Recuperación')
+                ->visible(fn () => in_array(strtolower((string) ($this->record->status ?? '')), ['en evaluación', 'en evaluacion']) && (auth()->user()?->isTiStaff() ?? false))
+                ->form(function () {
+                    $record = $this->record;
+                    $ticket = Ticket::where('affected_asset_id', $record->id)
+                        ->whereNotNull('replacement_asset_id')
+                        ->latest('id')
                         ->first();
 
-                    if ($lastAssignment) {
-                        $user   = $lastAssignment->user?->name ?? "usuario #{$lastAssignment->user_id}";
-                        $office = $lastAssignment->office?->name ?? '';
-                        return "El activo fue evaluado positivamente. Se reactivará su asignación anterior a {$user}" . ($office ? " — {$office}" : '') . " y volverá al estado Asignado.";
-                    }
+                    $replacement = $ticket?->replacementAsset;
+                    $activeReplacementAssignment = $replacement 
+                        ? AssetAssignment::where('asset_id', $replacement->id)->whereNull('returned_at')->latest('id')->first()
+                        : null;
 
-                    return 'El activo fue evaluado positivamente. No tenía asignación previa, por lo que pasará al estado Disponible.';
-                })
-                ->modalSubmitActionLabel('Sí, recuperar activo')
-                ->visible(fn () => in_array(strtolower($this->record->status ?? ''), ['en evaluación', 'en evaluacion']) && (auth()->user()?->isTiStaff() ?? false))
-                ->action(function () {
-                    $asset = $this->record;
+                    $schema = [];
 
-                    $lastAssignment = \App\Models\AssetAssignment::where('asset_id', $asset->id)
-                        ->whereNotNull('returned_at')
-                        ->orderByDesc('returned_at')
-                        ->first();
+                    if ($replacement && $activeReplacementAssignment) {
+                        $repUser = $activeReplacementAssignment->user?->name ?? 'Usuario';
+                        $repOffice = $activeReplacementAssignment->office?->name ?? '';
+                        $parentAsset = $replacement->parent;
+                        $parentCode = $parentAsset ? $parentAsset->computer_code : 'Equipo Principal';
 
-                    if ($lastAssignment) {
-                        $lastAssignment->update([
-                            'returned_at' => null,
-                            'notes'       => trim(($lastAssignment->notes ?? '') . "\nAsignación reactivada por recuperación del activo el " . now()->format('d/m/Y H:i') . '.'),
-                        ]);
-                        $asset->update([
-                            'status' => 'asignado',
-                            'notes'  => trim(($asset->notes ?? '') . "\nActivo recuperado por dictamen técnico el " . now()->format('d/m/Y H:i') . '. Asignación reactivada.'),
-                        ]);
-                        $userName = $lastAssignment->user?->name ?? "usuario #{$lastAssignment->user_id}";
-                        \Filament\Notifications\Notification::make()
-                            ->title("Activo recuperado — Asignado a {$userName}")
-                            ->body('La asignación anterior fue reactivada.')
-                            ->success()
-                            ->send();
+                        $schema[] = Placeholder::make('replacement_info')
+                            ->label('Activo de Reemplazo / Préstamo Detectado')
+                            ->content(new HtmlString("
+                                <div style='padding: 12px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px; font-size: 0.875rem;'>
+                                    <div style='font-weight: 600; margin-bottom: 4px; color: #b45309;'>Ticket de Origen: {$ticket->ticket_code} — {$ticket->title}</div>
+                                    <div style='color: inherit;'>Este activo fue sustituido por <strong>{$replacement->computer_code}</strong>" . ($replacement->model ? " ({$replacement->model->brand?->name} {$replacement->model->name})" : "") . ", asignado actualmente a <strong>{$repUser}</strong>" . ($repOffice ? " — {$repOffice}" : "") . ($parentAsset ? " en el equipo <strong>{$parentAsset->computer_code}</strong>" : "") . ".</div>
+                                </div>
+                            "));
+
+                        $schema[] = Radio::make('resolution_mode')
+                            ->label('¿Qué acción deseas realizar con los activos?')
+                            ->options([
+                                'swap_back' => "Reinstalar en puesto original y devolver reemplazo al almacén (Recomendado)\n• {$record->computer_code} vuelve al usuario y se acopla a {$parentCode}.\n• {$replacement->computer_code} se desasigna y pasa a DISPONIBLE en el almacén.",
+                                'keep_replacement' => "Enviar el activo reparado al almacén (Mantener el reemplazo en el puesto)\n• {$record->computer_code} pasa a DISPONIBLE en el almacén para futuros tickets.\n• {$replacement->computer_code} permanece asignado permanentemente al usuario.",
+                            ])
+                            ->default('swap_back')
+                            ->required();
                     } else {
-                        $asset->update([
-                            'status' => 'disponible',
-                            'notes'  => trim(($asset->notes ?? '') . "\nActivo recuperado y marcado como Disponible por dictamen técnico el " . now()->format('d/m/Y H:i') . '.'),
-                        ]);
-                        \Filament\Notifications\Notification::make()
-                            ->title('Activo recuperado y disponible')
-                            ->body('El activo no tenía asignación previa. Marcado como Disponible.')
-                            ->success()
-                            ->send();
+                        $lastAssignment = AssetAssignment::where('asset_id', $record->id)
+                            ->whereNotNull('returned_at')
+                            ->orderByDesc('returned_at')
+                            ->first();
+
+                        if ($lastAssignment) {
+                            $user = $lastAssignment->user?->name ?? "usuario #{$lastAssignment->user_id}";
+                            $office = $lastAssignment->office?->name ?? '';
+                            $schema[] = Radio::make('resolution_mode')
+                                ->label('Destino del activo recuperado')
+                                ->options([
+                                    'reactivate' => "Reactivar asignación anterior ({$user}" . ($office ? " — {$office}" : "") . ")",
+                                    'to_stock'   => "Pasar al almacén general como DISPONIBLE",
+                                ])
+                                ->default('reactivate')
+                                ->required();
+                        } else {
+                            $schema[] = Placeholder::make('no_prev_assignment')
+                                ->label('Estado')
+                                ->content('El activo no contaba con asignación previa. Al recuperarlo, pasará al estado DISPONIBLE en el inventario.');
+                        }
                     }
 
-                    $this->refreshFormData(['status', 'notes']);
+                    $schema[] = Textarea::make('work_performed')
+                        ->label('Dictamen / Trabajo Realizado (Opcional)')
+                        ->placeholder('Detalle las acciones de reparación o mantenimiento efectuadas...')
+                        ->rows(3);
+
+                    return $schema;
+                })
+                ->action(function (array $data) {
+                    $record = $this->record;
+                    $mode = $data['resolution_mode'] ?? 'to_stock';
+                    $workNotes = ! empty($data['work_performed']) ? "\nTrabajo realizado: {$data['work_performed']}" : '';
+
+                    $ticket = Ticket::where('affected_asset_id', $record->id)
+                        ->whereNotNull('replacement_asset_id')
+                        ->latest('id')
+                        ->first();
+
+                    $replacement = $ticket?->replacementAsset;
+
+                    if ($mode === 'swap_back' && $replacement) {
+                        $targetParentId = $replacement->parent_id;
+
+                        // 1. Liberar el activo de reemplazo y regresarlo a DISPONIBLE
+                        AssetAssignment::where('asset_id', $replacement->id)
+                            ->whereNull('returned_at')
+                            ->update([
+                                'returned_at' => now(),
+                                'notes'       => trim(($replacement->notes ?? '') . "\nDevuelto al almacén por retorno del activo original {$record->computer_code} reparado en Ticket {$ticket->ticket_code} el " . now()->format('d/m/Y H:i') . '.'),
+                            ]);
+
+                        $replacement->update([
+                            'status'    => 'disponible',
+                            'parent_id' => null,
+                            'notes'     => trim(($replacement->notes ?? '') . "\nLiberado y marcado como Disponible tras recuperación de {$record->computer_code}."),
+                        ]);
+
+                        // 2. Reactivar la asignación de $record
+                        $lastAssignment = AssetAssignment::where('asset_id', $record->id)
+                            ->whereNotNull('returned_at')
+                            ->orderByDesc('returned_at')
+                            ->first();
+
+                        if ($lastAssignment) {
+                            $lastAssignment->update([
+                                'returned_at' => null,
+                                'notes'       => trim(($lastAssignment->notes ?? '') . "\nAsignación reactivada por retorno del activo reparado el " . now()->format('d/m/Y H:i') . '.' . $workNotes),
+                            ]);
+                        } else {
+                            $targetUser = $ticket->requester_id ?? $ticket->office?->users()->first()?->id ?? auth()->id();
+                            AssetAssignment::create([
+                                'asset_id'    => $record->id,
+                                'user_id'     => $targetUser,
+                                'office_id'   => $ticket->office_id,
+                                'assigned_at' => now(),
+                                'notes'       => "Asignación reactivada tras reparación en Ticket {$ticket->ticket_code}." . $workNotes,
+                            ]);
+                        }
+
+                        $record->update([
+                            'status'    => 'asignado',
+                            'parent_id' => $targetParentId,
+                            'notes'     => trim(($record->notes ?? '') . "\nActivo recuperado y reinstalado en su puesto original el " . now()->format('d/m/Y H:i') . '.' . $workNotes),
+                        ]);
+
+                        $this->refreshFormData(['status', 'notes', 'parent_id']);
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Activo Reinstalado y Reemplazo Liberado')
+                            ->body("{$record->computer_code} ha vuelto a su puesto asignado. {$replacement->computer_code} ahora está DISPONIBLE.")
+                            ->success()
+                            ->send();
+
+                    } elseif ($mode === 'keep_replacement' || $mode === 'to_stock') {
+                        $record->update([
+                            'status'    => 'disponible',
+                            'parent_id' => null,
+                            'notes'     => trim(($record->notes ?? '') . "\nActivo recuperado por dictamen técnico y enviado al almacén como Disponible el " . now()->format('d/m/Y H:i') . '.' . $workNotes),
+                        ]);
+
+                        $this->refreshFormData(['status', 'notes', 'parent_id']);
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Activo Recuperado como Disponible')
+                            ->body("{$record->computer_code} está ahora disponible en el inventario general.")
+                            ->success()
+                            ->send();
+
+                    } elseif ($mode === 'reactivate') {
+                        $lastAssignment = AssetAssignment::where('asset_id', $record->id)
+                            ->whereNotNull('returned_at')
+                            ->orderByDesc('returned_at')
+                            ->first();
+
+                        if ($lastAssignment) {
+                            $lastAssignment->update([
+                                'returned_at' => null,
+                                'notes'       => trim(($lastAssignment->notes ?? '') . "\nAsignación reactivada por recuperación el " . now()->format('d/m/Y H:i') . '.' . $workNotes),
+                            ]);
+                            $record->update([
+                                'status' => 'asignado',
+                                'notes'  => trim(($record->notes ?? '') . "\nActivo recuperado el " . now()->format('d/m/Y H:i') . '.' . $workNotes),
+                            ]);
+                            \Filament\Notifications\Notification::make()
+                                ->title('Activo Recuperado')
+                                ->body('La asignación previa ha sido reactivada.')
+                                ->success()
+                                ->send();
+                        } else {
+                            $record->update([
+                                'status'    => 'disponible',
+                                'parent_id' => null,
+                                'notes'     => trim(($record->notes ?? '') . "\nActivo recuperado el " . now()->format('d/m/Y H:i') . '.' . $workNotes),
+                            ]);
+                            Notification::make()
+                                ->title('Activo Disponible')
+                                ->body('El activo no tenía asignación previa. Marcado como Disponible.')
+                                ->success()
+                                ->send();
+                        }
+
+                        $this->refreshFormData(['status', 'notes', 'parent_id']);
+                    }
                 }),
 
             DeleteAction::make(),

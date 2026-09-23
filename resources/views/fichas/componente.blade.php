@@ -237,7 +237,7 @@
     <div class="header">
         <div class="header-logo"><img src="{{ asset('images/logo-castilla.png') }}" alt="Municipalidad de Castilla"></div>
         <div class="header-title">
-            Subgerencia de Informática y Tecnología<br>
+            Oficina de Desarrollo Tecnológico<br>
             Sistema Integrado de Gestión Municipal - SIGM-MDC
         </div>
     </div>
@@ -301,7 +301,7 @@
     <div class="signatures">
         <div class="signature-block">
             <div class="signature-line">Firma del Especialista TI</div>
-            <div class="signature-title">Subgerencia de Informática y Tecnología</div>
+            <div class="signature-title">Oficina de Desarrollo Tecnológico</div>
         </div>
     </div>
 

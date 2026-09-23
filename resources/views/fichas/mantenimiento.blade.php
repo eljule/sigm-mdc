@@ -222,7 +222,7 @@
     <div class="header">
         <div class="header-logo"><img src="{{ asset('images/logo-castilla.png') }}" alt="Municipalidad de Castilla"></div>
         <div class="header-title">
-            Subgerencia de Informática y Tecnología<br>
+            Oficina de Desarrollo Tecnológico<br>
             Sistema Integrado de Gestión Municipal - SIGM-MDC
         </div>
     </div>

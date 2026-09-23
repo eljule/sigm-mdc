@@ -106,10 +106,19 @@ class AssetAssignmentsTable
                     ->toggleable(),
                 TextColumn::make('returned_at')
                     ->label('Fecha Devolución')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
-                    ->placeholder('Activo actualmente')
+                    ->placeholder('En posesión activa')
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('status_assignment')
+                    ->label('Estado')
+                    ->badge()
+                    ->state(fn ($record) => $record->returned_at ? 'DEVUELTA' : 'ACTIVA')
+                    ->color(fn ($state) => $state === 'ACTIVA' ? 'success' : 'gray')
+                    ->icon(fn ($state) => $state === 'ACTIVA' ? 'heroicon-m-check-circle' : 'heroicon-m-arrow-path')
+                    ->sortable(query: function ($query, string $direction) {
+                        $query->orderByRaw("CASE WHEN asset_assignments.returned_at IS NULL THEN 0 ELSE 1 END {$direction}");
+                    }),
             ])
             ->filters([
                 SelectFilter::make('office_id')
@@ -123,9 +132,10 @@ class AssetAssignmentsTable
                     ->preload(),
                 TernaryFilter::make('is_active')
                     ->label('Estado de Asignación')
-                    ->placeholder('Todas')
-                    ->trueLabel('Activa (No devuelta)')
-                    ->falseLabel('Devuelta')
+                    ->placeholder('Todas las asignaciones')
+                    ->trueLabel('Solo Activas')
+                    ->falseLabel('Devueltas / Historial')
+                    ->default(true)
                     ->queries(
                         true: fn ($query) => $query->whereNull('asset_assignments.returned_at'),
                         false: fn ($query) => $query->whereNotNull('asset_assignments.returned_at'),
